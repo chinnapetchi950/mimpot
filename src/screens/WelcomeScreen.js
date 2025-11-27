@@ -20,7 +20,7 @@ export default function WelcomeScreen({ navigation }) {
         <Text style={styles.primaryText}>Log In</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={()=> alert('Create account')}>
+      <TouchableOpacity onPress={()=> navigation.navigate('Signup')}>
         <Text style={styles.link}>Create an account</Text>
       </TouchableOpacity>
 
