@@ -1,16 +1,10 @@
-// navigation/RootNavigator.js
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import BottomTabs from './BottomTabs';
-import DetailsScreen from '../screens/DetailsScreen'; // placeholder for push navigation
+// navigationRef.js
+import { createNavigationContainerRef } from '@react-navigation/native';
 
-const Stack = createNativeStackNavigator();
+export const navigationRef = createNavigationContainerRef();
 
-export default function RootNavigator() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={BottomTabs} />
-      <Stack.Screen name="Details" component={DetailsScreen} />
-    </Stack.Navigator>
-  );
+export function navigate(name, params) {
+  if (navigationRef.isReady()) {
+    navigationRef.navigate(name, params);
+  }
 }

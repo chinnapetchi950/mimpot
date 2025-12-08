@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, FlatList, TouchableOpacity,StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FeatureSlide from '../components/FeatureSlide';
-import theme from '../styles/theme';
+import { colors } from '../styles/theme';;
 const { width } = Dimensions.get('window');
 
 const slides = [
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   footer:{flexDirection:'row', alignItems:'center', justifyContent:'space-between', padding:20,backgroundColor:'#fff'},
   dots:{flexDirection:'row', alignItems:'center', gap:8},
   dot:{width:8,height:8, borderRadius:4, borderWidth:1, borderColor:'#8fbfdd', marginRight:8},
-  activeDot:{width:12, height:12, borderRadius:6, backgroundColor: theme.colors.primary, borderWidth:0},
-  getStarted:{backgroundColor:theme.colors.primary, paddingVertical:12, paddingHorizontal:22, borderRadius:24},
+  activeDot:{width:12, height:12, borderRadius:6, backgroundColor: colors.primary, borderWidth:0},
+  getStarted:{backgroundColor:colors.primary, paddingVertical:12, paddingHorizontal:22, borderRadius:24},
   getText:{color:'#fff',fontSize:16, fontWeight:'700'}
 });

@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../store/userSlice';
-import theme from '../styles/theme';
+import { colors } from '../styles/theme';;
 import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
 import DividerOr from '../components/DividerOr';
@@ -36,7 +36,7 @@ password_confirmation: Yup.string()
     .required("ID number is required"),
 });
 
-export default function SignupScreen() {
+export default function SignupScreen({navigation}) {
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -66,7 +66,7 @@ Alert.alert(
       onPress: () => {
         console.log("OK Pressed");
         // 👉 navigate or perform action here
-        navigation.navigate(Login);  // example
+        navigation.navigate("Login");  // example
       }
     }
   ]
@@ -214,13 +214,13 @@ Alert.alert(
                 {loading && (
                   <ActivityIndicator
                     size="large"
-                    color={theme.colors.primary}
+                    color={colors.primary}
                     style={{ marginTop: 12 }}
                   />
                 )}
 
                 {/* LOGIN LINK */}
-                <TouchableOpacity onPress={navigation.navigate('Login')} style={styles.loginLink}>
+                <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.loginLink}>
                   <Text style={styles.loginText}>Log in</Text>
                 </TouchableOpacity>
 
@@ -305,12 +305,12 @@ Alert.alert(
 
 //   checkboxTick: {
 //     flex: 1,
-//     backgroundColor: theme.colors.primary,
+//     backgroundColor: colors.primary,
 //     borderRadius: 2
 //   },
 
 //   termText: { flex: 1, marginLeft: 12, color: '#333', lineHeight: 20 },
-//   link: { color: theme.colors.primary },
+//   link: { color: colors.primary },
 
 //   loginLink: { marginTop: 10, alignItems: 'center' },
 //   loginText: { color: '#111', fontSize: 16 },
@@ -346,9 +346,9 @@ const styles = StyleSheet.create({
 
   termRow:{ flexDirection:'row', alignItems:'flex-start', marginTop:8 },
   checkbox:{ width:22, height:22, borderWidth:1, borderColor:'#cfcfcf', borderRadius:4, marginTop:4 },
-  checkboxTick:{ flex:1, backgroundColor: theme.colors.primary, borderRadius:2 },
+  checkboxTick:{ flex:1, backgroundColor: colors.primary, borderRadius:2 },
   termText:{ flex:1, marginLeft:12, color:'#333', lineHeight:20 },
-  link:{ color: theme.colors.primary },
+  link:{ color: colors.primary },
 
   loginLink:{ marginTop:10, alignItems:'center' },
   loginText:{ color:'#111', fontSize:16 },

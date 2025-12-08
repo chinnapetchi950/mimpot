@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions,ImageBackground } from 'react-native';
-import theme from '../styles/theme';
+import { colors } from '../styles/theme';;
 // import { ImageBackground } from 'react-native/types_generated/index';
 const { width, height } = Dimensions.get('window');
 

@@ -1,5 +1,7 @@
-const theme = {
-  colors: {
+
+import { StyleSheet } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+export const colors = {
     primary: '#3EA7DE',
     text: '#222',
     background: '#fff',
@@ -8,7 +10,9 @@ const theme = {
     muted: '#6B7280',
     card: '#FFFFFF',
     bg: '#F7F8FA',
-  },
+  }
+export const theme = {
+ 
   spacing: {
     xs:8, sm:12, md:16, lg:24
   },
@@ -20,7 +24,31 @@ const theme = {
   }
 };
 
-export default theme;
+// export default theme;
+
+
+
+export const common = StyleSheet.create({
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  rowStart: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  card: {
+    backgroundColor: theme.background,
+    borderRadius: 15,
+    padding: wp("4%"),
+    marginTop: hp("1.5%"),
+  },
+  title: {
+    fontSize: wp("4.5%"),
+    fontWeight: "700",
+  },
+});
 
 // export default {
 //   colors: {

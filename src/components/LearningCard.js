@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-export default function LearningCard({ item }) {
+export default function LearningCard({ item,onPress }) {
+  const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/';
   return (
-    <View style={styles.wrap}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+    <TouchableOpacity onPress={()=>onPress()} style={styles.wrap}>
+      <Image source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
       <TouchableOpacity style={styles.play}>
         <Text style={{ fontSize: 18, color: '#fff' }}>▶</Text>
       </TouchableOpacity>
@@ -13,7 +14,7 @@ export default function LearningCard({ item }) {
         <Text style={styles.by}>{item.author}</Text>
         <Text numberOfLines={2} style={styles.desc}>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

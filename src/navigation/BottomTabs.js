@@ -93,7 +93,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import Feather from 'react-native-vector-icons/Feather';
 
 import HomeScreen from '../screens/HomeScreen';
 import TaxLawScreen from '../screens/TaxLawScreen';
@@ -104,26 +104,30 @@ import SettingsScreen from '../screens/SettingsScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
-
+  
   const renderTab = (icon, label, focused) => (
     <View
       style={{
+        width: 70,
+        height: 65,
+        backgroundColor: focused ? '#2da9ff' : '#EEEEEE',
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        width: 70,          // FIX: keeps every tab icon+text aligned
+        marginTop:40
       }}
     >
-      <Icon
+      <Feather
         name={icon}
         size={20}
-        color={focused ? '#2da9ff' : '#bdbdbd'}
+        color={focused ? '#fff' : '#787878'}
       />
 
       <Text
         style={{
-          fontSize: 10.5,
-          marginTop: 2,
-          color: focused ? '#2da9ff' : '#bdbdbd',
+          fontSize: 11,
+          marginTop: 4,
+          color: focused ? '#fff' : '#787878',
         }}
         numberOfLines={1}
       >
@@ -138,23 +142,21 @@ export default function BottomTabs() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          height: Platform.OS === 'android' ? 60 : 80,
-          paddingBottom: Platform.OS === 'ios' ? 18 : 8,
-          paddingTop: 8,
-          backgroundColor: 'white',
+          height: 90,
+          //backgroundColor: '#0000001A',
           borderTopWidth: 0,
-          elevation: 10,
-          shadowColor: '#000',
-          shadowOpacity: 0.1,
-          shadowRadius: 5,
-        }
+         // elevation: 0,
+          shadowOpacity: 0,
+          // paddingBottom: 10,
+          // paddingTop: 10,
+        },
       }}
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTab("home", "Home", focused)
+          tabBarIcon: ({ focused }) => renderTab('home', 'Home', focused)
         }}
       />
 
@@ -162,7 +164,7 @@ export default function BottomTabs() {
         name="TaxLaw"
         component={TaxLawScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTab("book-open", "Tax Law", focused)
+          tabBarIcon: ({ focused }) => renderTab('book-open', 'Tax Law', focused)
         }}
       />
 
@@ -170,7 +172,7 @@ export default function BottomTabs() {
         name="Explore"
         component={ExploreScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTab("grid", "Explore", focused)
+          tabBarIcon: ({ focused }) => renderTab('search', 'Explore', focused)
         }}
       />
 
@@ -178,7 +180,7 @@ export default function BottomTabs() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTab("user", "Profile", focused)
+          tabBarIcon: ({ focused }) => renderTab('user', 'Profile', focused)
         }}
       />
 
@@ -186,7 +188,7 @@ export default function BottomTabs() {
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ focused }) => renderTab("settings", "Settings", focused)
+          tabBarIcon: ({ focused }) => renderTab('settings', 'Settings', focused)
         }}
       />
     </Tab.Navigator>

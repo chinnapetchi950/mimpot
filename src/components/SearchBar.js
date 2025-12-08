@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import theme from '../styles/theme';
+import { colors } from '../styles/theme';;
 
 export default function SearchBar() {
   return (
@@ -11,7 +11,7 @@ export default function SearchBar() {
         <TextInput placeholder="Search laws, articles, or advice..." style={styles.input} />
       </View>
       <TouchableOpacity style={styles.filter}>
-        <Ionicons name="filter" size={18} color={theme.colors.primary} />
+        <Ionicons name="filter" size={18} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -19,7 +19,7 @@ export default function SearchBar() {
 
 const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, marginTop: 12 },
-  search: { flex: 1, backgroundColor: '#fff', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', elevation: 2 },
-  input: { marginLeft: 8, fontSize: 15, color: theme.colors.text, flex: 1 },
+  search: { flex: 1, backgroundColor: '#fff', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', elevation: 2 },
+  input: { marginLeft: 8, fontSize: 15, color: colors.text, flex: 1 },
   filter: { marginLeft: 12, backgroundColor: '#fff', padding: 10, borderRadius: 10, elevation: 2 }
 });

@@ -1,0 +1,74 @@
+import React, { useEffect, useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { WebView } from "react-native-webview";
+import CustomHeader from "../components/CustomHeader";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { common } from "../styles/theme";
+import { authService } from "../api/authService";
+
+const AboutusScreen = ({ navigation }) => {
+  const [html, setHtml] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const res = await authService.aboutUs();
+      let data = res?.data?.data?.fields?.description?.value || "";
+
+      // Remove escaped slashes if any
+      data = data.replace(/\\/g, "");
+
+      setHtml(data);
+    } catch (err) {
+      setHtml("<p>Error loading content</p>");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <View style={[common.screen, { flex: 1 }]}>
+      <CustomHeader
+        title="About Us"
+        leftComponent={
+          <Ionicons
+            name="arrow-back"
+            size={26}
+            color="#000"
+            onPress={() => navigation.goBack()}
+          />
+        }
+      />
+
+      {loading ? (
+        <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+      ) : (
+        <WebView
+          originWhitelist={["*"]}
+          javaScriptEnabled
+          domStorageEnabled
+          style={{ flex: 1 }}
+          source={{
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="font-size:16px; padding:16px; line-height:24px;">
+                  ${html}
+                </body>
+              </html>
+            `,
+          }}
+        />
+      )}
+    </View>
+  );
+};
+
+export default AboutusScreen;

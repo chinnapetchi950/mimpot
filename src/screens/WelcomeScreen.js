@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import theme from '../styles/theme';
+import { colors } from '../styles/theme';;
 
 export default function WelcomeScreen({ navigation }) {
   return (
@@ -35,10 +35,10 @@ const styles = StyleSheet.create({
   logoBg:{width:220, height:220, borderRadius:24, opacity:0.9},
   logoCard:{position:'absolute', top:30, width:140, height:140, borderRadius:18, backgroundColor:'#f2f2f2', alignItems:'center', justifyContent:'center'},
   logo:{width:100, height:100},
-  appTitle:{color:theme.colors.primary, fontSize:28, fontWeight:'700', marginTop:12},
+  appTitle:{color:colors.primary, fontSize:28, fontWeight:'700', marginTop:12},
   subtitle:{fontSize:16, color:'#1D1D1D', marginTop:8},
-  primary:{backgroundColor:theme.colors.primary, paddingVertical:14, paddingHorizontal:60, borderRadius:28, marginTop:74},
+  primary:{backgroundColor:colors.primary, paddingVertical:14, paddingHorizontal:60, borderRadius:28, marginTop:74},
   primaryText:{color:'#fff', fontWeight:'700', fontSize:18},
   link:{marginTop:14, fontSize:16, color:'#1D1D1D'},
-  footer:{position:'absolute', bottom:40, color:theme.colors.primary, fontSize:19}
+  footer:{position:'absolute', bottom:40, color:colors.primary, fontSize:19}
 });

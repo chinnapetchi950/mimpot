@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import theme from '../styles/theme';
+//import { colors } from '../styles/theme';;
+import { colors } from '../styles/theme';
 
 export default function PrimaryButton({ title, onPress }) {
   return (
@@ -11,6 +12,6 @@ export default function PrimaryButton({ title, onPress }) {
 }
 
 const styles = StyleSheet.create({
-  btn:{backgroundColor: theme.colors.primary, paddingVertical:14, borderRadius:28, alignItems:'center', marginTop:12},
+  btn:{backgroundColor:colors.primary, paddingVertical:14, borderRadius:28, alignItems:'center', marginTop:12},
   text:{color:'#fff', fontWeight:'700', fontSize:16}
 });

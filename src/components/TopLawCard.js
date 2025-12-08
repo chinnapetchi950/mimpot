@@ -1,13 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
 const { width } = Dimensions.get('window');
 
-export default function TopLawCard({ item }) {
+export default function TopLawCard({ item ,onPress }) {
+  //  console.log("item---->",item);
+  const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
+  
+
   return (
-    <View style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={styles.badge}><Text style={styles.badgeText}>{item.title}</Text></View>
-    </View>
+    <TouchableOpacity onPress={()=>onPress()} style={styles.card}>
+      <Image source={{ uri: `${BASE_URL}${item.image}` }}  
+      style={styles.image} />
+      <View style={styles.badge}><Text style={styles.badgeText}>{item.name}</Text></View>
+    </TouchableOpacity>
   );
 }
 
