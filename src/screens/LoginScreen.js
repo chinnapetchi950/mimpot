@@ -84,7 +84,7 @@ const [showPassword, setShowPassword] = useState(false);
       Alert.alert("Success", "Logged in successfully!");
       navigation.replace("MainTabs");
     } catch (e) {
-      console.log("Login ERROR:", e.response?.data || e);
+      console.log("Login ERROR:", e.response || e);
       Alert.alert("Login failed", e.response?.data?.message || "Something went wrong");
     } finally {
       setSubmitting(false);

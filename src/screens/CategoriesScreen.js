@@ -79,6 +79,10 @@ export default function CategoriesScreen({ navigation }) {
         renderItem={({ item }) => (
           <CategoryCard
             item={item}
+            onPress={(selectedItem) => {
+    console.log("Card clicked:", item);
+    navigation.navigate("TaxRegulation", { name:item?.name,categoryId: item.id });
+  }}
             //onPress={() => navigation.navigate("LearningHub", { category: item })}
           />
         )}

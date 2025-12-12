@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-export default function NewsCard({ item }) {
+export default function NewsCard({ item,onPress }) {
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} style={styles.card}>
       <Image source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
       <View style={styles.body}>
         <Text style={styles.title}>{item.title}</Text>
@@ -17,7 +17,7 @@ export default function NewsCard({ item }) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

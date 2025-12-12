@@ -1,188 +1,350 @@
-import React,{useEffect,useState}from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList, Image, Dimensions, StatusBar,TouchableOpacity,ActivityIndicator } from 'react-native';
-import { colors } from '../styles/theme';;
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  StatusBar,
+  Dimensions
+} from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '../styles/theme';
+
 import SearchBar from '../components/SearchBar';
 import TopLawCard from '../components/TopLawCard';
 import CategoryCard from '../components/CategoryCard';
 import LearningCard from '../components/LearningCard';
 import QuickAccessCard from '../components/QuickAccessCard';
 import NewsCard from '../components/NewsCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { authService } from '../api/authService';
-import { useSelector,useDispatch } from 'react-redux';
-import Ionicons from "react-native-vector-icons/Ionicons";
-import CustomHeader from '../components/CustomHeader';
+
 import Storage from '../utils/storage';
-import { setUser,setToken } from '../store/userSlice';
+import CustomHeader from '../components/CustomHeader';
+
+import { authService } from '../api/authService';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser, setToken } from '../store/userSlice';
+
 const { width } = Dimensions.get('window');
 
 
+/* --------------------------------------------
+    ⭐ GLOBAL SEARCH KEYWORDS  
+----------------------------------------------*/
+const globalSearchList = [
+  { key: "tax", screen: "TaxRegulation", params: { categoryId: 1 } },
+  { key: "gst", screen: "TaxRegulation", params: { categoryId: 2 } },
+  { key: "income tax", screen: "TaxRegulation", params: { categoryId: 3 } },
 
-const categorieslist = [
-  { id: 'c1', title: 'Civil Laws', icon: 'https://picsum.photos/60?random=11' },
-  { id: 'c2', title: 'Criminal Laws', icon: 'https://picsum.photos/60?random=12' },
-  { id: 'c3', title: 'Business & Corporate', icon: 'https://picsum.photos/60?random=13' },
-  { id: 'c4', title: 'International Laws', icon: 'https://picsum.photos/60?random=14' },
-  { id: 'c5', title: 'Constitutional Laws', icon: 'https://picsum.photos/60?random=15' },
+  { key: "legal category", screen: "CategoriesScreen" },
+  { key: "category", screen: "CategoriesScreen" },
+
+  { key: "learning", screen: "LearningHubScreen" },
+  { key: "learning hub", screen: "LearningHubScreen" },
+
+  { key: "news", screen: "NewsScreen" },
+  { key: "latest news", screen: "NewsScreen" },
+
+  { key: "bookmarked", screen: "QuickActionsScreen", params: { title: "Bookmarked" }},
+  { key: "downloaded", screen: "QuickActionsScreen", params: { title: "Downloaded" }},
+  { key: "recently viewed", screen: "QuickActionsScreen", params: { title: "Recently Viewed" }},
 ];
 
 
+export default function HomeScreen({ navigation }) {
 
-  
-
-  
-
-export default function HomeScreen({navigation}) {
   const [topLawData, setTopLawData] = useState([]);
- const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [learning, setLearning] = useState([]);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
- const dispatch=useDispatch()
-const { user, token } = useSelector(state => state.user);
-console.log(user?.user, "Redux user data");//console.log(user,"data");
-useEffect(() => {
-  const checkAuth = async () => {
-    const storedUser = await Storage.getItem("userData");
-    const storedToken = await Storage.getItem("token");
 
-    dispatch(setUser(storedUser));
-    dispatch(setToken(storedToken));
+  const [searchText, setSearchText] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+
+  const dispatch = useDispatch();
+  const { user, token } = useSelector(state => state.user);
+
+  /* -------------------------------------------------------
+        LOAD USER DETAILS FROM STORAGE
+  -------------------------------------------------------*/
+  useEffect(() => {
+    const checkAuth = async () => {
+      const storedUser = await Storage.getItem("userData");
+      const storedToken = await Storage.getItem("token");
+
+      dispatch(setUser(storedUser));
+      dispatch(setToken(storedToken));
+    };
+
+    checkAuth();
+  }, []);
+
+
+  /* -------------------------------------------------------
+      GLOBAL SEARCH SUGGESTION HANDLER
+  -------------------------------------------------------*/
+  const handleTextChange = (text) => {
+    setSearchText(text);
+
+    if (text.trim() === "") {
+      setSuggestions([]);
+      return;
+    }
+
+    const filtered = globalSearchList.filter(item =>
+      item.key.toLowerCase().includes(text.toLowerCase())
+    );
+
+    setSuggestions(filtered);
   };
 
-  checkAuth();
-}, []);  // only once
 
+  /* -------------------------------------------------------
+      API FORMATTER
+  -------------------------------------------------------*/
   const formatTopLawData = (exploreTaxLaws) => {
-  if (!exploreTaxLaws || !exploreTaxLaws.category) return [];
+    if (!exploreTaxLaws || !exploreTaxLaws.category) return [];
 
-  const { category, documents } = exploreTaxLaws;
+    const { category, documents } = exploreTaxLaws;
+    return documents.map((doc) => ({
+      id: doc.id.toString(),
+      title: doc.title,
+      image: doc.image
+        ? `http://testlink2.pillersofttechnologies.com/storage/${doc.image}`
+        : `https://picsum.photos/300/200?random=${doc.id}`,
+    }));
+  };
 
-  // Each document can be one top law card
-  return documents.map((doc) => ({
-    id: doc.id.toString(),
-    title: doc.title,
-    image: doc.image
-      ? `http://testlink2.pillersofttechnologies.com/storage/${doc.image}`
-      : `https://picsum.photos/300/200?random=${doc.id}`, // fallback placeholder
-  }));
-};
+
+  /* -------------------------------------------------------
+      HOME API
+  -------------------------------------------------------*/
   const fetchHome = async () => {
     setLoading(true);
     try {
-      const res = await authService.home(); // call API
-      console.log(res.data, 'API response');
+      const res = await authService.home(searchText);
+      const apiData = res.data?.data;
 
-     const apiData = res.data?.data;
-
-    const formattedTopLawData = formatTopLawData(apiData?.explore_tax_laws);
-    ///setTopLawData(formattedTopLawData);
-     setTopLawData(apiData?.explore_tax_laws || []); 
-     console.log(apiData?.explore_tax_laws,'res.data.explore_tax_laws');
-     
-      
-    // setTopLawData(formattedTopLawData);
+      setTopLawData(apiData?.explore_tax_laws || []);
       setCategories(apiData?.legal_categories);
       setLearning(apiData?.learning_hub || []);
       setNews(apiData?.news || []);
-      setLoading(false);
-
     } catch (error) {
-            setLoading(false);
-
       console.log('home ERROR:', error.response?.data || error);
     } finally {
       setLoading(false);
     }
   };
 
+
+  /* -------------------------------------------------------
+      HOME SEARCH API
+  -------------------------------------------------------*/
+  const fetchHome_search = async () => {
+    setLoading(true);
+    try {
+      const res = await authService.home_search(searchText);
+      const apiData = res.data?.data;
+
+      setTopLawData(apiData?.explore_tax_laws || []);
+      setCategories(apiData?.legal_categories);
+      setLearning(apiData?.learning_hub || []);
+      setNews(apiData?.news || []);
+    } catch (error) {
+      console.log('home ERROR:', error.response?.data || error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  /* -------------------------------------------------------
+      INITIAL LOAD
+  -------------------------------------------------------*/
   useEffect(() => {
     fetchHome();
   }, []);
+
+
+  const handleSearch = () => {
+    fetchHome_search();
+  };
+
+
+  /* -------------------------------------------------------
+      LOADING UI
+  -------------------------------------------------------*/
   if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#000" />
+          <Text style={{ marginTop: 10 }}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
-        <Text style={{ marginTop: 10 }}>Loading...</Text>
-      </View>
-    </SafeAreaView>
-  );
-}
-  return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor={"#FFFFFF"} barStyle={'dark-content'}></StatusBar>
+      <StatusBar backgroundColor={"#FFFFFF"} barStyle={'dark-content'} />
+
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+
         <CustomHeader
-    title={`Hi ${[user?.user?.firstname, user?.user?.lastname]
-      .filter(Boolean)
-      .join(" ")}`}
-    showLanguage={true}
-    headerContainerStyle={{ elevation: 1, shadowOpacity: 0.1 }}
-  />
-
-        <SearchBar />
-
-        <Text style={styles.sectionTitle}>Explore Tax Laws</Text>
-        <FlatList
-          data={topLawData}
-          keyExtractor={(i)=>i.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 12 }}
-          renderItem={({item}) => <TopLawCard onPress={(selectedItem) => {
-    console.log("Card clicked:", item);
-    navigation.navigate("TaxRegulation", { categoryId: item.id });
-  }}  item={item} />}
+          title={`Hi ${[user?.user?.firstname, user?.user?.lastname].filter(Boolean).join(" ")}`}
+          showLanguage={true}
         />
 
+        {/* 🔍 SEARCH BAR */}
+        <SearchBar
+          value={searchText}
+          onChangeText={handleTextChange}
+          onSearch={handleSearch}
+        />
+
+        {/* ⭐ GLOBAL SUGGESTIONS LIST */}
+        {suggestions.length > 0 && (
+          <View style={styles.suggestionBox}>
+            {suggestions.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  setSuggestions([]);
+                  setSearchText("");
+                  navigation.navigate(item.screen, item.params || {});
+                }}
+                style={styles.suggestionItem}
+              >
+                <Text style={{ fontSize: 16 }}>{item.key}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* REMAINING UI — SAME as your original code */}
+        <Text style={styles.sectionTitle}>Explore Tax Laws</Text>
+
+        {topLawData?.length === 0 ? (
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Text style={{ fontSize: 14, color: "#888", marginTop: 10 }}>
+              No Data Found
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={topLawData}
+            horizontal
+            keyExtractor={(i) => i.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 12 }}
+            renderItem={({ item }) =>
+              <TopLawCard
+                onPress={() => navigation.navigate("TaxRegulation", { categoryId: item.id })}
+                item={item}
+              />
+            }
+          />
+        )}
+
+        {/* ----- Categories Section ----- */}
         <View style={styles.rowHeader}>
           <Text style={styles.sectionTitle}>Explore Legal Categories</Text>
-          <TouchableOpacity onPress={()=>navigation.navigate('CategoriesScreen')}>
-          <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
+
+          {categories?.length > 0 && (
+            <TouchableOpacity onPress={() => navigation.navigate('CategoriesScreen')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <View style={styles.categoriesWrap}>
-          {categories.map(cat => <CategoryCard key={cat.id} item={cat} />)}
-        </View>
+        {categories?.length === 0 ? (
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Text style={{ fontSize: 14, color: "#888" }}>No Data Found</Text>
+          </View>
+        ) : (
+          <View style={styles.categoriesWrap}>
+            {categories.map(cat =>
+              <CategoryCard
+                key={cat.id}
+                onPress={() => navigation.navigate("TaxRegulation", { categoryId: cat.id })}
+                item={cat}
+              />
+            )}
+          </View>
+        )}
 
+        {/* ----- Learning Hub ----- */}
         <View style={styles.rowHeader}>
           <Text style={styles.sectionTitle}>Your Legal Learning Hub</Text>
-          <TouchableOpacity onPress={()=>navigation.navigate('LearningHubScreen')}>
-          <Text style={styles.seeAll}>See All</Text>
-
-          </TouchableOpacity>
+          {learning?.length > 0 && (
+            <TouchableOpacity onPress={() => navigation.navigate('LearningHubScreen')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-   {learning.map(l => (
-  <LearningCard
-    onPress={(selectedItem) => {
-      console.log("Card clicked:", l);
-      navigation.navigate("DetailsScreen", { categoryId: l.id });
-    }}
-    key={l.id}
-    item={l}
-  />
-))}
+        {learning?.length === 0 ? (
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Text style={{ fontSize: 14, color: "#888" }}>No Data Found</Text>
+          </View>
+        ) : (
+          learning.map(l => (
+            <LearningCard
+              key={l.id}
+              item={l}
+              onPress={() => navigation.navigate("DetailsScreen", { categoryId: l.id })}
+            />
+          ))
+        )}
 
-        <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Quick Ascess</Text>
+        {/* ----- Quick Access ----- */}
+        <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Quick Access</Text>
         <View style={styles.quickRow}>
-          <QuickAccessCard title="Bookmarked" />
-          <QuickAccessCard title="Downloaded" />
-          <QuickAccessCard title="Recently Viewed" />
+          <QuickAccessCard
+            title="Bookmarked"
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Bookmarked" })}
+          />
+          <QuickAccessCard
+            title="Downloaded"
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Downloaded" })}
+          />
+          <QuickAccessCard
+            title="Recently Viewed"
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Recently Viewed" })}
+          />
         </View>
 
+        {/* ----- News Section ----- */}
         <View style={styles.rowHeader}>
           <Text style={styles.sectionTitle}>Latest News Updates</Text>
-          <TouchableOpacity onPress={()=>navigation.navigate('NewsScreen')}>
-          <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
+          {news?.length > 0 && (
+            <TouchableOpacity onPress={() => navigation.navigate('NewsScreen')}>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <View style={styles.newsGrid}>
-          {news.map(n => <NewsCard key={n.id} item={n} />)}
-        </View>
+        {news?.length === 0 ? (
+          <View style={{ alignItems: "center", marginTop: 40 }}>
+            <Text style={{ fontSize: 14, color: "#888" }}>No Data Found</Text>
+          </View>
+        ) : (
+          <View style={styles.newsGrid}>
+            {news.map(item =>
+              <NewsCard
+                key={item.id}
+                item={item}
+                onPress={() => navigation.navigate("NewDetailsScreen", { item })}
+              />
+            )}
+          </View>
+        )}
 
         <View style={{ height: 120 }} />
       </ScrollView>
@@ -190,33 +352,67 @@ useEffect(() => {
   );
 }
 
+
+/* --------------------------------------------
+    STYLES
+----------------------------------------------*/
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#FFFFFF' },
   container: { paddingBottom: 20 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, marginTop: 8 },
-  greeting: { fontSize: 20, fontWeight: '700', color: colors.text },
-  flag: { width: 36, height: 36, borderRadius: 18 },
-  sectionTitle: { fontSize: 20, fontWeight: '800', marginTop: 18, paddingHorizontal: 18, color: colors.text },
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    marginTop: 18,
+    paddingHorizontal: 18,
+    color: colors.text,
+  },
+
+  rowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 18,
+  },
+
   seeAll: { color: colors.muted, fontSize: 13, marginRight: 18 },
-  rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 18 },
-  categoriesWrap: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, justifyContent: 'space-between' },
-  quickRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 18, marginTop: 8 },
-  newsGrid: { paddingHorizontal: 12, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  langBox: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-  
-    flag: {
-      width: 22,
-      height: 22,
-      borderRadius: 50,
-      marginRight: 5,
-    },
-  
-    langText: {
-      fontSize: 14,
-      marginRight: 4,
-      color: "#000",
-    },
+
+  categoriesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 12,
+    justifyContent: 'space-between',
+  },
+
+  quickRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    marginTop: 8,
+  },
+
+  newsGrid: {
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+
+  /* ⭐ NEW STYLES FOR SUGGESTION BOX */
+  suggestionBox: {
+    backgroundColor: "#fff",
+    marginHorizontal: 18,
+    marginTop: 4,
+    paddingVertical: 6,
+    borderRadius: 8,
+    elevation: 3,
+  },
+
+  suggestionItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderColor: "#ddd",
+    paddingHorizontal: 10,
+  },
 });

@@ -81,7 +81,11 @@ export default function LearningHubScreen({ navigation }) {
       renderItem={({ item }) => (
         <VideoCard
           item={item}
-          onPress={() => navigation.navigate("Details", { video: item })}
+          onPress={(selectedItem) => {
+      console.log("Card clicked:", item);
+      navigation.navigate("DetailsScreen", { categoryId: item.id });
+    }}
+          // onPress={() => navigation.navigate("Details", { video: item })}
         />
       )}
       onEndReached={loadMore}

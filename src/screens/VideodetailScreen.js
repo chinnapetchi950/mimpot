@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
-  Share
+  Share,
+  StatusBar
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
@@ -134,12 +135,15 @@ const handleShare = async () => {
       </View>
     );
   }
-
+const onClickbookMark=()=>{
+  
+}
   // file_url should be returned by API as the video path; adjust if different (eg. file_path)
   const videoUri = `${BASE_URL}${video?.file_url}`;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
       <CustomHeader
         title="Details View"
         leftComponent={
@@ -179,6 +183,7 @@ const handleShare = async () => {
             paused={paused}
             onLoad={onLoad}
             onProgress={onProgress}
+            controls={true}
             ignoreSilentSwitch={"obey"}
           />
 
@@ -187,7 +192,7 @@ const handleShare = async () => {
 
           {/* Center controls: back 10s, play/pause, forward 10s */}
           <View style={styles.centerControls}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.skipBtn}
               onPress={() => skipBackward(10)}
               activeOpacity={0.8}
@@ -214,7 +219,7 @@ const handleShare = async () => {
               activeOpacity={0.8}
             >
               <Ionicons name="play-forward" size={28} color="#fff" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* bottom-left overlay: title, by, slider and times */}
@@ -226,7 +231,7 @@ const handleShare = async () => {
 
             {/* Slider inside video */}
             <View style={styles.sliderWrap}>
-              <Slider
+              {/* <Slider
                 style={styles.slider}
                 value={isSeeking ? seekPosition : currentTime}
                 minimumValue={0}
@@ -249,7 +254,7 @@ const handleShare = async () => {
               <View style={styles.timeRowInside}>
                 <Text style={styles.timeText}>{formatTime(isSeeking ? seekPosition : currentTime)}</Text>
                 <Text style={styles.timeText}>{formatTime(duration)}</Text>
-              </View>
+              </View> */}
             </View>
           </View>
         </View>
@@ -267,7 +272,7 @@ const handleShare = async () => {
       <Ionicons name="download-outline" size={24} color="#000" />
     </TouchableOpacity>
 
-    <TouchableOpacity style={styles.iconBtn}>
+    <TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
       <Ionicons name="bookmark-outline" size={24} color="#000" />
     </TouchableOpacity>
   </View>
@@ -370,7 +375,7 @@ const styles = StyleSheet.create({
 
   overlayBottom: {
     position: "absolute",
-    bottom: 10,
+    bottom: 80,
     left: 12,
     right: 12,
     zIndex: 7,
@@ -469,3 +474,273 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+// import React, { useEffect, useRef, useState } from "react";
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TouchableOpacity,
+//   ActivityIndicator,
+//   Dimensions,
+//   Share,
+//   ScrollView
+// } from "react-native";
+// import Ionicons from "react-native-vector-icons/Ionicons";
+// import Slider from "@react-native-community/slider";
+// import Video from "react-native-video";
+// import { SafeAreaView } from "react-native-safe-area-context";
+// import CustomHeader from "../components/CustomHeader";
+// import { authService } from "../api/authService";
+
+// const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+// export default function DetailsScreen({ navigation, route }) {
+//   const { categoryId } = route.params || {};
+
+//   const [video, setVideo] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const [paused, setPaused] = useState(true);
+//   const [duration, setDuration] = useState(0);
+//   const [currentTime, setCurrentTime] = useState(0);
+
+//   const [isSeeking, setIsSeeking] = useState(false);
+//   const [seekPosition, setSeekPosition] = useState(0);
+
+//   const [isFullScreen, setIsFullScreen] = useState(false); // Fullscreen state
+
+//   const BASE_URL = "http://testlink2.pillersofttechnologies.com";
+//   const videoRef = useRef(null);
+
+//   useEffect(() => {
+//     fetchDocument();
+//   }, []);
+
+//   const fetchDocument = async () => {
+//     try {
+//       setLoading(true);
+//       const res = await authService.getDocumentById(categoryId);
+//       setVideo(res.data?.data || null);
+//     } catch (err) {
+//       console.log("Fetch Error:", err);
+//       setVideo(null);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const formatTime = (sec = 0) => {
+//     const s = Math.floor(sec % 60);
+//     const m = Math.floor(sec / 60);
+//     const mm = m < 10 ? `0${m}` : `${m}`;
+//     const ss = s < 10 ? `0${s}` : `${s}`;
+//     return `${mm}:${ss}`;
+//   };
+
+//   const onLoad = (meta) => setDuration(meta.duration || 0);
+
+//   const onProgress = (progress) => !isSeeking && setCurrentTime(progress.currentTime);
+
+//   const handleSeekComplete = (value) => {
+//     setIsSeeking(false);
+//     setCurrentTime(value);
+//     videoRef.current?.seek(value);
+//   };
+
+//   const skipForward = (seconds = 10) => {
+//     const to = Math.min((isSeeking ? seekPosition : currentTime) + seconds, duration);
+//     videoRef.current?.seek(to);
+//     setCurrentTime(to);
+//     setSeekPosition(to);
+//   };
+
+//   const skipBackward = (seconds = 10) => {
+//     const to = Math.max((isSeeking ? seekPosition : currentTime) - seconds, 0);
+//     videoRef.current?.seek(to);
+//     setCurrentTime(to);
+//     setSeekPosition(to);
+//   };
+
+//   const handleShare = async () => {
+//     try {
+//       await Share.share({
+//         message: "Hi this is M.Impot!",
+//         url: "url",
+//         title: "M.Impot",
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
+//   if (!video) return <View style={styles.center}><Text>No Data Available</Text></View>;
+
+//   const videoUri = `${BASE_URL}${video?.file_url}`;
+
+//   return (
+//     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+//   <CustomHeader
+//     title="Details View"
+//     leftComponent={
+//       <TouchableOpacity onPress={() => navigation.goBack()}>
+//         <Ionicons name="arrow-back" size={26} color="#000" />
+//       </TouchableOpacity>
+//     }
+//   />
+
+//   <ScrollView contentContainerStyle={styles.screenContent}>
+    
+//     {/* VIDEO BLOCK */}
+//     <View style={styles.videoWrapper}>
+//       <Video
+//         ref={videoRef}
+//         source={{ uri: videoUri }}
+//         style={styles.video}
+//         resizeMode="contain"
+//         paused={paused}
+//         onLoad={onLoad}
+//         controls={true}
+//         onProgress={onProgress}
+//         controlsStyles={{
+//           seekBarColor: "#FF5733",
+//           seekBarKnobColor: "#000",
+//           seekBarBackgroundColor: "#CCC",
+//           showFullScreenButton: false,
+//           showPictureInPictureButton: false,
+//           showMuteButton: true,
+//           showForwardButton: false,
+//           showRewindButton: false,
+//         }}
+//       />
+//     </View>
+
+//     {/* TITLE + DESCRIPTION */}
+//     <Text style={styles.title}>{video?.title}</Text>
+//     <Text style={styles.description}>{video?.description}</Text>
+
+//     {/* SHUFFLE + RIGHT ICONS */}
+//     <View style={styles.topRow}>
+//       <TouchableOpacity style={styles.shuffleIcon}>
+//         <Ionicons name="shuffle" size={22} color="#000" />
+//       </TouchableOpacity>
+
+//       <View style={styles.rightTopIcons}>
+//         <TouchableOpacity style={styles.iconBtn}>
+//           <Ionicons name="download-outline" size={24} color="#000" />
+//         </TouchableOpacity>
+
+//         <TouchableOpacity style={styles.iconBtn}>
+//           <Ionicons name="bookmark-outline" size={24} color="#000" />
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+
+//     {/* BOTTOM BUTTONS */}
+//     <View style={styles.actionsRow}>
+//       <ActionBtn label="Comment" icon="chatbubble-outline" />
+//       <ActionBtn label="Share" icon="share-outline" onPress={handleShare} />
+//       <ActionBtn label="Rate Us" icon="star-outline" />
+//     </View>
+
+//   </ScrollView>
+// </SafeAreaView>
+
+//   );
+// }
+
+// const ActionBtn = ({ label, icon, onPress }) => (
+//   <TouchableOpacity onPress={onPress} style={styles.actionBtn} activeOpacity={0.85}>
+//     <Ionicons name={icon} size={18} color="#fff" />
+//     <Text style={styles.actionLabel}>{label}</Text>
+//   </TouchableOpacity>
+// );
+
+// const styles = StyleSheet.create({
+//   screenContent: {
+//     paddingHorizontal: 20,   // ⭐ LEFT + RIGHT CLEAN SPACE
+//     paddingBottom: 40,
+//   },
+
+//   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+
+//   videoWrapper: {
+//     width: "100%",
+//     height: 260,
+//     backgroundColor: "#000",
+//     borderRadius: 12,
+//     overflow: "hidden",
+//     marginTop: 20,
+//   },
+
+//   video: {
+//     width: "100%",
+//     height: "100%",
+//   },
+
+//   title: {
+//     fontSize: 22,
+//     fontWeight: "700",
+//     marginTop: 18,
+//     color: "#000",
+//   },
+
+//   description: {
+//     fontSize: 15,
+//     color: "#444",
+//     marginTop: 10,
+//     lineHeight: 22,
+//   },
+
+//   topRow: {
+//     marginTop: 20,
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//   },
+
+//   shuffleIcon: {
+//     padding: 8,
+//     borderRadius: 25,
+//     backgroundColor: "#f1f1f1",
+//   },
+
+//   rightTopIcons: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 15,
+//   },
+
+//   iconBtn: {
+//     width: 45,
+//     height: 45,
+//     borderRadius: 30,
+//     backgroundColor: "#f1f1f1",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+
+//   actionsRow: {
+//     marginTop: 28,
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//   },
+
+//   actionBtn: {
+//     flexDirection: "row",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "#000",
+//     paddingVertical: 12,
+//     width: (SCREEN_WIDTH - 80) / 3,  // equal width buttons with spacing
+//     borderRadius: 28,
+//   },
+
+//   actionLabel: {
+//     color: "#fff",
+//     marginLeft: 6,
+//     fontSize: 14,
+//   },
+// });
+

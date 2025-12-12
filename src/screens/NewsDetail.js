@@ -13,11 +13,12 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 
-export default function TaxDetailsScreen({ route, navigation }) {
+export default function NewDetailsScreen({ route, navigation }) {
   const { item } = route.params; // contains { id }
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const baseURL = "http://testlink2.pillersofttechnologies.com";
 
   useEffect(() => {
     fetchDetails();
@@ -28,7 +29,7 @@ export default function TaxDetailsScreen({ route, navigation }) {
     console.log(item);
     
     try {
-      const response = await  authService.taxlawdetail(item.id)
+      const response = await  authService.newsdetail(item.id)
      const result = response?.data;
 console.log(result, 'result');
       setDetails(result.data);         // <-- store API result
@@ -56,7 +57,7 @@ console.log(result, 'result');
   // }
 console.log(details);
 
-  const fullImage = `${imageUrl}${details?.image}`;
+  const fullImage = `${details?.image}`;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -98,7 +99,7 @@ console.log(details);
         <Text style={styles.title}>{details?.title}</Text>
 
         {/* DESCRIPTION */}
-        <Text style={styles.desc}>{details?.description}</Text>
+        <Text style={styles.desc}>{details?.excerpt}</Text>
       </ScrollView>
     </View>
   );

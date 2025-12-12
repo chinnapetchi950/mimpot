@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-
+export const imageUrl='http://testlink2.pillersofttechnologies.com/storage/'
 export const authService = {
   login: (payload) => {
     return apiClient.post('/user/login', payload);
@@ -8,9 +8,9 @@ export const authService = {
   register: (payload) => {
     return apiClient.post('/user/register', payload);
   },
-  home: () => {
+ home: () => {
     return apiClient.get('/user/home');
-  },
+},
    getprofile: () => {
     return apiClient.get('/user/profile');
   },
@@ -64,6 +64,25 @@ getDocumentsByCategory_explore:(categoryId,page,per_page,search) => {
 getUserStatistics: () => {
   return apiClient.get("/user/statistics");
 },
-
-
+ home_search: (search) => {
+  return apiClient.get(`/user/home_search?search=${search}`);
+},
+taxlawlist:(pageNumber)=>{
+  return apiClient.get(`/user/documents/category/2?type=article&page=${pageNumber}`)
+},
+taxlawdetail:(id)=>{
+  return apiClient.get(`/user/documents/${id}`)
+},
+newsdetail:(id)=>{
+  return apiClient.get(`/user/news/${id}`)
+},
+bookmarked:()=>{
+  return apiClient.get('/user/bookmarks')
+},
+downloads:()=>{
+  return apiClient.get('/user/document_downloads')
+},
+recent_viewed:()=>{
+  return apiClient.get('/user/views/recent')
+}
 };

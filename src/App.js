@@ -14,6 +14,7 @@
 //   );
 // }
 // App.js
+//johndoe@gmail.com Password@12
 import React from "react";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";

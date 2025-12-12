@@ -16,7 +16,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { authService } from '../api/authService';
 
 export default function TaxRegulation({ navigation, route }) {
-  const { categoryId } = route.params;
+  const { categoryId ,name} = route.params;
 
   const [activeTab, setActiveTab] = useState("videos");
   const [list, setList] = useState([]);
@@ -94,7 +94,7 @@ console.log("docresponseartcles==============>",response?.data);
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 70 }}
-        title="Tax Regulation"
+        title={name}
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

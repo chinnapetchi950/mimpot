@@ -81,6 +81,8 @@ console.log("response",response?.data);
         renderItem={({ item }) => (
           <NewsCard
             item={item}
+            onPress={()=>{console.log(item),
+           navigation.navigate("NewDetailsScreen", { item })}}
             //onPress={() => navigation.navigate("LearningHub", { category: item })}
           />
         )}
