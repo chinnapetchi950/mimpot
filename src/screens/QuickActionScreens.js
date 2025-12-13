@@ -26,6 +26,7 @@ import CustomHeader from '../components/CustomHeader';
 import Storage from '../utils/storage';
 import { setUser, setToken } from '../store/userSlice';
 const { width } = Dimensions.get('window');
+import Tabs from '../components/Tabs';
 
 
 
@@ -38,6 +39,12 @@ export default function QuickActionsScreen({route, navigation }) {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState(''); // ✅ search text
+const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
+
+const tabsData = [
+  { key: 'all', label: 'All' },
+  { key: 'news', label: 'News' },
+];
 
   const dispatch = useDispatch();
   const { user, token } = useSelector(state => state.user);
@@ -54,61 +61,50 @@ export default function QuickActionsScreen({route, navigation }) {
     checkAuth();
   }, []); // only once
 
- const fetchquickActions=async()=>{
-    if(title=="Bookmarked"){
-        const res = await authService.bookmarked(); // call API
-      console.log(res.data, 'API responsebook');
+const fetchquickActions = async () => {
+  try {
+    setLoading(true); // ✅ START loader
 
-      const apiData = res.data?.data;
-    }else if(title==='Recently Viewed'){ 
-         const res = await authService.recent_viewed(); // call API
-      console.log(res.data, 'API responserecent');
+    let res = null;
 
-const apiData = res.data?.data || [];
-
-const videoData = apiData.filter(item => item?.format === "video");
-
-console.log(videoData, "Filtered Video Data");
-    }else{
- const res = await authService.downloads(); // call API
-      console.log(res.data, 'API response_downloads');
-
-      const apiData = res.data?.data;
+    if (title === "Bookmarked") {
+      res =
+        activeTab === 'news'
+          ? await authService.newsBookmarklist()
+          : await authService.bookmarked();
+    } else if (title === "Recently Viewed") {
+      res = await authService.recent_viewed();
+    } else {
+      res = await authService.downloads();
     }
- }
-  const fetchHome = async () => {
-    console.log(searchText, 'searchText');
 
-    setLoading(true);
-    try {
-      const res = await authService.home(searchText); // call API
-      console.log(res.data, 'API response');
+    const rawData = res?.data?.data;
 
-      const apiData = res.data?.data;
+    const apiData = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.data)
+      ? rawData.data
+      : [];
 
-      //const formattedTopLawData = formatTopLawData(apiData?.explore_tax_laws);
-      ///setTopLawData(formattedTopLawData);
-      setTopLawData(apiData?.explore_tax_laws || []);
-      console.log(apiData?.explore_tax_laws, 'res.data.explore_tax_laws');
+    const videoData = apiData.filter(item => item?.type === "video");
+    const newsData = apiData.filter(item => item?.type !== "video");
 
-      // setTopLawData(formattedTopLawData);
-      setCategories(apiData?.legal_categories);
-      setLearning(apiData?.learning_hub || []);
-      setNews(apiData?.news || []);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
+    setNews(newsData);
+    setLearning(videoData);
+    
+  } catch (error) {
+    console.log("fetchquickActions error", error);
+  } finally {
+    setLoading(false); 
+  }
+};
 
-      console.log('home ERROR:', error.response?.data || error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchHome();
-    fetchquickActions()
-  }, []);
+ 
+
+ useEffect(() => {
+  fetchquickActions();
+}, [activeTab]); 
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -147,8 +143,72 @@ console.log(videoData, "Filtered Video Data");
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={{ width: 30 }} />
         </View>
-
-        {news?.length === 0 ? (
+        {title === 'Bookmarked' && (
+  <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+        )}
+        
+{/* {title === 'Bookmarked' && (
+  
+  <View style={styles.tabContainer}>
+    {['All', 'News'].map(tab => (
+      <TouchableOpacity
+        key={tab}
+        style={[styles.tabButton, activeTab === tab && styles.activeTab]}
+        onPress={() => setActiveTab(tab)}
+      >
+        <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+          {tab}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+)} */}
+{title === 'Bookmarked' ? (
+  <>
+    {activeTab === 'news' ? (
+      news?.length > 0 ? (
+        <View style={styles.newsGrid}>
+          {news.map(item => (
+            <NewsCard
+              key={item.id}
+              item={item}
+              onPress={() => navigation.navigate('NewDetailsScreen', { item })}
+            />
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noData}>No News Found</Text>
+      )
+    ) : (
+      // 'All' tab
+      <>
+        {news?.length === 0 && learning?.length === 0 ? (
+          <Text style={styles.noData}>No Data Found</Text>
+        ) : (
+          <>
+            <View style={styles.newsGrid}>
+              {news.map(item => (
+                <NewsCard
+                  key={item.id}
+                  item={item}
+                  onPress={() => navigation.navigate('NewDetailsScreen', { item })}
+                />
+              ))}
+            </View>
+            {learning?.map(l => (
+              <LearningCard
+                key={l.id}
+                item={l}
+                onPress={() => navigation.navigate('DetailsScreen', { categoryId: l.id })}
+              />
+            ))}
+          </>
+        )}
+      </>
+    )}
+  </>
+) : (<>
+        {news?.length === 0 && learning?.length === 0? (
           <View style={{ alignItems: 'center', marginTop: 40 }}>
             {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
             <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
@@ -169,15 +229,8 @@ console.log(videoData, "Filtered Video Data");
             ))}
           </View>
         )}
-        {learning?.length === 0 ? (
-          <View style={{ alignItems: 'center', marginTop: 40 }}>
-            {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
-            <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
-              No Data Found
-            </Text>
-          </View>
-        ) : (
-          learning?.map(l => (
+       
+          {learning?.map(l => (
             <LearningCard
               onPress={selectedItem => {
                 console.log('Card clicked:', l);
@@ -186,9 +239,9 @@ console.log(videoData, "Filtered Video Data");
               key={l.id}
               item={l}
             />
-          ))
-        )}
-
+          ))}
+        
+</>)}
         <View style={{ height: 120 }} />
       </ScrollView>
     </SafeAreaView>
@@ -273,4 +326,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 25,
   },
+  tabContainer: {
+  flexDirection: 'row',
+  marginTop: 10,
+  borderBottomWidth: 1,
+  borderColor: '#ddd',
+},
+tabButton: {
+  flex: 1,
+  paddingVertical: 10,
+  alignItems: 'center',
+},
+activeTab: {
+  borderBottomWidth: 2,
+  borderColor: '#000',
+},
+tabText: {
+  fontSize: 16,
+  color: '#888',
+},
+activeTabText: {
+  color: '#000',
+  fontWeight: '600',
+},
+noData: {
+  textAlign: 'center',
+  marginTop: 40,
+  fontSize: 14,
+  color: '#888',
+},
+
 });

@@ -7,7 +7,8 @@ import {
   ActivityIndicator,
   Dimensions,
   Share,
-  StatusBar
+  StatusBar,
+  Alert, Platform
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
@@ -16,7 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import { authService } from "../api/authService";
 import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
-
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function DetailsScreen({ navigation, route }) {
@@ -31,6 +33,10 @@ export default function DetailsScreen({ navigation, route }) {
 
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekPosition, setSeekPosition] = useState(0);
+const [isBookmarked, setIsBookmarked] = useState(false);
+const [bookmarkLoading, setBookmarkLoading] = useState(false);
+const [downloadLoading, setIsdownloadLoading] = useState(false);
+
 
   const BASE_URL = "http://testlink2.pillersofttechnologies.com";
   const videoRef = useRef(null);
@@ -135,9 +141,48 @@ const handleShare = async () => {
       </View>
     );
   }
-const onClickbookMark=()=>{
-  
-}
+  const onClickDownload = async (item) => {
+  if (item?.is_paid === true) {
+    Alert.alert(
+      'Payment Required',
+      'Please complete the payment to download this file.',
+    );
+    return;
+  }
+
+  // continue normal flow
+  try {
+    setIsdownloadLoading(true);
+
+    const res = await authService.downloadDocument(item.id);
+
+    if (res?.status) {
+      Alert.alert('Success', 'File downloaded successfully');
+    }
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setIsdownloadLoading(false);
+  }
+};
+const onClickbookMark = async () => {
+  try {
+    setBookmarkLoading(true);
+
+    const res = await authService.toggleBookmark(categoryId);
+console.log(res, "reeeeeeee");
+
+    // API returns true or false status
+    if (res?.status) {
+      setIsBookmarked(prev => !prev);
+    }
+
+  } catch (error) {
+    console.log("Bookmark Error:", error?.response);
+  } finally {
+    setBookmarkLoading(false);
+  }
+};
   // file_url should be returned by API as the video path; adjust if different (eg. file_path)
   const videoUri = `${BASE_URL}${video?.file_url}`;
 
@@ -268,13 +313,27 @@ const onClickbookMark=()=>{
 
   {/* Right Icons */}
   <View style={styles.rightTopIcons}>
-    <TouchableOpacity style={styles.iconBtn}>
+    <TouchableOpacity  onPress={()=>onClickDownload(video)} style={styles.iconBtn}>
+       {downloadLoading ? (
+    <ActivityIndicator size={16} color="#000" />
+  ) : (
       <Ionicons name="download-outline" size={24} color="#000" />
+  )}
     </TouchableOpacity>
 
     <TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
-      <Ionicons name="bookmark-outline" size={24} color="#000" />
-    </TouchableOpacity>
+      {console.log(isBookmarked)
+      }
+  {bookmarkLoading ? (
+    <ActivityIndicator size={16} color="#000" />
+  ) : (
+    <Ionicons
+      name={isBookmarked||video?.is_bookmarked ? "bookmark" : "bookmark-outline"}
+      size={24}
+      color="#000"
+    />
+  )}
+</TouchableOpacity>
   </View>
 </View>
 

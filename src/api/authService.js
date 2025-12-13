@@ -1,5 +1,11 @@
 import apiClient from './apiClient';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import { Platform,PermissionsAndroid } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { BASE_URL } from '../helper/ApiConstant';
 export const imageUrl='http://testlink2.pillersofttechnologies.com/storage/'
+export const BASE_URL='http://testlink2.pillersofttechnologies.com/api'
+
 export const authService = {
   login: (payload) => {
     return apiClient.post('/user/login', payload);
@@ -84,5 +90,90 @@ downloads:()=>{
 },
 recent_viewed:()=>{
   return apiClient.get('/user/views/recent')
-}
+},
+globalsearch_suggestion:(search)=>{
+  return apiClient.get(`/user/search_suggestions?query=${search}`)
+},
+toggleBookmark: async (id) => {
+  return await apiClient.post(`/user/bookmarks/toggle/${id}`);
+},
+news_bookmarks: async (id) => {
+  return await apiClient.post(`/user/news_bookmarks/toggle/${id}`);
+},
+newsBookmarklist:async()=>{
+  return await apiClient.get('/user/news_bookmarks')
+},
+
+downloadDocument: async (documentId) => {
+ try {
+    const token = await AsyncStorage.getItem('token');
+    const { fs } = ReactNativeBlobUtil;
+
+    const appFolder = 'Mimpot';
+    const fileName = `document_${documentId}.pdf`;
+
+    // Public Downloads path
+    const dirPath = `/storage/emulated/0/Download/${appFolder}`;
+    const filePath = `${dirPath}/${fileName}`;
+
+    // ✅ Request permission for Android 10+
+    if (Platform.OS === 'android' && Platform.Version >= 23) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'App needs access to your storage to download documents.',
+          buttonPositive: 'Allow',
+          buttonNegative: 'Deny',
+        }
+      );
+
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        return { status: false, error: 'Storage permission denied' };
+      }
+    }
+
+    // ✅ Create folder if not exists
+    const exists = await fs.exists(dirPath);
+    if (!exists) {
+      await fs.mkdir(dirPath);
+    }
+
+    console.log(filePath, 'filePath');
+
+    // ✅ Download using RNBlobUtil
+    await ReactNativeBlobUtil.config({
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        title: fileName,
+        description: 'Downloading document',
+        mime: 'application/pdf',
+        mediaScannable: true,
+        path: filePath,
+      },
+    }).fetch(
+      'GET',
+      `${BASE_URL}/user/documents/${documentId}/download`,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+
+    return {
+      status: true,
+      data: {
+        path: filePath,
+        fileName,
+      },
+    };
+  } catch (error) {
+    console.log('Download Service Error:', error);
+    return {
+      status: false,
+      error,
+    };
+  }
+},
+
 };

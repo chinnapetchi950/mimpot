@@ -17,7 +17,8 @@ export default function NewDetailsScreen({ route, navigation }) {
   const { item } = route.params; // contains { id }
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-
+const [isBookmarked, setIsBookmarked] = useState(false);
+const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const baseURL = "http://testlink2.pillersofttechnologies.com";
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function NewDetailsScreen({ route, navigation }) {
 console.log(result, 'result');
       setDetails(result.data);         // <-- store API result
     } catch (err) {
-      console.log("API Error:", err);
+      console.log("API Error:", err?.response);
     } finally {
       setLoading(false);
     }
@@ -55,10 +56,28 @@ console.log(result, 'result');
   //     </View>
   //   );
   // }
-console.log(details);
 
   const fullImage = `${details?.image}`;
+const onClickbookMark = async () => {
+  console.log("reeeeeeee");
 
+  try {
+    setBookmarkLoading(true);
+
+    const res = await authService.news_bookmarks(details?.id);
+console.log(res, "reeeeeeee");
+
+    // API returns true or false status
+    if (res?.status) {
+      setIsBookmarked(prev => !prev);
+    }
+
+  } catch (error) {
+    console.log("Bookmark Error:", error);
+  } finally {
+    setBookmarkLoading(false);
+  }
+};
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -84,14 +103,25 @@ console.log(details);
           <View style={styles.iconRow}>
             <Icon name="share-outline" size={24} color="#000" />
 
-            <Ionicons
+            {/* <Ionicons
               name="download-outline"
               size={24}
               color="#000"
               style={{ marginHorizontal: 18 }}
-            />
+            /> */}
 
-            <Ionicons name="bookmark-outline" size={24} color="#000" />
+            <TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
+                  
+              {bookmarkLoading ? (
+                <ActivityIndicator size={16} color="#000" />
+              ) : (
+                <Ionicons
+                  name={isBookmarked || details?.is_bookmarked? "bookmark" : "bookmark-outline"}
+                  size={24}
+                  color="#000"
+                />
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 

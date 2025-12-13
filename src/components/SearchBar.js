@@ -19,6 +19,10 @@ export default function SearchBar({ value, onChangeText, onSearch, onFilterPress
           returnKeyType="search"
           onSubmitEditing={onSearch} // allows search on keyboard "search"
         />
+        {value.length > 0 ?
+        <TouchableOpacity onPress={() => onChangeText("")}>
+          <Ionicons name="close" size={20} color="#666" style={{ marginRight: 8 }} />
+        </TouchableOpacity>:null}
       </View>
 
       {/* Filter Button */}

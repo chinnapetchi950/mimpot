@@ -18,13 +18,18 @@ import { authService } from '../api/authService';
 export default function TaxRegulation({ navigation, route }) {
   const { categoryId ,name} = route.params;
 
-  const [activeTab, setActiveTab] = useState("videos");
+  // const [activeTab, setActiveTab] = useState("articles");
   const [list, setList] = useState([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+const [activeTab, setActiveTab] = useState('articles'); // 'all' or 'news'
 
+const tabsData = [
+  { key: 'articles', label: 'Articles' },
+  { key: 'videos', label: 'Videos' },
+];
   useEffect(() => {
     resetAndFetch();
   }, [activeTab]);
@@ -103,7 +108,7 @@ console.log("docresponseartcles==============>",response?.data);
         }
       />
 
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+  <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "videos" ? (
         <FlatList

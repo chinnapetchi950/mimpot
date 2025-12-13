@@ -32,8 +32,8 @@ password_confirmation: Yup.string()
   lastname: Yup.string()
     .required("Last name is required"),
 
-  id_number: Yup.string()
-    .required("ID number is required"),
+  // id_number: Yup.string()
+  //   .required("ID number is required"),
 });
 
 export default function SignupScreen({navigation}) {
@@ -180,7 +180,7 @@ Alert.alert(
 
                 {/* ID NUMBER */}
                 <InputField
-                  placeholder="ID Number*"
+                  placeholder="ID Number"
                   value={values.id_number}
                   onChangeText={handleChange("id_number")}
                 />

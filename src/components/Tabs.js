@@ -2,26 +2,20 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 
-export default function Tabs({ activeTab, setActiveTab }) {
+export default function Tabs({ tabs = [], activeTab, setActiveTab }) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.tab, activeTab === "articles" && styles.activeTab]}
-        onPress={() => setActiveTab("articles")}
-      >
-        <Text style={[styles.label, activeTab === "articles" && styles.activeLabel]}>
-          Articles
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.tab, activeTab === "videos" && styles.activeTab]}
-        onPress={() => setActiveTab("videos")}
-      >
-        <Text style={[styles.label, activeTab === "videos" && styles.activeLabel]}>
-          Videos
-        </Text>
-      </TouchableOpacity>
+      {tabs.map(tab => (
+        <TouchableOpacity
+          key={tab.key}
+          style={[styles.tab, activeTab === tab.key && styles.activeTab]}
+          onPress={() => setActiveTab(tab.key)}
+        >
+          <Text style={[styles.label, activeTab === tab.key && styles.activeLabel]}>
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }

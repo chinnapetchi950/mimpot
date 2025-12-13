@@ -7,7 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Share
+  Share,
+  Alert
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -19,6 +20,9 @@ export default function ArticleDetailsScreen({ route, navigation }) {
 //   const { item } = route.params; // item.id is coming
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+const [isBookmarked, setIsBookmarked] = useState(false);
+const [bookmarkLoading, setBookmarkLoading] = useState(false);
+const [downloadLoading, setIsdownloadLoading] = useState(false);
 
   const fetchDocumentDetails = async () => {
     try {
@@ -56,7 +60,48 @@ const handleShare = async () => {
       </View>
     );
   }
+const onClickbookMark = async () => {
+  try {
+    setBookmarkLoading(true);
 
+    const res = await authService.toggleBookmark(categoryId);
+console.log(res, "reeeeeeee");
+
+    // API returns true or false status
+    if (res?.status) {
+      setIsBookmarked(prev => !prev);
+    }
+
+  } catch (error) {
+    console.log("Bookmark Error:", error?.response);
+  } finally {
+    setBookmarkLoading(false);
+  }
+};
+const onClickDownload = async (item) => {
+  if (item?.is_paid === true) {
+    Alert.alert(
+      'Payment Required',
+      'Please complete the payment to download this file.',
+    );
+    return;
+  }
+
+  // continue normal flow
+  try {
+    setIsdownloadLoading(true);
+
+    const res = await authService.downloadDocument(item.id);
+
+    if (res?.status) {
+      Alert.alert('Success', 'File downloaded successfully');
+    }
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setIsdownloadLoading(false);
+  }
+};
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -85,13 +130,32 @@ const handleShare = async () => {
 
           <View style={styles.iconRow}>
             <Icon onPress={handleShare} name="share-outline" size={24} color="#000" />
+             {details?.file_path!=null?
+            <TouchableOpacity onPress={()=>onClickDownload(details)} style={styles.iconBtn}>
+     
+  {downloadLoading ? (
+    <ActivityIndicator size={16} color="#000" />
+  ) : (
             <Ionicons
               name="download-outline"
               size={24}
               color="#000"
               style={{ marginHorizontal: 18 }}
-            />
-            <Ionicons name="bookmark-outline" size={24} color="#000" />
+            />)}
+            </TouchableOpacity>:null}
+
+<TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
+      
+  {bookmarkLoading ? (
+    <ActivityIndicator size={16} color="#000" />
+  ) : (
+    <Ionicons
+      name={isBookmarked||details?.is_bookmarked ? "bookmark" : "bookmark-outline"}
+      size={24}
+      color="#000"
+    />
+  )}
+</TouchableOpacity>
           </View>
         </View>
 

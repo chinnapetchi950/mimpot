@@ -26,6 +26,7 @@ import TaxDetailsScreen from '../screens/TaxLawdetailScreen';
 import ArticleDetailsScreen from '../screens/ArticleDetailScreen';
 import NewDetailsScreen from '../screens/NewsDetail';
 import QuickActionsScreen from '../screens/QuickActionScreens';
+import SearchResultScreen from '../screens/SearchResultScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -67,7 +68,7 @@ export default function AppNavigator() {
             <Stack.Screen name="ArticleDetailsScreen" component={ArticleDetailsScreen} />
             <Stack.Screen name="NewDetailsScreen" component={NewDetailsScreen} />
                         <Stack.Screen name="QuickActionsScreen" component={QuickActionsScreen} />
-
+      <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
 
 
     </Stack.Navigator>
