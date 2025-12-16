@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { setToken, setUser } from "../store/userSlice";
 import Storage from "../utils/storage";
 import Feather from "react-native-vector-icons/Feather";
+import { GoogleSignin,statusCodes } from '@react-native-google-signin/google-signin';
 
 const { width, height } = Dimensions.get("window");
 
@@ -90,6 +91,83 @@ const [showPassword, setShowPassword] = useState(false);
       setSubmitting(false);
     }
   };
+
+const GoogleSignUp = async () => {
+  try {
+    // Check Play Services (Android)
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+    // Open Google popup
+    const userInfo = await GoogleSignin.signIn();
+
+    console.log('Google userInfo:', userInfo);
+
+    // ✅ Correct token
+    const idToken = userInfo.idToken;
+    const email = userInfo.user.email;
+
+    if (!idToken) {
+      throw new Error('No ID token returned from Google');
+    }
+
+    // 👉 Call backend
+    handleGoogleLogin({
+      email,
+      idToken,
+    });
+
+  } catch (error) {
+    console.log('Google Sign-in Error:', error);
+
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      console.log('User cancelled Google sign-in');
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      console.log('Google sign-in already in progress');
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      console.log('Google Play Services not available');
+    } else {
+      console.log('Unknown Google sign-in error');
+    }
+  }
+};
+
+
+  const handleGoogleLogin = async (tokens) => {
+  try {
+    // 1. Open Google popup
+    
+
+    // 2. Prepare form-data
+    const formData = new FormData();
+    formData.append('access_token', tokens);
+    // formData.append('password', 'Google@123'); // backend-required dummy password
+
+    // 3. Call backend API
+    const res = await authService.googleLogin(formData);
+    console.log("res===>",res);
+    
+
+    const token = res.data?.data?.access_token;
+    const userData = res.data?.data;
+
+    // 4. Save & update Redux
+    await Storage.setItem('token', token);
+    await Storage.setItem('userData', userData);
+
+    dispatch(setUser(userData));
+    dispatch(setToken(token));
+
+    Alert.alert('Success', 'Logged in with Google');
+    navigation.replace('MainTabs');
+
+  } catch (error) {
+    console.log('GOOGLE LOGIN ERROR:', error?.response);
+    Alert.alert(
+      'Google Login Failed',
+      error.response?.data?.message || 'Something went wrong'
+    );
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -208,7 +286,7 @@ const [showPassword, setShowPassword] = useState(false);
             {/* Google */}
             <TouchableOpacity
               style={styles.google}
-              onPress={() => Alert.alert("Google login")}
+              onPress={() =>GoogleSignUp()}
             >
               <Image
                 source={require("../assets/images/google.png")}

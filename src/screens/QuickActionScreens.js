@@ -42,8 +42,8 @@ export default function QuickActionsScreen({route, navigation }) {
 const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
 
 const tabsData = [
-  { key: 'all', label: 'All' },
-  { key: 'news', label: 'News' },
+  { key: 'all', label: 'BookMark' },
+  { key: 'news', label: 'News Bookmark' },
 ];
 
   const dispatch = useDispatch();

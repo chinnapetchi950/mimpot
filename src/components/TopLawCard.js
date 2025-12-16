@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
+import ImageWithLoader from './ImageWithloader';
 const { width } = Dimensions.get('window');
 
 export default function TopLawCard({ item ,onPress }) {
@@ -9,7 +10,7 @@ export default function TopLawCard({ item ,onPress }) {
 
   return (
     <TouchableOpacity onPress={()=>onPress()} style={styles.card}>
-      <Image source={{ uri: `${BASE_URL}${item.image}` }}  
+      <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }}  
       style={styles.image} />
       <View style={styles.badge}><Text style={styles.badgeText}>{item.name}</Text></View>
     </TouchableOpacity>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "759569956158",
+    "project_id": "impot-178ca",
+    "storage_bucket": "impot-178ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759569956158:android:e5cc5cdfc5f30e5319c06f",
+        "android_client_info": {
+          "package_name": "com.mimpot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyLUfyThQvQyg6raD6F_kQdGwLDrJPADk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

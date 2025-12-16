@@ -3,6 +3,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import moment from "moment";
 import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
+import ImageWithLoader from "./ImageWithloader";
 
 export default function ArticleCard({ item,onPress }) {
     const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
@@ -11,7 +12,7 @@ export default function ArticleCard({ item,onPress }) {
      
   return (
     <TouchableOpacity onPress={()=>onPress()}style={styles.card}>
-      <Image source={{ uri:  `${BASE_URL}${item.image}` }} style={styles.img} />
+      <ImageWithLoader source={{ uri:  `${BASE_URL}${item.image}` }} style={styles.img} />
 
       <Text style={styles.title}>{item.title}</Text>
 

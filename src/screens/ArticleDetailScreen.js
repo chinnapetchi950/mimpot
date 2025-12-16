@@ -14,6 +14,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService } from "../api/authService"; // <-- API FILE
 import moment from "moment";
+import ImageWithLoader from "../components/ImageWithloader";
 export default function ArticleDetailsScreen({ route, navigation }) {
       const { categoryId } = route.params || {};
 
@@ -115,7 +116,7 @@ const onClickDownload = async (item) => {
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* Image */}
-        <Image
+        <ImageWithLoader
           source={{
             uri:
               details?.image &&

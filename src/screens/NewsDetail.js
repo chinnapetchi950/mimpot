@@ -12,6 +12,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
+import ImageWithLoader from "../components/ImageWithloader";
 
 export default function NewDetailsScreen({ route, navigation }) {
   const { item } = route.params; // contains { id }
@@ -91,7 +92,7 @@ console.log(res, "reeeeeeee");
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* IMAGE */}
-        <Image
+        <ImageWithLoader
           source={{ uri: fullImage }}
           style={styles.heroImage}
         />

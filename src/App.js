@@ -22,7 +22,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { navigationRef } from "./navigation/RootNavigator";
 import {store,persistor } from './store/store';
 import AppNavigator from './navigation/AppNavigator';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
+GoogleSignin.configure({
+  webClientId: '270715406946-82h1meq6mj22a1u57pn9aemeajkrbdgd.apps.googleusercontent.com',
+  offlineAccess: false,
+});
 
 export default function App() {
   return (

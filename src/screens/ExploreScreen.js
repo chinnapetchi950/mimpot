@@ -13,6 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import moment from "moment";
 import { authService } from "../api/authService";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ImageWithLoader from "../components/ImageWithloader";
 
 export default function ExploreScreen() {
   const [search, setSearch] = useState("");
@@ -73,7 +74,7 @@ console.log("searchQuery",searchQuery);
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri:`${BASE_URL}${item.image}`}} style={styles.cardImage} />
+      <ImageWithLoader source={{ uri:`${BASE_URL}${item.image}`}} style={styles.cardImage} />
 
       <Text numberOfLines={2} style={styles.cardTitle}>
         {item.title || "No Title"}

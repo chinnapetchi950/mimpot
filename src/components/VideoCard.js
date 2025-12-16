@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import ImageWithLoader from "./ImageWithloader";
 
 export default function VideoCard({ item ,onPress}) {
     const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
@@ -17,7 +18,7 @@ export default function VideoCard({ item ,onPress}) {
   return (
     <TouchableOpacity onPress={()=>onPress()} style={styles.card}>
       <View>
-        <Image source={{ uri: `${BASE_URL}${item.image}` }} style={styles.thumbnail} />
+        <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }} style={styles.thumbnail} />
 
         <TouchableOpacity style={styles.playBtn}>
           <Icon name="play" size={30} color="#fff" />

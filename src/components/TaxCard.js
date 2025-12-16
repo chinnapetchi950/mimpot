@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import ImageWithLoader from "./ImageWithloader";
 
 export default function TaxCard({ item, onRead, onDownload }) {
   console.log(item.image,'image');
@@ -22,7 +23,7 @@ export default function TaxCard({ item, onRead, onDownload }) {
       </View>
 
       <View style={{ position: "relative" }}>
-        <Image source={{uri:item.image}} style={styles.image} />
+        <ImageWithLoader source={{uri:item.image}} style={styles.image} />
 
         <TouchableOpacity style={styles.bookmarkWrap}>
           <Ionicons name="bookmark-outline" size={20} color="#fff" />

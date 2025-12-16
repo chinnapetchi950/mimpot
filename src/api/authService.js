@@ -103,7 +103,10 @@ news_bookmarks: async (id) => {
 newsBookmarklist:async()=>{
   return await apiClient.get('/user/news_bookmarks')
 },
-
+ googleLogin: async(formData) =>{
+    return await apiClient.get('/user/google',formData)
+ },
+    
 downloadDocument: async (documentId) => {
  try {
     const token = await AsyncStorage.getItem('token');

@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import moment from 'moment';
+import ImageWithLoader from './ImageWithloader';
 
 export default function NewsCard({ item,onPress }) {
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
+      <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
       <View style={styles.body}>
         <Text style={styles.title}>{item.title}</Text>
         <Text numberOfLines={2} style={styles.excerpt}>{item.excerpt}</Text>

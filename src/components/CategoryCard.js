@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { colors } from '../styles/theme';import { onPress } from 'deprecated-react-native-prop-types/DeprecatedTextPropTypes';
 ;
-
+import ImageWithLoader from './ImageWithloader';
 export default function CategoryCard({ item,onPress }) {
    const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
     
@@ -11,7 +11,7 @@ export default function CategoryCard({ item,onPress }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <View style={styles.iconWrap}>
-       <Image source={{ uri: `${BASE_URL}${item.image}` }}
+       <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }}
         style={styles.icon} />
       </View>
       <Text style={styles.title}>{item.name}</Text>

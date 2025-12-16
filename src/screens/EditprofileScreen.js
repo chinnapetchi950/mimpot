@@ -21,6 +21,7 @@ import {
 import { authService } from "../api/authService";
 import { setUser } from "../store/userSlice";
 import { useDispatch } from "react-redux";
+import ImageWithLoader from "../components/ImageWithloader";
 
 const Field = ({ placeholder, value, onChange, secure }) => (
   <TextInput
@@ -166,7 +167,7 @@ console.log("user===============>",user);
       >
         {/* -------- PROFILE IMAGE -------- */}
         <View style={{ alignItems: "center" }}>
-          <Image
+          <ImageWithLoader
             source={
               image
                 ? { uri: image?.uri }

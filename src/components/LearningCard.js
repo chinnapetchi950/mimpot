@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import ImageWithLoader from './ImageWithloader';
 
 export default function LearningCard({ item,onPress }) {
   console.log(item);
@@ -7,7 +8,7 @@ export default function LearningCard({ item,onPress }) {
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/';
   return (
     <TouchableOpacity onPress={()=>onPress()} style={styles.wrap}>
-      <Image source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
+      <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
       <TouchableOpacity style={styles.play}>
         <Text style={{ fontSize: 18, color: '#fff' }}>▶</Text>
       </TouchableOpacity>
