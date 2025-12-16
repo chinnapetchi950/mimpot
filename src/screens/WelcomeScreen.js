@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../styles/theme';;
+import strings from '../localization/en';
 
 export default function WelcomeScreen({ navigation }) {
   return (
@@ -13,18 +14,18 @@ export default function WelcomeScreen({ navigation }) {
         </View> */}
       </View>
 
-      <Text style={styles.appTitle}>M.impôt</Text>
-      <Text style={styles.subtitle}>Keeps you updated on law text</Text>
+      <Text style={styles.appTitle}>{strings.welcome.app_title}</Text>
+      <Text style={styles.subtitle}>{strings.welcome.subtitle}</Text>
 
       <TouchableOpacity style={styles.primary} onPress={()=> navigation.navigate('Login')}>
-        <Text style={styles.primaryText}>Log In</Text>
+        <Text style={styles.primaryText}>{strings.welcome.log_in}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={()=> navigation.navigate('Signup')}>
-        <Text style={styles.link}>Create an account</Text>
+        <Text style={styles.link}>{strings.welcome.create_account}</Text>
       </TouchableOpacity>
 
-      <Text style={styles.footer}>M.impôt 2025</Text>
+      <Text style={styles.footer}>{strings.welcome.footer}</Text>
     </SafeAreaView>
   );
 }

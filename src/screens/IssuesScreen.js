@@ -7,6 +7,7 @@ import { authService } from "../api/authService";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import strings from "../localization/en";
 export default function IssuesScreen({navigation}) {
   const [tickets, setTickets] = useState([]);
   const [page, setPage] = useState(1);
@@ -95,14 +96,14 @@ console.log("res?.data?.messag",res);
 
   const renderStatus = (urstatus,status) => {
     if (urstatus === "satisfied")
-      return <Text style={{ color: "blue", fontWeight: "600" }}>SATISFIED</Text>;
+      return <Text style={{ color: "blue", fontWeight: "600" }}>{strings.issues.satisfied}</Text>;
 
     if (urstatus === "not_satisfied") {
     return (
       <View style={{ flex:1,flexDirection: "row", alignItems: "center",justifyContent:'space-between' }}>
         <View>
  <Text style={{ color: "#F0B400", fontWeight: "600", marginLeft: 5 }}>
-          NOT SATISFIED
+          {strings.issues.not_satisfied}
         </Text>
         </View>
        
@@ -129,9 +130,9 @@ console.log("res?.data?.messag",res);
         {moment(item.created_at).format("ddd, DD MMM YYYY")}
       </Text>
 
-      <Text style={{ fontWeight: "600" }}>Issue :</Text>
+      <Text style={{ fontWeight: "600" }}>{strings.issues.issue}</Text>
       <Text style={{ marginLeft: 10 }}>{item.message}</Text>
-      <Text style={{ fontWeight: "600", marginTop: 10 }}>Comment:</Text>
+      <Text style={{ fontWeight: "600", marginTop: 10 }}>{strings.issues.comment}</Text>
 
 {item?.replies?.map((item)=>{
   return(
@@ -172,7 +173,7 @@ console.log("res?.data?.messag",res);
                 }}
           >
             <Icon name="smile" size={20} color="#007bff" />
-            <Text style={{ marginLeft: 8, color: "#007bff" }}>SATISFIED</Text>
+            <Text style={{ marginLeft: 8, color: "#007bff" }}>{strings.issues.satisfied}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -189,7 +190,7 @@ console.log("res?.data?.messag",res);
             }}
           >
             <Icon name="frown" size={20} color="#f0b400" />
-            <Text style={{ marginLeft: 8, color: "#f0b400" }}>NOT SATISFIED</Text>
+            <Text style={{ marginLeft: 8, color: "#f0b400" }}>{strings.issues.not_satisfied}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -208,7 +209,7 @@ console.log("res?.data?.messag",res);
     <SafeAreaView style={{flex:1}}>
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 50 }}
-        title="IssueList"
+        title={strings.issues.issue_list}
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -230,7 +231,7 @@ console.log("res?.data?.messag",res);
         ListEmptyComponent={
                 !loading && (
                   <View style={styles.noDataContainer}>
-                    <Text style={styles.noDataText}>No Data Available</Text>
+                    <Text style={styles.noDataText}>{strings.issues.no_data_available}</Text>
                   </View>
                 )
               }

@@ -5,6 +5,7 @@ import { authService } from "../api/authService"; // ensure correct import
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import strings from "../localization/en";
 
 export default function CategoriesScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
@@ -62,7 +63,7 @@ export default function CategoriesScreen({ navigation }) {
      <SafeAreaView style={{flex:1}}>
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 30 }}
-        title="Explore Legal Categories"
+        title={strings.categories.explore_legal_categories}
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -95,7 +96,7 @@ export default function CategoriesScreen({ navigation }) {
         ListEmptyComponent={
           !loading && (
             <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>No Data Available</Text>
+              <Text style={styles.noDataText}>{strings.categories.no_data_available}</Text>
             </View>
           )
         }

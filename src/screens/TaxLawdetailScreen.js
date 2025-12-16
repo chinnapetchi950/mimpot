@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
+import strings from "../localization/en";
 
 export default function TaxDetailsScreen({ route, navigation }) {
   const { item } = route.params; // contains { id }
@@ -83,8 +84,8 @@ console.log(res, "reeeeeeee");
 const onClickDownload = async (item) => {
   if (item?.is_paid === true) {
     Alert.alert(
-      'Payment Required',
-      'Please complete the payment to download this file.',
+      strings.details.payment_required,
+      strings.details.payment_message,
     );
     return;
   }
@@ -97,7 +98,7 @@ const onClickDownload = async (item) => {
 console.log(res,'resresresres');
 
     if (res?.status) {
-      Alert.alert('Success', 'File downloaded successfully');
+      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
     }
   } catch (e) {
     console.log(e);
@@ -112,7 +113,7 @@ console.log(res,'resresresres');
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Details View</Text>
+        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
         <View style={{ width: 30 }} />
       </View>
 

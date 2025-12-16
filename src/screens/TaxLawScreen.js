@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import DownloadModal from "../components/DownloadModal";
 import TaxCard from "../components/TaxCard";
 import { authService,imageUrl } from "../api/authService";
+import strings from "../localization/en";
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const [showDownload, setShowDownload] = useState(false);
@@ -69,7 +70,7 @@ export default function UnderstandingTaxScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>UnderStanding Tax</Text>
+          <Text style={styles.headerTitle}>{strings.tax_law.understanding_tax}</Text>
           <View style={{ width: 30 }} />
         </View>
 
@@ -88,7 +89,7 @@ export default function UnderstandingTaxScreen({ navigation }) {
           scrollEventThrottle={300}
         >
           <Text style={styles.countText}>
-            {data.length} Tax Law Results
+            {data.length} {strings.tax_law.tax_law_results}
           </Text>
 
           {/* LOADER (Initial) */}
@@ -100,7 +101,7 @@ export default function UnderstandingTaxScreen({ navigation }) {
           {!loading && data.length === 0 && (
             <View style={styles.noDataBox}>
               
-              <Text style={styles.noDataText}>No Documents Found</Text>
+              <Text style={styles.noDataText}>{strings.tax_law.no_documents_found}</Text>
             </View>
           )}
 

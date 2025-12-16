@@ -26,9 +26,11 @@ export default function TaxRegulation({ navigation, route }) {
   const [loadingMore, setLoadingMore] = useState(false);
 const [activeTab, setActiveTab] = useState('articles'); // 'all' or 'news'
 
+import strings from "../localization/en";
+
 const tabsData = [
-  { key: 'articles', label: 'Articles' },
-  { key: 'videos', label: 'Videos' },
+  { key: 'articles', label: strings.tax_regulation.articles },
+  { key: 'videos', label: strings.tax_regulation.videos },
 ];
   useEffect(() => {
     resetAndFetch();
@@ -127,7 +129,7 @@ console.log("docresponseartcles==============>",response?.data);
           ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>No Data Available</Text>
+        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
       </View>
     )
   }
@@ -155,7 +157,7 @@ console.log("docresponseartcles==============>",response?.data);
           ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>No Data Available</Text>
+        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
       </View>
     )
   }

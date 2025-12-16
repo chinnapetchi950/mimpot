@@ -5,6 +5,7 @@ import Icon from "react-native-vector-icons/Feather";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from "../styles/theme";
+import strings from "../localization/en";
 
 
 const ManageSubscriptionScreen = ({navigation}) => {
@@ -24,7 +25,7 @@ const ManageSubscriptionScreen = ({navigation}) => {
   return (
 <SafeAreaView style={{flex:1,backgroundColor:colors.background}}>
     <CustomHeader
-  title="ManageSubscription"
+  title={strings.subscription.manage_subscription}
 rightComponent={<TouchableOpacity></TouchableOpacity>}
   leftComponent={
     <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -36,24 +37,24 @@ rightComponent={<TouchableOpacity></TouchableOpacity>}
     <ScrollView style={{ flex: 1, padding: 20,marginTop:20 }}>
       {/* CURRENT PLAN */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Current plan</Text>
-        <Text style={styles.cancel}>Cancel</Text>
+        <Text style={styles.cardTitle}>{strings.subscription.current_plan}</Text>
+        <Text style={styles.cancel}>{strings.subscription.cancel}</Text>
 
         <View style={styles.row}>
           <Icon name="star" size={26} color="#2B9DE0" />
           <View style={{ marginLeft: 10 }}>
-            <Text style={styles.planName}>Monthly</Text>
-            <Text style={styles.price}>$ 29.95 <Text style={{ color: "green" }}>Active</Text></Text>
+            <Text style={styles.planName}>{strings.subscription.monthly}</Text>
+            <Text style={styles.price}>$ 29.95 <Text style={{ color: "green" }}>{strings.subscription.active}</Text></Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.renewBtn}>
-          <Text style={styles.renewText}>Renew</Text>
+          <Text style={styles.renewText}>{strings.subscription.renew}</Text>
         </TouchableOpacity>
       </View>
 
       {/* AVAILABLE PLANS */}
-      <Text style={styles.section}>Available plan</Text>
+      <Text style={styles.section}>{strings.subscription.available_plan}</Text>
 
       {availablePlans.map((plan) => (
         <TouchableOpacity
@@ -77,7 +78,7 @@ rightComponent={<TouchableOpacity></TouchableOpacity>}
           ))}
 
           <TouchableOpacity style={styles.purchaseBtn}>
-            <Text style={styles.purchaseText}>Purchase</Text>
+            <Text style={styles.purchaseText}>{strings.subscription.purchase}</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       ))}

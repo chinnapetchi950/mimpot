@@ -22,19 +22,20 @@ import { authService } from "../api/authService";
 import { setUser } from "../store/userSlice";
 import { useDispatch } from "react-redux";
 import ImageWithLoader from "../components/ImageWithloader";
+import strings from "../localization/en";
 
 const Field = ({ placeholder, value, onChange, secure }) => (
   <TextInput
     placeholder={placeholder}
     value={value}
-    editable={placeholder==="Email"?false:true}
+    editable={placeholder===strings.edit_profile.email?false:true}
     onChangeText={onChange}
     secureTextEntry={secure}
     style={{
       borderWidth: 1,
       borderColor: "#00000036",
       borderRadius: 12,
-      backgroundColor:placeholder==="Email"?'#EEEEEE':'#FFFFFF',
+      backgroundColor:placeholder===strings.edit_profile.email?'#EEEEEE':'#FFFFFF',
       padding: wp("4%"),
       marginTop: hp("2%"),
     }}
@@ -75,10 +76,10 @@ console.log("user===============>",user);
 
   // ---------- IMAGE PICKER ----------
   const openImagePicker = () => {
-    Alert.alert("Upload Image", "Choose an option", [
-      { text: "Camera", onPress: () => openCamera() },
-      { text: "Gallery", onPress: () => openGallery() },
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(strings.edit_profile.upload_image, strings.edit_profile.choose_option, [
+      { text: strings.edit_profile.camera, onPress: () => openCamera() },
+      { text: strings.edit_profile.gallery, onPress: () => openGallery() },
+      { text: strings.common.cancel, style: "cancel" },
     ]);
   };
 
@@ -101,7 +102,7 @@ console.log("user===============>",user);
   // ---------- VALIDATION ----------
   const validate = () => {
     if (!first || !last || !idNum || !location) {
-      Alert.alert("Error", "All fields are required");
+      Alert.alert(strings.common.error, strings.edit_profile.all_fields_required);
       return false;
     }
     return true;
@@ -135,7 +136,7 @@ console.log("user===============>",user);
      
      
           if(res.status){
-            Alert.alert("Success", res?.data?.message);
+            Alert.alert(strings.common.success, res?.data?.message);
             navigation.goBack()
           }
 
@@ -143,14 +144,14 @@ console.log("user===============>",user);
       // Alert.alert("Success", "Profile Updated!");
     } catch (err) {
        console.log("res======?",err);
-      Alert.alert("Error", "Something went wrong!");
+      Alert.alert(strings.common.error, strings.edit_profile.something_went_wrong);
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader
-        title="My Profile"
+        title={strings.edit_profile.my_profile}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -197,12 +198,12 @@ console.log("user===============>",user);
         </View>
 
         {/* -------- FIELDS -------- */}
-        <Field placeholder="Email" value={email}  onChange={setEmail} />
+        <Field placeholder={strings.edit_profile.email} value={email}  onChange={setEmail} />
         {/* <Field placeholder="Password" value={pwd} onChange={setPwd} secure /> */}
-        <Field placeholder="First Name" value={first} onChange={setFirst} />
-        <Field placeholder="Last Name" value={last} onChange={setLast} />
-        <Field placeholder="ID Number" value={idNum} onChange={setIdNum} />
-        <Field placeholder="Location" value={location} onChange={setLocation} />
+        <Field placeholder={strings.edit_profile.first_name} value={first} onChange={setFirst} />
+        <Field placeholder={strings.edit_profile.last_name} value={last} onChange={setLast} />
+        <Field placeholder={strings.edit_profile.id_number} value={idNum} onChange={setIdNum} />
+        <Field placeholder={strings.edit_profile.location} value={location} onChange={setLocation} />
 
         {/* -------- SAVE BUTTON -------- */}
         <TouchableOpacity
@@ -218,7 +219,7 @@ console.log("user===============>",user);
           <Text
             style={{ color: "#fff", fontSize: hp("2.2%"), fontWeight: "700" }}
           >
-            Update Now
+            {strings.edit_profile.update_now}
           </Text>
         </TouchableOpacity>
       </ScrollView>

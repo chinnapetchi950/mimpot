@@ -22,6 +22,7 @@ import Storage from '../utils/storage';
 import { authService } from '../api/authService';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken, clearUser } from '../store/userSlice';
+import strings from '../localization/en';
 
 const SettingsScreen = ({ navigation }) => {
   const [userdata, setuserData] = useState();
@@ -46,16 +47,16 @@ const [imageLoading, setImageLoading] = useState(true);
     checkAuth();
   }, [navigation]);
   const menuItems = [
-    { icon: 'info', title: 'About Us', screen: 'AboutusScreen' },
+    { icon: 'info', title: strings.settings.about_us, screen: 'AboutusScreen' },
     // { icon: "credit-card", title: "Manage Payment", screen: "PaymentScreen" },
-    { icon: 'shield', title: 'Security Settings', screen: 'SecuritySettings' },
+    { icon: 'shield', title: strings.settings.security_settings, screen: 'SecuritySettings' },
     {
       icon: 'file-text',
-      title: 'Manage Subscription',
+      title: strings.settings.manage_subscription,
       screen: 'ManageSubscription',
     },
-    { icon: 'headphones', title: 'Help Center', screen: 'HelpCenter' },
-    { icon: 'log-out', title: 'Logout', screen: 'logout' },
+    { icon: 'headphones', title: strings.settings.help_center, screen: 'HelpCenter' },
+    { icon: 'log-out', title: strings.settings.logout, screen: 'logout' },
   ];
   const [logoutVisible, setLogoutVisible] = useState(false);
 
@@ -81,14 +82,14 @@ const [imageLoading, setImageLoading] = useState(true);
       }
     } catch (e) {
       console.log('logout ERROR:', e?.response?.data || e);
-      Alert.alert('Error', e?.message || 'Failed to logout');
+      Alert.alert(strings.common.error, e?.message || strings.settings.failed_to_logout);
     }
 
     return;
   };
   const handlePress = async item => {
     //navigation.replace("Login");
-    if (item.title === 'Logout') {
+    if (item.title === strings.settings.logout) {
       setLogoutVisible(true);
     }
     navigation.navigate(item.screen);
@@ -99,16 +100,16 @@ const [imageLoading, setImageLoading] = useState(true);
 
       const res = await authService.updateProfileImage(selectedImage);
 
-      if (res.data?.status === true) {
+        if (res.data?.status === true) {
         dispatch(setUser(res.data.data)); // Update Redux user
         Storage.setItem('userData', res.data.data);
 
-        Alert.alert('Success', 'Profile updated');
+        Alert.alert(strings.common.success, strings.settings.profile_updated);
         navigation.goBack();
       }
     } catch (err) {
       console.log('Upload error:', err);
-      Alert.alert('Error', 'Failed to upload image');
+      Alert.alert(strings.common.error, strings.settings.failed_to_upload_image);
     } finally {
       setUploading(false); // HIDE LOADER
     }
@@ -118,7 +119,7 @@ const [imageLoading, setImageLoading] = useState(true);
   
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <CustomHeader title={'Settings'} />
+      <CustomHeader title={strings.settings.settings} />
 
       <ScrollView style={{ flex: 1, padding: wp('5%') }}>
         {/* Header */}
@@ -215,7 +216,7 @@ const [imageLoading, setImageLoading] = useState(true);
 
         {/* More Settings */}
         <Text style={[common.title, { marginTop: hp('3%') }]}>
-          More Settings
+          {strings.settings.more_settings}
         </Text>
 
         {menuItems.map(item => (

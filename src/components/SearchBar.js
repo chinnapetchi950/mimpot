@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../styles/theme';
+import strings from '../localization/en';
 
 export default function SearchBar({ value, onChangeText, onSearch, onFilterPress }) {
   return (
@@ -12,7 +13,7 @@ export default function SearchBar({ value, onChangeText, onSearch, onFilterPress
           <Ionicons name="search" size={18} color="#9AA0A6" />
         </TouchableOpacity>
         <TextInput
-          placeholder="Search laws, articles, or advice..."
+          placeholder={strings.search.search_placeholder}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}

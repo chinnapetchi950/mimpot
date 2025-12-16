@@ -10,6 +10,7 @@ import { authService } from "../api/authService";
 import { setToken, setUser } from "../store/userSlice";
 import Storage from "../utils/storage";
 import { useFocusEffect } from "@react-navigation/native";
+import strings from "../localization/en";
 
 
 const ProfileScreen = () => {
@@ -37,7 +38,7 @@ const [imageLoading, setImageLoading] = useState(true);
 
     } catch (e) {
       console.log("PROFILE ERROR:", e?.response?.data || e);
-      Alert.alert("Error", "Unable to load profile. Please try again.");
+      Alert.alert(strings.common.error, strings.profile.unable_to_load_profile);
     }
   };
 
@@ -55,7 +56,7 @@ const [imageLoading, setImageLoading] = useState(true);
           setImageLoading(false)
 
       console.log("STATISTICS ERROR:", e?.response?.data || e);
-      Alert.alert("Error", "Unable to load statistics.");
+      Alert.alert(strings.common.error, strings.profile.unable_to_load_statistics);
     }
   };
 useFocusEffect(
@@ -69,7 +70,7 @@ useFocusEffect(
   );
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <CustomHeader title="Profile" />
+      <CustomHeader title={strings.profile.profile} />
 
       <ScrollView style={{ flex: 1, padding: wp("5%") }}>
 
@@ -115,24 +116,24 @@ useFocusEffect(
           <>
             {[
               {
-                title: "Bookmarked",
-                subtext: ` ${stats.total_bookmarks} documents`,
+                title: strings.profile.bookmarked,
+                subtext: ` ${stats.total_bookmarks} ${strings.profile.documents}`,
                 value: stats.total_bookmarks
                 //value:stats.total_bookmarks
               },
               {
-                title: "Document interactions",
-                subtext: `${stats.total_viewed_this_month} documents viewed this month`,
+                title: strings.profile.document_interactions,
+                subtext: `${stats.total_viewed_this_month} ${strings.profile.documents_viewed_this_month}`,
                 value: stats.total_viewed_this_month,
               },
               {
-                title: "Video interactions",
-                subtext: `${stats.total_viewed_videos_this_month} videos watched`,
+                title: strings.profile.video_interactions,
+                subtext: `${stats.total_viewed_videos_this_month} ${strings.profile.videos_watched}`,
                 value: stats.total_viewed_videos_this_month,
               },
               {
-                title: "Download counts",
-                subtext: `${stats.total_downloaded_files} files downloaded`,
+                title: strings.profile.download_counts,
+                subtext: `${stats.total_downloaded_files} ${strings.profile.files_downloaded}`,
                 value: stats.total_downloaded_files,
               },
             ].map((item) => (

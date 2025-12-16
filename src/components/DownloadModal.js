@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import strings from "../localization/en";
 
 export default function DownloadModal({ visible, onClose }) {
   return (
@@ -20,9 +21,9 @@ export default function DownloadModal({ visible, onClose }) {
 
           <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 10 }} />
 
-          <Text style={styles.title}>Downloading</Text>
+          <Text style={styles.title}>{strings.download.downloading}</Text>
           <Text style={styles.subtitle}>
-            You can explore more while we are downloading.
+            {strings.download.download_message}
           </Text>
         </View>
       </View>

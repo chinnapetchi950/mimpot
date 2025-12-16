@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import ImageWithLoader from "./ImageWithloader";
+import strings from "../localization/en";
 
 export default function TaxCard({ item, onRead, onDownload }) {
   console.log(item.image,'image');
@@ -13,7 +14,7 @@ export default function TaxCard({ item, onRead, onDownload }) {
 
         <View style={styles.row}>
           <TouchableOpacity style={styles.readBtn} onPress={onRead}>
-            <Text style={styles.readText}>Read</Text>
+            <Text style={styles.readText}>{strings.articles.read}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.downloadBtn} onPress={onDownload}>

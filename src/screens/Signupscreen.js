@@ -12,25 +12,26 @@ import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
 import DividerOr from '../components/DividerOr';
 import { authService } from '../api/authService';
+import strings from '../localization/en';
 
 const { width, height } = Dimensions.get('window');
 
 const SignupSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .email(strings.auth.invalid_email_format)
+    .required(strings.auth.email_is_required),
 
   password: Yup.string()
-    .min(6, "Password must be at least 8 characters")
-    .required("Password is required"),
+    .min(6, strings.auth.password_min_length)
+    .required(strings.auth.password_is_required),
 password_confirmation: Yup.string()
-    .min(6, "Confirm Password must be at least 8 characters")
-    .required(" Confirm Password is required"),
+    .min(6, strings.auth.confirm_password_min_length)
+    .required(strings.auth.confirm_password_required_text),
   firstname: Yup.string()
-    .required("Name is required"),
+    .required(strings.auth.name_is_required),
 
   lastname: Yup.string()
-    .required("Last name is required"),
+    .required(strings.auth.last_name_is_required),
 
   // id_number: Yup.string()
   //   .required("ID number is required"),
@@ -43,7 +44,7 @@ export default function SignupScreen({navigation}) {
 
   const handleRegister = async (values) => {
     if (!agree) {
-      Alert.alert("Terms", "You must agree to continue.");
+      Alert.alert(strings.auth.terms_title, strings.auth.terms_alert);
       return;
     }
 
@@ -58,11 +59,11 @@ export default function SignupScreen({navigation}) {
       }
 
 Alert.alert(
-  "Success",
-  "Account created successfully!",
+  strings.common.success,
+  strings.auth.account_created_successfully,
   [
     {
-      text: "OK",
+      text: strings.common.ok,
       onPress: () => {
         console.log("OK Pressed");
         // 👉 navigate or perform action here
@@ -75,8 +76,8 @@ Alert.alert(
       console.log("REGISTER ERROR:", error.response?.data || error);
 
       Alert.alert(
-        "Error",
-        error.response?.data?.message || "Registration failed"
+        strings.common.error,
+        error.response?.data?.message || strings.auth.registration_failed
       );
     } finally {
       setLoading(false);
@@ -97,14 +98,14 @@ Alert.alert(
             source={require('../assets/images/round_logo.png')}
             style={styles.logoSmall}
           />
-          <Text style={styles.headerTitle}>Access Share</Text>
-          <Text style={styles.headerSubtitle}>Learn tax laws easily</Text>
+          <Text style={styles.headerTitle}>{strings.signup.access_share}</Text>
+          <Text style={styles.headerSubtitle}>{strings.signup.learn_tax_laws_easily}</Text>
         </View>
       </ImageBackground>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.whiteCard}>
-          <Text style={styles.pageTitle}>Sign Up</Text>
+          <Text style={styles.pageTitle}>{strings.auth.sign_up}</Text>
 
           {/* FORM */}
           <Formik
@@ -130,7 +131,7 @@ Alert.alert(
 
                 {/* EMAIL */}
                 <InputField
-                  placeholder="Email*"
+                  placeholder={strings.auth.email_required}
                   value={values.email}
                   onChangeText={handleChange("email")}
                 />
@@ -140,7 +141,7 @@ Alert.alert(
 
                 {/* PASSWORD */}
                 <InputField
-                  placeholder="Password*"
+                  placeholder={strings.auth.password_required}
                   secureTextEntry
                   value={values.password}
                   onChangeText={handleChange("password")}
@@ -149,7 +150,7 @@ Alert.alert(
                   <Text style={styles.errorText}>{errors.password}</Text>
                 )}
                 <InputField
-                  placeholder="Confirm Password*"
+                  placeholder={strings.auth.confirm_password_required}
                   secureTextEntry
                   value={values.password_confirmation}
                   onChangeText={handleChange("password_confirmation")}
@@ -160,7 +161,7 @@ Alert.alert(
 
                 {/* NAME */}
                 <InputField
-                  placeholder="Name*"
+                  placeholder={strings.auth.name_required}
                   value={values.firstname}
                   onChangeText={handleChange("firstname")}
                 />
@@ -170,7 +171,7 @@ Alert.alert(
 
                 {/* LAST NAME */}
                 <InputField
-                  placeholder="Last Name*"
+                  placeholder={strings.auth.last_name_required}
                   value={values.lastname}
                   onChangeText={handleChange("lastname")}
                 />
@@ -180,7 +181,7 @@ Alert.alert(
 
                 {/* ID NUMBER */}
                 <InputField
-                  placeholder="ID Number"
+                  placeholder={strings.auth.id_number}
                   value={values.id_number}
                   onChangeText={handleChange("id_number")}
                 />
@@ -198,15 +199,15 @@ Alert.alert(
                   </TouchableOpacity>
 
                   <Text style={styles.termText}>
-                    By signing up, you agree to our{" "}
-                    <Text style={styles.link}>Terms & Conditions</Text> and{" "}
-                    <Text style={styles.link}>Privacy Policy</Text>.
+                    {strings.auth.terms_agreement}{" "}
+                    <Text style={styles.link}>{strings.auth.terms_and_conditions}</Text> and{" "}
+                    <Text style={styles.link}>{strings.auth.privacy_policy}</Text>.
                   </Text>
                 </View>
 
                 {/* SIGN UP BUTTON */}
                 <PrimaryButton
-                  title={loading ? "Please wait..." : "Sign Up"}
+                  title={loading ? strings.common.please_wait : strings.auth.sign_up}
                   onPress={handleSubmit}
                   disabled={loading}
                 />
@@ -221,7 +222,7 @@ Alert.alert(
 
                 {/* LOGIN LINK */}
                 <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.loginLink}>
-                  <Text style={styles.loginText}>Log in</Text>
+                  <Text style={styles.loginText}>{strings.auth.login}</Text>
                 </TouchableOpacity>
 
                 <DividerOr />
@@ -231,7 +232,7 @@ Alert.alert(
                     source={require('../assets/images/google.png')}
                     style={styles.googleIcon}
                   />
-                  <Text style={styles.googleText}>Continue with google</Text>
+                  <Text style={styles.googleText}>{strings.auth.continue_with_google_lower}</Text>
                 </TouchableOpacity>
 
               </>

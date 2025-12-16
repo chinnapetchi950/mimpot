@@ -2,21 +2,22 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { colors } from "../styles/theme";
+import strings from "../localization/en";
 
 const LogoutModal = ({ visible, onConfirm, onCancel }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.backdrop}>
         <View style={styles.box}>
-          <Text style={styles.title}>Are you sure,{"\n"}you want to log out now?</Text>
+          <Text style={styles.title}>{strings.logout.confirm_logout}</Text>
 
           <View style={styles.actions}>
             <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
-              <Text style={styles.confirmText}>Log Out</Text>
+              <Text style={styles.confirmText}>{strings.logout.log_out}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
+              <Text style={styles.cancelText}>{strings.logout.cancel}</Text>
             </TouchableOpacity>
           </View>
         </View>

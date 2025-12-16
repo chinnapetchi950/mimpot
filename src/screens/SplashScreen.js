@@ -3,6 +3,7 @@ import { View, Image, StyleSheet, Dimensions, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 import Storage from '../utils/storage';
+import strings from '../localization/en';
 
 export default function SplashScreen({ navigation }) {
   // useEffect(() => {
@@ -33,7 +34,7 @@ useEffect(() => {
           <Image source={require('../assets/images/logo.png')} resizeMode="contain" accessible accessibilityLabel="M.impot logo" />
         </View>
       </View>
-      <Text style={styles.footer}>M.impôt 2025</Text>
+      <Text style={styles.footer}>{strings.welcome.footer}</Text>
     </SafeAreaView>
   );
 }

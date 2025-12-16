@@ -12,6 +12,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 import CustomHeader from "../components/CustomHeader";
 import { common } from "../styles/theme";
 import { authService } from "../api/authService";
+import strings from "../localization/en";
 const ChangePasswordScreen = ({ navigation }) => {
   const [current, setCurrent] = useState("");
   const [newPwd, setNewPwd] = useState("");
@@ -28,27 +29,27 @@ const ChangePasswordScreen = ({ navigation }) => {
   // ---------------------------
   const validate = () => {
     if (!current.trim()) {
-      Alert.alert("Validation Error", "Enter your current password");
+      Alert.alert(strings.change_password.validation_error, strings.change_password.enter_current_password);
       return false;
     }
 
     if (!newPwd.trim()) {
-      Alert.alert("Validation Error", "Enter new password");
+      Alert.alert(strings.change_password.validation_error, strings.change_password.enter_new_password);
       return false;
     }
 
     if (newPwd.length < 8) {
-      Alert.alert("Validation Error", "New password must be at least 8 characters");
+      Alert.alert(strings.change_password.validation_error, strings.change_password.password_min_8_chars);
       return false;
     }
 
     if (!reNew.trim()) {
-      Alert.alert("Validation Error", "Confirm your new password");
+      Alert.alert(strings.change_password.validation_error, strings.change_password.confirm_new_password);
       return false;
     }
 
     if (newPwd !== reNew) {
-      Alert.alert("Validation Error", "Passwords do not match");
+      Alert.alert(strings.change_password.validation_error, strings.change_password.passwords_do_not_match);
       return false;
     }
 
@@ -74,11 +75,11 @@ const ChangePasswordScreen = ({ navigation }) => {
     setLoading(false);
 
     Alert.alert(
-      "Success",
-      response.data.message || "Password changed successfully",
+      strings.common.success,
+      response.data.message || strings.change_password.password_changed_successfully,
       [
         {
-          text: "OK",
+          text: strings.common.ok,
           onPress: () => navigation.navigate('Login'),
         },
       ]
@@ -89,9 +90,9 @@ const ChangePasswordScreen = ({ navigation }) => {
 
     const msg =
       error?.response?.data?.message ||
-      "Failed to change password. Try again.";
+      strings.change_password.failed_to_change_password;
 
-    Alert.alert("Error", msg);
+    Alert.alert(strings.common.error, msg);
   }
 };
 
@@ -99,7 +100,7 @@ const ChangePasswordScreen = ({ navigation }) => {
   return (
     <View style={common.screen}>
       <CustomHeader
-        title="Change Password"
+        title={strings.change_password.change_password}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -110,10 +111,10 @@ const ChangePasswordScreen = ({ navigation }) => {
       <View style={{ paddingHorizontal: wp("5%"), paddingTop: hp("3%") }}>
 
         {/* Current Password */}
-        <Text style={{ fontSize: 16 }}>Current Password</Text>
+        <Text style={{ fontSize: 16 }}>{strings.change_password.current_password}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.change_password.enter_password}
             secureTextEntry={!showCurrent}
             value={current}
             onChangeText={setCurrent}
@@ -134,10 +135,10 @@ const ChangePasswordScreen = ({ navigation }) => {
         </View>
 
         {/* New Password */}
-        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>New Password</Text>
+        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>{strings.change_password.new_password}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.change_password.enter_password}
             secureTextEntry={!showNew}
             value={newPwd}
             onChangeText={setNewPwd}
@@ -158,10 +159,10 @@ const ChangePasswordScreen = ({ navigation }) => {
         </View>
 
         {/* Confirm Password */}
-        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>Re-Enter Password</Text>
+        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>{strings.change_password.re_enter_password}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.change_password.enter_password}
             secureTextEntry={!showRe}
             value={reNew}
             onChangeText={setReNew}
@@ -198,7 +199,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={{ color: "#fff", fontWeight: "700" }}>
-              Change Password
+              {strings.change_password.change_password}
             </Text>
           )}
         </TouchableOpacity>

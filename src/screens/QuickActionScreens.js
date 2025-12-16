@@ -27,6 +27,7 @@ import Storage from '../utils/storage';
 import { setUser, setToken } from '../store/userSlice';
 const { width } = Dimensions.get('window');
 import Tabs from '../components/Tabs';
+import strings from '../localization/en';
 
 
 
@@ -42,8 +43,8 @@ export default function QuickActionsScreen({route, navigation }) {
 const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
 
 const tabsData = [
-  { key: 'all', label: 'BookMark' },
-  { key: 'news', label: 'News Bookmark' },
+  { key: 'all', label: strings.quick_actions.bookmark },
+  { key: 'news', label: strings.quick_actions.news_bookmark },
 ];
 
   const dispatch = useDispatch();
@@ -112,7 +113,7 @@ const fetchquickActions = async () => {
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
           <ActivityIndicator size="large" color="#000" />
-          <Text style={{ marginTop: 10 }}>Loading...</Text>
+          <Text style={{ marginTop: 10 }}>{strings.quick_actions.loading}</Text>
         </View>
       </SafeAreaView>
     );
@@ -143,7 +144,7 @@ const fetchquickActions = async () => {
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={{ width: 30 }} />
         </View>
-        {title === 'Bookmarked' && (
+        {title === strings.quick_actions.bookmarked && (
   <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
         )}
         
@@ -163,7 +164,7 @@ const fetchquickActions = async () => {
     ))}
   </View>
 )} */}
-{title === 'Bookmarked' ? (
+{title === strings.quick_actions.bookmarked ? (
   <>
     {activeTab === 'news' ? (
       news?.length > 0 ? (
@@ -177,13 +178,13 @@ const fetchquickActions = async () => {
           ))}
         </View>
       ) : (
-        <Text style={styles.noData}>No News Found</Text>
+        <Text style={styles.noData}>{strings.quick_actions.no_news_found}</Text>
       )
     ) : (
       // 'All' tab
       <>
         {news?.length === 0 && learning?.length === 0 ? (
-          <Text style={styles.noData}>No Data Found</Text>
+          <Text style={styles.noData}>{strings.quick_actions.no_data_found}</Text>
         ) : (
           <>
             <View style={styles.newsGrid}>
@@ -212,7 +213,7 @@ const fetchquickActions = async () => {
           <View style={{ alignItems: 'center', marginTop: 40 }}>
             {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
             <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
-              No Data Found
+              {strings.quick_actions.no_data_found}
             </Text>
           </View>
         ) : (

@@ -10,6 +10,7 @@ import Storage from "../utils/storage";
 import { clearUser, setUser } from "../store/userSlice";
 import DeleteAccountModal from "../components/DeleteAccountModal";
 import { useDispatch } from "react-redux";
+import strings from "../localization/en";
 
 
 const SecuritySettingsScreen = ({ navigation }) => {
@@ -35,7 +36,7 @@ if(res?.data?.status===true){
 
     } catch (e) {
       console.log("delete_account ERROR:", e?.response?.data || e);
-      Alert.alert("Error", e?.message || "Failed to delete accout");
+      Alert.alert(strings.common.error, e?.message || strings.security.failed_to_delete_account);
     }
      
       return;
@@ -46,7 +47,7 @@ if(res?.data?.status===true){
   return (
     <View style={common.screen}>
         <CustomHeader
-  title="Security Settings"
+  title={strings.security.security_settings}
 rightComponent={<TouchableOpacity></TouchableOpacity>}
   leftComponent={
     <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -56,24 +57,24 @@ rightComponent={<TouchableOpacity></TouchableOpacity>}
   }
 />
       <View style={{ paddingHorizontal: wp("5%"), paddingTop: hp("3%") }}>
-        <Text style={{ fontWeight: "700", fontSize: hp("2.2%") }}>General</Text>
+        <Text style={{ fontWeight: "700", fontSize: hp("2.2%") }}>{strings.security.general}</Text>
 
         <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", marginTop: hp("2%") }} onPress={() => navigation.navigate("ChangePassword")}>
           <Ionicons name="key" size={hp("2.6%")} color="#42B5E8" />
-          <Text style={{ marginLeft: wp("3%"), fontSize: hp("2.1%") }}>Change Password</Text>
+          <Text style={{ marginLeft: wp("3%"), fontSize: hp("2.1%") }}>{strings.security.change_password}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", marginTop: hp("3%") }} onPress={() => {setShowModal(true)}}>
           <Ionicons name="person-remove" size={hp("2.6%")} color="#42B5E8" />
-          <Text style={{ marginLeft: wp("3%"), fontSize: hp("2.1%") }}>Delete Account</Text>
+          <Text style={{ marginLeft: wp("3%"), fontSize: hp("2.1%") }}>{strings.security.delete_account}</Text>
         </TouchableOpacity>
 <TouchableOpacity onPress={()=>navigation.navigate('Terms')}>
-        <Text style={{ fontWeight: "700", marginTop: hp("4%"), fontSize: hp("2.2%") }}>Terms & Conditions</Text>
+        <Text style={{ fontWeight: "700", marginTop: hp("4%"), fontSize: hp("2.2%") }}>{strings.security.terms_and_conditions}</Text>
               </TouchableOpacity>
 <TouchableOpacity onPress={
   ()=>navigation.navigate('Privacy')}>
 
-        <Text style={{ fontWeight: "700", marginTop: hp("2%"), fontSize: hp("2.2%") }}>Privacy Policy</Text>
+        <Text style={{ fontWeight: "700", marginTop: hp("2%"), fontSize: hp("2.2%") }}>{strings.security.privacy_policy}</Text>
                       </TouchableOpacity>
                       <DeleteAccountModal
         visible={showModal}

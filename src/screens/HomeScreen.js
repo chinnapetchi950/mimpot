@@ -33,6 +33,7 @@ import { setUser, setToken } from '../store/userSlice';
 
 import Icon from 'react-native-vector-icons/Feather';
 import { useFocusEffect } from '@react-navigation/native';
+import strings from '../localization/en';
 
 export default function HomeScreen({ navigation }) {
 
@@ -69,11 +70,11 @@ useFocusEffect(
 
     const onBackPress = () => {
       Alert.alert(
-        'Exit App',
-        'Are you sure you want to exit the app?',
+        strings.home.exit_app,
+        strings.home.exit_confirmation,
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Yes', onPress: () => BackHandler.exitApp() },
+          { text: strings.common.cancel, style: 'cancel' },
+          { text: strings.common.yes, onPress: () => BackHandler.exitApp() },
         ],
       );
       return true; // block default back action
@@ -162,7 +163,7 @@ useFocusEffect(
       <SafeAreaView style={styles.safe}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ActivityIndicator size="large" color="#000" />
-          <Text style={{ marginTop: 10 }}>Loading...</Text>
+          <Text style={{ marginTop: 10 }}>{strings.common.loading}</Text>
         </View>
       </SafeAreaView>
     );
@@ -176,7 +177,7 @@ useFocusEffect(
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         <CustomHeader
-          title={`Hi ${[user?.user?.firstname, user?.user?.lastname].filter(Boolean).join(" ")}`}
+          title={`${strings.home.hi} ${[user?.user?.firstname, user?.user?.lastname].filter(Boolean).join(" ")}`}
           showLanguage={true}
         />
 
@@ -222,12 +223,12 @@ useFocusEffect(
 
         {/* ---------- REST OF YOUR ORIGINAL UI ---------- */}
 
-        <Text style={styles.sectionTitle}>Explore Tax Laws</Text>
+        <Text style={styles.sectionTitle}>{strings.home.explore_tax_laws}</Text>
 
         {topLawData?.length === 0 ? (
           <View style={{ alignItems: "center", marginTop: 40 }}>
             <Text style={{ fontSize: 14, color: "#888", marginTop: 10 }}>
-              No Data Found
+              {strings.common.no_data_found}
             </Text>
           </View>
         ) : (
@@ -250,10 +251,10 @@ useFocusEffect(
 
         {/* ---- CATEGORIES ---- */}
         <View style={styles.rowHeader}>
-          <Text style={styles.sectionTitle}>Explore Legal Categories</Text>
+          <Text style={styles.sectionTitle}>{strings.home.explore_legal_categories}</Text>
           {categories?.length > 0 && (
             <TouchableOpacity onPress={() => navigation.navigate('CategoriesScreen')}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={styles.seeAll}>{strings.home.see_all}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -272,10 +273,10 @@ useFocusEffect(
 
         {/* ---- Learning Hub ---- */}
         <View style={styles.rowHeader}>
-          <Text style={styles.sectionTitle}>Your Legal Learning Hub</Text>
+          <Text style={styles.sectionTitle}>{strings.home.your_legal_learning_hub}</Text>
           {learning?.length > 0 && (
             <TouchableOpacity onPress={() => navigation.navigate('LearningHubScreen')}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={styles.seeAll}>{strings.home.see_all}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -289,28 +290,28 @@ useFocusEffect(
         ))}
 
         {/* ---- QUICK ACCESS ---- */}
-        <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Quick Access</Text>
+        <Text style={[styles.sectionTitle, { marginTop: 12 }]}>{strings.home.quick_access}</Text>
         <View style={styles.quickRow}>
           <QuickAccessCard
-            title="Bookmarked"
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Bookmarked" })}
+            title={strings.home.bookmarked}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: strings.home.bookmarked })}
           />
           <QuickAccessCard
-            title="Downloaded"
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Downloaded" })}
+            title={strings.home.downloaded}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: strings.home.downloaded })}
           />
           <QuickAccessCard
-            title="Recently Viewed"
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: "Recently Viewed" })}
+            title={strings.home.recently_viewed}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: strings.home.recently_viewed })}
           />
         </View>
 
         {/* ---- NEWS ---- */}
         <View style={styles.rowHeader}>
-          <Text style={styles.sectionTitle}>Latest News Updates</Text>
+          <Text style={styles.sectionTitle}>{strings.home.latest_news_updates}</Text>
           {news?.length > 0 && (
             <TouchableOpacity onPress={() => navigation.navigate('NewsScreen')}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={styles.seeAll}>{strings.home.see_all}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService } from "../api/authService"; // <-- API FILE
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
+import strings from "../localization/en";
 export default function ArticleDetailsScreen({ route, navigation }) {
       const { categoryId } = route.params || {};
 
@@ -82,8 +83,8 @@ console.log(res, "reeeeeeee");
 const onClickDownload = async (item) => {
   if (item?.is_paid === true) {
     Alert.alert(
-      'Payment Required',
-      'Please complete the payment to download this file.',
+      strings.details.payment_required,
+      strings.details.payment_message,
     );
     return;
   }
@@ -95,7 +96,7 @@ const onClickDownload = async (item) => {
     const res = await authService.downloadDocument(item.id);
 
     if (res?.status) {
-      Alert.alert('Success', 'File downloaded successfully');
+      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
     }
   } catch (e) {
     console.log(e);
@@ -110,7 +111,7 @@ const onClickDownload = async (item) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Details View</Text>
+        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
         <View style={{ width: 30 }} />
       </View>
 
@@ -127,7 +128,7 @@ const onClickDownload = async (item) => {
 
         {/* Date + Icons */}
         <View style={styles.row}>
-          <Text style={styles.date}>{moment(details?.created_at).format('DD-MM-YYYY') || "No date"}</Text>
+          <Text style={styles.date}>{moment(details?.created_at).format('DD-MM-YYYY') || strings.details.no_date}</Text>
 
           <View style={styles.iconRow}>
             <Icon onPress={handleShare} name="share-outline" size={24} color="#000" />

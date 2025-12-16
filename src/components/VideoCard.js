@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import ImageWithLoader from "./ImageWithloader";
+import strings from "../localization/en";
 
 export default function VideoCard({ item ,onPress}) {
     const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
@@ -28,7 +29,7 @@ export default function VideoCard({ item ,onPress}) {
 
 <View style={{flexDirection:'column'}}>
 <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.author}>By {'M.impot'}</Text>
+      <Text style={styles.author}>{strings.video_details.by} {'M.impot'}</Text>
 </View>
       
 

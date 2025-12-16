@@ -13,6 +13,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
+import strings from "../localization/en";
 
 export default function NewDetailsScreen({ route, navigation }) {
   const { item } = route.params; // contains { id }
@@ -86,7 +87,7 @@ console.log(res, "reeeeeeee");
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Details View</Text>
+        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
         <View style={{ width: 30 }} />
       </View>
 

@@ -21,6 +21,7 @@ import { setToken, setUser } from "../store/userSlice";
 import Storage from "../utils/storage";
 import Feather from "react-native-vector-icons/Feather";
 import { GoogleSignin,statusCodes } from '@react-native-google-signin/google-signin';
+import strings from "../localization/en";
 
 const { width, height } = Dimensions.get("window");
 
@@ -28,8 +29,8 @@ const { width, height } = Dimensions.get("window");
 // VALIDATION
 // ---------------------
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  password: Yup.string().min(4, "Too short!").required("Password is required"),
+  email: Yup.string().email(strings.auth.invalid_email).required(strings.auth.email_is_required),
+  password: Yup.string().min(4, strings.auth.password_too_short).required(strings.auth.password_is_required),
 });
 
 export default function LoginScreen({ navigation }) {
@@ -82,11 +83,11 @@ const [showPassword, setShowPassword] = useState(false);
       dispatch(setUser(userData));
       dispatch(setToken(token));
 
-      Alert.alert("Success", "Logged in successfully!");
+      Alert.alert(strings.common.success, strings.auth.logged_in_successfully);
       navigation.replace("MainTabs");
     } catch (e) {
       console.log("Login ERROR:", e.response || e);
-      Alert.alert("Login failed", e.response?.data?.message || "Something went wrong");
+      Alert.alert(strings.auth.login_failed, e.response?.data?.message || strings.common.something_went_wrong);
     } finally {
       setSubmitting(false);
     }
@@ -157,14 +158,14 @@ const GoogleSignUp = async () => {
     dispatch(setUser(userData));
     dispatch(setToken(token));
 
-    Alert.alert('Success', 'Logged in with Google');
+    Alert.alert(strings.common.success, strings.auth.logged_in_with_google);
     navigation.replace('MainTabs');
 
   } catch (error) {
     console.log('GOOGLE LOGIN ERROR:', error?.response);
     Alert.alert(
-      'Google Login Failed',
-      error.response?.data?.message || 'Something went wrong'
+      strings.auth.google_login_failed,
+      error.response?.data?.message || strings.common.something_went_wrong
     );
   }
 };
@@ -180,7 +181,7 @@ const GoogleSignUp = async () => {
 
       <View style={styles.top} />
 
-      <Text style={styles.title}>Log In</Text>
+      <Text style={styles.title}>{strings.auth.log_in}</Text>
 
       <Formik
         initialValues={{ email: initialEmail, password: initialPassword }}
@@ -200,7 +201,7 @@ const GoogleSignUp = async () => {
           <View style={styles.form}>
             {/* EMAIL */}
             <InputField
-              placeholder="Email*"
+              placeholder={strings.auth.email_required}
               value={values.email}
               onChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
@@ -212,7 +213,7 @@ const GoogleSignUp = async () => {
 
             {/* PASSWORD */}
           <InputField
-  placeholder="Password*"
+  placeholder={strings.auth.password_required}
   value={values.password}
   onChangeText={handleChange("password")}
   onBlur={handleBlur("password")}
@@ -259,29 +260,29 @@ const GoogleSignUp = async () => {
 }
   </View>
 
-  <Text style={styles.smallText}>Remember me</Text>
+  <Text style={styles.smallText}>{strings.auth.remember_me}</Text>
 </TouchableOpacity>
 
               <TouchableOpacity>
-                <Text style={styles.smallText}>Forgot password?</Text>
+                <Text style={styles.smallText}>{strings.auth.forgot_password}</Text>
               </TouchableOpacity>
             </View>
 
             <View style={{ marginTop: 40 }} />
 
             <PrimaryButton
-              title={isSubmitting ? "Please wait..." : "Log In"}
+              title={isSubmitting ? strings.common.please_wait : strings.auth.log_in}
               onPress={handleSubmit}
               disabled={isSubmitting}
             />
 
             {/* SIGN UP */}
             <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-              <Text style={styles.signup}>Sign Up</Text>
+              <Text style={styles.signup}>{strings.auth.sign_up}</Text>
             </TouchableOpacity>
 
             {/* Divider */}
-           <View style={styles.dividerContainer}> <View style={styles.line} /> <Text style={styles.or}>OR</Text> <View style={styles.line} /> </View>
+           <View style={styles.dividerContainer}> <View style={styles.line} /> <Text style={styles.or}>{strings.common.or}</Text> <View style={styles.line} /> </View>
 
             {/* Google */}
             <TouchableOpacity
@@ -292,7 +293,7 @@ const GoogleSignUp = async () => {
                 source={require("../assets/images/google.png")}
                 style={styles.googleIcon}
               />
-              <Text style={styles.googleText}>Continue with Google</Text>
+              <Text style={styles.googleText}>{strings.auth.continue_with_google}</Text>
             </TouchableOpacity>
           </View>
         )}

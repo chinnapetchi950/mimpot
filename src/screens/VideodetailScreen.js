@@ -19,6 +19,7 @@ import { authService } from "../api/authService";
 import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import strings from "../localization/en";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function DetailsScreen({ navigation, route }) {
@@ -137,15 +138,15 @@ const handleShare = async () => {
   if (!video) {
     return (
       <View style={styles.center}>
-        <Text style={styles.noDataText}>No Data Available</Text>
+        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
       </View>
     );
   }
   const onClickDownload = async (item) => {
   if (item?.is_paid === true) {
     Alert.alert(
-      'Payment Required',
-      'Please complete the payment to download this file.',
+      strings.details.payment_required,
+      strings.details.payment_message,
     );
     return;
   }
@@ -157,7 +158,7 @@ const handleShare = async () => {
     const res = await authService.downloadDocument(item.id);
 
     if (res?.status) {
-      Alert.alert('Success', 'File downloaded successfully');
+      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
     }
   } catch (e) {
     console.log(e);
@@ -190,7 +191,7 @@ console.log(res, "reeeeeeee");
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
       <CustomHeader
-        title="Details View"
+        title={strings.video_details.details_view}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -204,7 +205,7 @@ console.log(res, "reeeeeeee");
         <Text style={styles.title}>{video?.title}</Text>
 
         <View style={styles.topRow}>
-          <Text style={styles.author}>By M.Jmpot</Text>
+          <Text style={styles.author}>{strings.video_details.by} M.Jmpot</Text>
 
           <View style={styles.ratingRow}>
             {[1, 2, 3, 4].map((i) => (
@@ -271,7 +272,7 @@ console.log(res, "reeeeeeee");
           <View style={styles.overlayBottom}>
             <View style={styles.overlayTextWrap}>
               <Text style={styles.overlayTitle}>{video?.title}</Text>
-              <Text style={styles.overlayBy}>By M.Jmpot</Text>
+              <Text style={styles.overlayBy}>{strings.video_details.by} M.Jmpot</Text>
             </View>
 
             {/* Slider inside video */}
@@ -340,9 +341,9 @@ console.log(res, "reeeeeeee");
 
         {/* Bottom action buttons */}
         <View style={styles.actionsRow}>
-          <ActionBtn label="Comment" icon="chatbubble-outline" />
-          <ActionBtn label="Share" icon="share-outline" onPress={handleShare} />
-          <ActionBtn label="Rate Us" icon="star-outline" />
+          <ActionBtn label={strings.video_details.comment} icon="chatbubble-outline" />
+          <ActionBtn label={strings.video_details.share} icon="share-outline" onPress={handleShare} />
+          <ActionBtn label={strings.video_details.rate_us} icon="star-outline" />
         </View>
       </View>
     </SafeAreaView>

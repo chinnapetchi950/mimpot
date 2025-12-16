@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, Image, FlatList, TouchableOpacity,S
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FeatureSlide from '../components/FeatureSlide';
 import { colors } from '../styles/theme';;
+import strings from '../localization/en';
 const { width } = Dimensions.get('window');
 
 const slides = [
@@ -50,7 +51,7 @@ export default function OnboardingScreen({ navigation }) {
           if(index === slides.length-1) navigation.replace('Welcome');
           else ref.current.scrollToIndex({index: index+1});
         }}>
-          <Text style={styles.getText}>{ index === slides.length-1 ? 'Get Started' : 'Next' }</Text>
+          <Text style={styles.getText}>{ index === slides.length-1 ? strings.onboarding.get_started : strings.onboarding.next_button }</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

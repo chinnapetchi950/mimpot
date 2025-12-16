@@ -1,6 +1,7 @@
 import React,{useState} from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import strings from "../localization/en";
 
 export default function DeleteAccountModal({ visible, onClose, onDelete }) {
   return (
@@ -14,24 +15,24 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }) {
           </TouchableOpacity>
 
           <Text style={styles.title}>
-            Are you sure You want to delete this account?
+            {strings.delete_account.confirm_delete}
           </Text>
 
           <View style={{ marginTop: 10 }}>
-            <Text style={styles.point}>•  Account deletion is irreversible.</Text>
+            <Text style={styles.point}>•  {strings.delete_account.deletion_irreversible}</Text>
             <Text style={styles.point}>
-              •  You’ll no longer be able to access your saved service request details and ratings.
+              •  {strings.delete_account.deletion_warning}
             </Text>
           </View>
 
           {/* KEEP ACCOUNT */}
           <TouchableOpacity style={styles.keepBtn} onPress={onClose}>
-            <Text style={styles.keepText}>KEEP MY ACCOUNT</Text>
+            <Text style={styles.keepText}>{strings.delete_account.keep_my_account}</Text>
           </TouchableOpacity>
 
           {/* DELETE ACCOUNT */}
           <TouchableOpacity onPress={onDelete}>
-            <Text style={styles.deleteText}>Delete Account</Text>
+            <Text style={styles.deleteText}>{strings.delete_account.delete_account}</Text>
           </TouchableOpacity>
         </View>
       </View>

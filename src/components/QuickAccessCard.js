@@ -2,12 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from '../styles/theme';
+import strings from '../localization/en';
 
 export default function QuickAccessCard({ title,onPress }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <View style={styles.icon} >
-                    <Ionicons style={{alignSelf:'center',marginTop:6}} name={title==='Bookmarked'?"bookmark":title==='Downloaded' ?'download':'folder-sharp'}size={20} color={colors.primary} />
+                    <Ionicons style={{alignSelf:'center',marginTop:6}} name={title===strings.home.bookmarked?"bookmark":title===strings.home.downloaded ?'download':'folder-sharp'}size={20} color={colors.primary} />
 
       </View>
       

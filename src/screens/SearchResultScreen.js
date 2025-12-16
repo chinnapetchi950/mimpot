@@ -16,6 +16,7 @@ import TopLawCard from "../components/TopLawCard";
 import CategoryCard from "../components/CategoryCard";
 import LearningCard from "../components/LearningCard"; // VIDEO CARD
 import NewsCard from "../components/NewsCard";
+import strings from "../localization/en";
 
 export default function SearchResultScreen({ route, navigation }) {
   const keyword = route.params?.keyword || "";
@@ -177,7 +178,7 @@ export default function SearchResultScreen({ route, navigation }) {
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#000" />
-          <Text style={{ marginTop: 10 }}>Searching...</Text>
+          <Text style={{ marginTop: 10 }}>{strings.search.searching}</Text>
         </View>
       </SafeAreaView>
     );
@@ -194,7 +195,7 @@ export default function SearchResultScreen({ route, navigation }) {
         </TouchableOpacity>
 
         
-        <Text style={styles.headerTitle}>Results for "{keyword}"</Text>
+        <Text style={styles.headerTitle}>{strings.search.results_for} "{keyword}"</Text>
 
         <View style={{ width: 30 }} />
       </View>
@@ -204,7 +205,7 @@ export default function SearchResultScreen({ route, navigation }) {
       {mergedList.length === 0 ? (
         <View style={styles.center}>
           <Text style={{ fontSize: 16, color: "#777" }}>
-            No results found
+            {strings.search.no_results_found}
           </Text>
         </View>
       ) : (
@@ -219,7 +220,7 @@ export default function SearchResultScreen({ route, navigation }) {
         ListEmptyComponent={
           <View style={{ marginTop: 60, alignItems: "center" }}>
             <Text style={{ fontSize: 15, color: "#777" }}>
-              No results found
+              {strings.search.no_results_found}
             </Text>
           </View>
         }

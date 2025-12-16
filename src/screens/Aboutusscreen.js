@@ -5,6 +5,7 @@ import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { common } from "../styles/theme";
 import { authService } from "../api/authService";
+import strings from "../localization/en";
 
 const AboutusScreen = ({ navigation }) => {
   const [html, setHtml] = useState("");
@@ -33,7 +34,7 @@ const AboutusScreen = ({ navigation }) => {
   return (
     <View style={[common.screen, { flex: 1 }]}>
       <CustomHeader
-        title="About Us"
+        title={strings.settings.about_us}
         leftComponent={
           <Ionicons
             name="arrow-back"

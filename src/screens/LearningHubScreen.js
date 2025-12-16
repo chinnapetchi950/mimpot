@@ -5,6 +5,7 @@ import { authService } from "../api/authService"; // Make sure this exists
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import strings from "../localization/en";
 
 export default function LearningHubScreen({ navigation }) {
   const [videos, setVideos] = useState([]);
@@ -66,7 +67,7 @@ export default function LearningHubScreen({ navigation }) {
     <SafeAreaView style={{flex:1}}>
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 50 }}
-        title="Your Legal Learning Hub"
+        title={strings.learning.your_legal_learning_hub}
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -96,7 +97,7 @@ export default function LearningHubScreen({ navigation }) {
       ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>No Data Available</Text>
+        <Text style={styles.noDataText}>{strings.learning.no_data_available}</Text>
       </View>
     )
   }

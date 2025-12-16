@@ -147,6 +147,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, FlatList } from
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { RFValue } from "react-native-responsive-fontsize";
 import { StatusBar } from "react-native";
+import strings from "../localization/en";
 
 const CustomHeader = ({
   title,
@@ -169,8 +170,8 @@ const CustomHeader = ({
   };
 
   const languages = [
-    { code: "En", label: "English" },
-    { code: "Fr", label: "French" },
+    { code: "En", label: strings.language.english },
+    { code: "Fr", label: strings.language.french },
   ];
 
   return (

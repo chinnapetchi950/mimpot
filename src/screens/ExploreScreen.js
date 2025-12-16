@@ -12,6 +12,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import moment from "moment";
 import { authService } from "../api/authService";
+import strings from "../localization/en";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ImageWithLoader from "../components/ImageWithloader";
 
@@ -77,7 +78,7 @@ console.log("searchQuery",searchQuery);
       <ImageWithLoader source={{ uri:`${BASE_URL}${item.image}`}} style={styles.cardImage} />
 
       <Text numberOfLines={2} style={styles.cardTitle}>
-        {item.title || "No Title"}
+        {item.title || strings.explore.no_title}
       </Text>
 
       <Text numberOfLines={3} style={styles.cardDesc}>
@@ -90,7 +91,7 @@ console.log("searchQuery",searchQuery);
         </Text>
 
         <TouchableOpacity>
-          <Text style={styles.read}>Read More</Text>
+          <Text style={styles.read}>{strings.articles.read_more}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -100,7 +101,7 @@ console.log("searchQuery",searchQuery);
     if (loading) return null;
     return (
       <View style={{ marginTop: 50, alignItems: "center" }}>
-        <Text style={{ fontSize: 16, color: "#666" }}>No data available</Text>
+        <Text style={{ fontSize: 16, color: "#666" }}>{strings.explore.no_data_available}</Text>
       </View>
     );
   };
@@ -108,12 +109,12 @@ console.log("searchQuery",searchQuery);
   return (
     <SafeAreaView style={{flex:1}}>
     <View style={styles.container}>
-      <Text style={styles.header}>Explore Laws & Legal Updates</Text>
+      <Text style={styles.header}>{strings.explore.explore_laws_updates}</Text>
 
       <View style={styles.searchBox}>
         {/* <Ionicons name="search" size={20} /> */}
         <TextInput
-          placeholder="Search news, articles, or advice..."
+          placeholder={strings.explore.search_placeholder}
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
