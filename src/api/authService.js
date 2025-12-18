@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import ReactNativeBlobUtil from 'react-native-blob-util';
-import { Platform,PermissionsAndroid } from 'react-native';
+import { Platform,PermissionsAndroid,Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { BASE_URL } from '../helper/ApiConstant';
 export const imageUrl='http://testlink2.pillersofttechnologies.com/storage/'
@@ -104,22 +104,59 @@ newsBookmarklist:async()=>{
   return await apiClient.get('/user/news_bookmarks')
 },
  googleLogin: async(formData) =>{
-    return await apiClient.get('/user/google',formData)
+    return await apiClient.post('/user/auth/google',formData)
  },
-    
+ rattingDocument:async(categoryId,formData)=>{
+  return await apiClient.post(`/user/documents/${categoryId}/ratings`,formData)
+ },
+ rattinglist:async(categoryId,pageNo)=>{
+  return await apiClient.get(`/user/documents/${categoryId}/ratings?page=${pageNo}`)
+},
+rattingDelete:async(categoryId,formData)=>{
+  return await apiClient.post(`/user/documents/${categoryId}/ratings`,formData)
+},
+commentList:async(documentId,pageNo)=>{
+  return await apiClient.get(`/user/documents/${documentId}/comments?page=${pageNo}`)
+},
+commentCreate:async(documentId,formData)=>{
+  return await apiClient.post(`/user/documents/${documentId}/comments`,formData)
+},
+commentDelete: async (documentId, commentId,formData) => {
+  return await apiClient.post(
+    `/user/documents/${documentId}/comments/${commentId}`,formData
+  );
+}, 
+subscribtionList:async()=>{
+  return await apiClient.get(`/user/subscriptions`)
+},
+getSubscriptionDetail:async(id)=>{
+  return await apiClient.get(`/user/subscriptions/${id}`)
+},
+getCurrentSubscription: () => apiClient.get('user/user_subscription/current'),
+userSubscription:async(formData)=>{
+  return await apiClient.post(`/user/user_subscription/subscribe`,formData)
+},
+subscriptionCancel:async()=>{
+  return await apiClient.post(`/user/user_subscription/cancel`)
+},
+getmanageSubscription: () => apiClient.get('user/user_subscription/plans'),
+subscriptionRenew:async()=>{
+  return await apiClient.post(`/user/user_subscription/renew`)
+},
+
 downloadDocument: async (documentId) => {
- try {
+  try {
     const token = await AsyncStorage.getItem('token');
     const { fs } = ReactNativeBlobUtil;
 
     const appFolder = 'Mimpot';
     const fileName = `document_${documentId}.pdf`;
 
-    // Public Downloads path
+    // 📂 Public Downloads path
     const dirPath = `/storage/emulated/0/Download/${appFolder}`;
     const filePath = `${dirPath}/${fileName}`;
 
-    // ✅ Request permission for Android 10+
+    // ✅ Storage permission
     if (Platform.OS === 'android' && Platform.Version >= 23) {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -137,14 +174,67 @@ downloadDocument: async (documentId) => {
     }
 
     // ✅ Create folder if not exists
-    const exists = await fs.exists(dirPath);
-    if (!exists) {
+    const dirExists = await fs.exists(dirPath);
+    if (!dirExists) {
       await fs.mkdir(dirPath);
     }
 
-    console.log(filePath, 'filePath');
+    // 🔍 CHECK IF FILE ALREADY EXISTS
+    const fileExists = await fs.exists(filePath);
 
-    // ✅ Download using RNBlobUtil
+    if (fileExists) {
+      return new Promise((resolve) => {
+        Alert.alert(
+          'File already downloaded',
+          'Do you want to download again?',
+          [
+            {
+              text: 'No',
+              style: 'cancel',
+              onPress: () =>
+                resolve({ status: false, alreadyDownloaded: true }),
+            },
+            {
+              text: 'Yes',
+              onPress: async () => {
+                try {
+                  // 🗑️ Delete old file
+                  //await fs.unlink(filePath);
+
+                  // ⬇️ Re-download file
+                  await ReactNativeBlobUtil.config({
+                    addAndroidDownloads: {
+                      useDownloadManager: true,
+                      notification: true,
+                      title: fileName,
+                      description: 'Downloading document',
+                      mime: 'application/pdf',
+                      mediaScannable: true,
+                      path: filePath,
+                    },
+                  }).fetch(
+                    'GET',
+                    `${BASE_URL}/user/documents/${documentId}/download`,
+                    {
+                      Authorization: `Bearer ${token}`,
+                    }
+                  );
+
+                  resolve({
+                    status: true,
+                    data: { path: filePath, fileName },
+                  });
+                } catch (e) {
+                  resolve({ status: false, error: e });
+                }
+              },
+            },
+          ]
+        );
+      });
+    }
+
+    // ⬇️ NORMAL DOWNLOAD (IF FILE NOT EXISTS)
     await ReactNativeBlobUtil.config({
       addAndroidDownloads: {
         useDownloadManager: true,
@@ -178,5 +268,6 @@ downloadDocument: async (documentId) => {
     };
   }
 },
+
 
 };

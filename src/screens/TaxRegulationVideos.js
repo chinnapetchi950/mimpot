@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { authService } from '../api/authService';
+import strings from "../localization/en";
 
 export default function TaxRegulation({ navigation, route }) {
   const { categoryId ,name} = route.params;
@@ -26,7 +27,6 @@ export default function TaxRegulation({ navigation, route }) {
   const [loadingMore, setLoadingMore] = useState(false);
 const [activeTab, setActiveTab] = useState('articles'); // 'all' or 'news'
 
-import strings from "../localization/en";
 
 const tabsData = [
   { key: 'articles', label: strings.tax_regulation.articles },

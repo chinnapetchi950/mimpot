@@ -53,7 +53,8 @@ const [imageLoading, setImageLoading] = useState(true);
     {
       icon: 'file-text',
       title: strings.settings.manage_subscription,
-      screen: 'ManageSubscription',
+      screen:'SubscriptionScreen'
+      //screen: 'ManageSubscription',
     },
     { icon: 'headphones', title: strings.settings.help_center, screen: 'HelpCenter' },
     { icon: 'log-out', title: strings.settings.logout, screen: 'logout' },
@@ -87,13 +88,48 @@ const [imageLoading, setImageLoading] = useState(true);
 
     return;
   };
-  const handlePress = async item => {
-    //navigation.replace("Login");
+  const handlePress = async (item) => {
+  try {
     if (item.title === strings.settings.logout) {
       setLogoutVisible(true);
+      return;
     }
+
+    // Check subscription only for "Manage Subscription"
+    if (item.title === strings.settings.manage_subscription) {
+      const res = await authService.getCurrentSubscription(); // call your API
+      console.log('Subscription API response:', res.data);
+
+      if (res?.data?.status) {
+        if (res.data.data) {
+          // User has active subscription → go to ManageSubscription
+          navigation.navigate('ManageSubscription',{currentplan:res.data.data});
+        } else {
+          // No active subscription → go to SubscriptionList
+          navigation.navigate('SubscriptionScreen'); // or SubscriptionList screen
+        }
+      } else {
+        // Handle error response
+        Alert.alert('Error', res?.data?.message || 'Failed to check subscription');
+      }
+      return;
+    }
+
+    // Navigate normally for other menu items
     navigation.navigate(item.screen);
-  };
+  } catch (err) {
+    console.log('Error handling menu item:', err);
+    Alert.alert('Error', 'Something went wrong, please try again.');
+  }
+};
+
+  // const handlePress = async item => {
+  //   //navigation.replace("Login");
+  //   if (item.title === strings.settings.logout) {
+  //     setLogoutVisible(true);
+  //   }
+  //   navigation.navigate(item.screen);
+  // };
   const handleImageUpload = async () => {
     try {
       setUploading(true); // SHOW LOADER
@@ -154,8 +190,8 @@ const [imageLoading, setImageLoading] = useState(true);
   )}
             <Image
               source={
-                user?.user?.profile_image
-                  ? { uri: user?.user?.profile_image }
+               user?.user?.profile_image ||user?.user?.user?.profile_image
+                  ? { uri:user?.user?.profile_image|| user?.user?.user?.profile_image }
                   : require('../assets/images/placeholder.png')
               }
               // source={require("../assets/images/profile.png")}
@@ -176,7 +212,7 @@ const [imageLoading, setImageLoading] = useState(true);
                   fontWeight: '700',
                 }}
               >
-                {[user?.user?.firstname, user?.user?.lastname]
+                {[user?.user?.firstname||user?.user?.user?.firstname, user?.user?.lastname||user?.user?.user?.lastname]
                   .filter(Boolean)
                   .join(' ')}
               </Text>
@@ -192,7 +228,7 @@ const [imageLoading, setImageLoading] = useState(true);
                 <Text
                   style={{ color: '#fff', marginLeft: 5, fontSize: wp('3.5%') }}
                 >
-                  {user?.user?.email}
+                  {user?.user?.email||user?.user?.user?.email}
                 </Text>
               </View>
             </View>

@@ -34,6 +34,7 @@ import { setUser, setToken } from '../store/userSlice';
 import Icon from 'react-native-vector-icons/Feather';
 import { useFocusEffect } from '@react-navigation/native';
 import strings from '../localization/en';
+import VideoCard from '../components/VideoCard';
 
 export default function HomeScreen({ navigation }) {
 
@@ -49,6 +50,7 @@ export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
 
+console.log("useruseruser",user);
 
   /* -------------------------------------------------------
         LOAD USER DETAILS 
@@ -177,7 +179,7 @@ useFocusEffect(
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         <CustomHeader
-          title={`${strings.home.hi} ${[user?.user?.firstname, user?.user?.lastname].filter(Boolean).join(" ")}`}
+          title={`${strings.home.hi} ${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`}
           showLanguage={true}
         />
 
@@ -282,7 +284,7 @@ useFocusEffect(
         </View>
 
         {learning?.map((l) => (
-          <LearningCard
+          <VideoCard
             key={l.id}
             item={l}
             onPress={() => navigation.navigate("DetailsScreen", { categoryId: l.id })}

@@ -39,7 +39,7 @@ export default function VideoCard({ item ,onPress}) {
             key={i}
             name="star"
             size={16}
-            color={i <= item.stars ? "#ff9d27" : "#ccc"}
+            color={i <= item.total_ratings ? "#ff9d27" : "#ccc"}
           />
         ))}
       </View>

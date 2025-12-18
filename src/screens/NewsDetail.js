@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Share
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -80,6 +81,31 @@ console.log(res, "reeeeeeee");
     setBookmarkLoading(false);
   }
 };
+const handleShare = async (data) => {
+  try {
+    const message = buildShareMessage(data);
+
+    await Share.share({
+      title: 'M.Impot',
+      message: message,
+    });
+  } catch (error) {
+    console.log('Share Error:', error);
+  }
+};
+const buildShareMessage = (data) => {
+  return `
+📰 *${data.title}*
+
+📅 Published On: ${data.published_date}
+👁 Views: ${data.views_count}
+
+📝 Summary:
+${data.excerpt || "No summary available"}
+
+🔗 Read full news in M.Impot App
+`;
+};
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -103,7 +129,10 @@ console.log(res, "reeeeeeee");
           <Text style={styles.date}>{moment(details?.date||details?.created_at).format("DD-MM-YYYY")}</Text>
 
           <View style={styles.iconRow}>
+            <TouchableOpacity onPress={()=>handleShare(details)}>
             <Icon name="share-outline" size={24} color="#000" />
+
+            </TouchableOpacity>
 
             {/* <Ionicons
               name="download-outline"

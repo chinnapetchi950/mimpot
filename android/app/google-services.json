@@ -12,7 +12,20 @@
           "package_name": "com.mimpot"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "759569956158-f1lhkat3iitc40mommocth0iscoeq02r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mimpot",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "759569956158-epidl158vp2g8dd0et92f53u9jbgkr9i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAyLUfyThQvQyg6raD6F_kQdGwLDrJPADk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759569956158-epidl158vp2g8dd0et92f53u9jbgkr9i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

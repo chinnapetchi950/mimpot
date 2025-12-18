@@ -67,6 +67,7 @@ const [showPassword, setShowPassword] = useState(false);
 
       const token = res.data?.data?.access_token;
       const userData = res.data?.data;
+console.log("userData===>",userData);
 
       Storage.setItem("token", token);
       Storage.setItem("userData", userData);
@@ -95,8 +96,16 @@ const [showPassword, setShowPassword] = useState(false);
 
 const GoogleSignUp = async () => {
   try {
+    //  await GoogleSignin.configure({
+        
+    //     webClientId:
+    //       '759569956158-epidl158vp2g8dd0et92f53u9jbgkr9i.apps.googleusercontent.com',
+
+    //   });
+
     // Check Play Services (Android)
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    await GoogleSignin.signOut();
 
     // Open Google popup
     const userInfo = await GoogleSignin.signIn();
@@ -104,8 +113,9 @@ const GoogleSignUp = async () => {
     console.log('Google userInfo:', userInfo);
 
     // ✅ Correct token
-    const idToken = userInfo.idToken;
-    const email = userInfo.user.email;
+    const idToken = userInfo?.data?.idToken;
+    await Storage.setItem('token', idToken);
+   // const email = userInfo.user.email;
 
     if (!idToken) {
       throw new Error('No ID token returned from Google');
@@ -113,11 +123,13 @@ const GoogleSignUp = async () => {
 
     // 👉 Call backend
     handleGoogleLogin({
-      email,
+     // email,
       idToken,
     });
 
   } catch (error) {
+        Alert.alert('Google Sign-in Error', error?.response)
+
     console.log('Google Sign-in Error:', error);
 
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -140,29 +152,33 @@ const GoogleSignUp = async () => {
 
     // 2. Prepare form-data
     const formData = new FormData();
-    formData.append('access_token', tokens);
+    formData.append('access_token', tokens?.idToken);
     // formData.append('password', 'Google@123'); // backend-required dummy password
 
     // 3. Call backend API
+    console.log("formData,",formData)
     const res = await authService.googleLogin(formData);
     console.log("res===>",res);
     
 
-    const token = res.data?.data?.access_token;
-    const userData = res.data?.data;
+    const token = res.data?.token;
+    const userData = res.data?.user;
 
     // 4. Save & update Redux
     await Storage.setItem('token', token);
     await Storage.setItem('userData', userData);
 
     dispatch(setUser(userData));
-    dispatch(setToken(token));
+     dispatch(setToken(token));
 
-    Alert.alert(strings.common.success, strings.auth.logged_in_with_google);
-    navigation.replace('MainTabs');
+   Alert.alert(strings.common.success, strings.auth.logged_in_with_google);
+   navigation.replace('MainTabs');
 
   } catch (error) {
-    console.log('GOOGLE LOGIN ERROR:', error?.response);
+     if (error.code) {
+    console.log('GOOGLE ERROR CODE:', error.code);
+  }
+  console.log('GOOGLE ERROR:', error);
     Alert.alert(
       strings.auth.google_login_failed,
       error.response?.data?.message || strings.common.something_went_wrong

@@ -39,16 +39,36 @@ const [downloadLoading, setIsdownloadLoading] = useState(false);
       setLoading(false);
     }
   };
-const handleShare = async () => {
+const handleShare = async (data) => {
   try {
-    const result = await Share.share({
-      message: "Hi  this is M.Impot!",   // Your text
-      url: "url",           // Optional URL
-      title: "M.Impot",                   // Optional title
+    const message = buildShareMessage(data);
+
+    await Share.share({
+      title: 'M.Impot',
+      message: message,
     });
   } catch (error) {
-    console.log(error);
+    console.log('Share Error:', error);
   }
+};
+const buildShareMessage = (data) => {
+  return `
+📄 *${data.title}*
+
+🗂 Category: ${data.category?.name}
+📂 Sub Category: ${data.sub_category?.name}
+
+⭐ Rating: ${data.average_rating} / 5
+📝 Total Ratings: ${data.total_ratings}
+👁 Views: ${data.total_views}
+
+📅 Created On: ${data.created_at_formatted}
+
+📝 Description:
+${data.description || 'No description available'}
+
+📲 Check this document in M.Impot App
+`;
 };
   useEffect(() => {
     fetchDocumentDetails();
@@ -94,6 +114,7 @@ const onClickDownload = async (item) => {
     setIsdownloadLoading(true);
 
     const res = await authService.downloadDocument(item.id);
+console.log(res,"res====");
 
     if (res?.status) {
       Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
@@ -131,7 +152,7 @@ const onClickDownload = async (item) => {
           <Text style={styles.date}>{moment(details?.created_at).format('DD-MM-YYYY') || strings.details.no_date}</Text>
 
           <View style={styles.iconRow}>
-            <Icon onPress={handleShare} name="share-outline" size={24} color="#000" />
+            <Icon onPress={()=>handleShare(details)} name="share-outline" size={24} color="#000" />
              {details?.file_path!=null?
             <TouchableOpacity onPress={()=>onClickDownload(details)} style={styles.iconBtn}>
      

@@ -358,6 +358,8 @@ const strings = {
     available_plan: "Available plan",
     yearly: "Yearly",
     purchase: "Purchase",
+      cancel_confirm: "Are you sure you want to cancel your subscription?",
+
   },
 
   // ============================================

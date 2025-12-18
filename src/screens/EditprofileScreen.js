@@ -62,14 +62,14 @@ console.log("user===============>",user);
   // ---------- LOAD REDUX VALUES ----------
   useEffect(() => {
     if (user) {
-      setEmail(user.user?.email || "");
-      setFirst(user?.user?.firstname || "");
-      setLast(user.user?.lastname || "");
-      setIdNum(user.user?.id_number || "");
-      setLocation(user.user?.location || "");
+      setEmail(user?.user?.email||user.user?.user?.email || "");
+      setFirst(user?.user?.firstname||user?.user?.user?.firstname || "");
+      setLast(user?.user?.lastname||user.user?.user?.lastname || "");
+      setIdNum(user?.user?.id_number||user.user?.user?.id_number || "");
+      setLocation(user?.user?.location||user.user?.user?.location || "");
 
-      if (user.user?.profile_image) {
-        setImage({ uri: user.user?.profile_image });
+      if (user?.user?.profile_image||user.user?.user?.profile_image) {
+        setImage({ uri: user?.user?.profile_image||user.user?.user?.profile_image });
       }
     }
   }, [user]);
@@ -143,7 +143,7 @@ console.log("user===============>",user);
       //const json = await res.json();
       // Alert.alert("Success", "Profile Updated!");
     } catch (err) {
-       console.log("res======?",err);
+       console.log("res======?",err?.response);
       Alert.alert(strings.common.error, strings.edit_profile.something_went_wrong);
     }
   };

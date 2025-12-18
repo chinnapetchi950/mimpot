@@ -8,7 +8,9 @@ import {
   Dimensions,
   Share,
   StatusBar,
-  Alert, Platform
+  Alert, Platform,
+  Modal,
+  TextInput
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
@@ -21,6 +23,7 @@ import ReactNativeBlobUtil from 'react-native-blob-util';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import strings from "../localization/en";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import CommentScreen from "./CommentScreen";
 
 export default function DetailsScreen({ navigation, route }) {
   const { categoryId } = route.params || {};
@@ -37,7 +40,11 @@ export default function DetailsScreen({ navigation, route }) {
 const [isBookmarked, setIsBookmarked] = useState(false);
 const [bookmarkLoading, setBookmarkLoading] = useState(false);
 const [downloadLoading, setIsdownloadLoading] = useState(false);
-
+const [ratingModalVisible, setRatingModalVisible] = useState(false);
+const [rating, setRating] = useState(0);
+const [comment, setComment] = useState('');
+const [ratingLoading, setRatingLoading] = useState(false);
+const [commentVisible, setCommentVisible] = useState(false);
 
   const BASE_URL = "http://testlink2.pillersofttechnologies.com";
   const videoRef = useRef(null);
@@ -116,17 +123,38 @@ const [downloadLoading, setIsdownloadLoading] = useState(false);
     setSeekPosition(to);
   };
 
-const handleShare = async () => {
+const handleShare = async (data) => {
   try {
-    const result = await Share.share({
-      message: "Hi  this is M.Impot!",   // Your text
-      url: "url",           // Optional URL
-      title: "M.Impot",                   // Optional title
+    const message = buildShareMessage(data);
+
+    await Share.share({
+      title: 'M.Impot',
+      message: message,
     });
   } catch (error) {
-    console.log(error);
+    console.log('Share Error:', error);
   }
 };
+const buildShareMessage = (data) => {
+  return `
+📄 *${data.title}*
+
+🗂 Category: ${data.category?.name}
+📂 Sub Category: ${data.sub_category?.name}
+
+⭐ Rating: ${data.average_rating} / 5
+📝 Total Ratings: ${data.total_ratings}
+👁 Views: ${data.total_views}
+
+📅 Created On: ${data.created_at_formatted}
+
+📝 Description:
+${data.description || 'No description available'}
+
+📲 Check this document in M.Impot App
+`;
+};
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -184,6 +212,44 @@ console.log(res, "reeeeeeee");
     setBookmarkLoading(false);
   }
 };
+const submitRating = async () => {
+  if (rating < 1) {
+    Alert.alert('Rating required', 'Please select rating 1 to 5');
+    return;
+  }
+
+  try {
+    setRatingLoading(true);
+
+    const formData = new FormData();
+    formData.append('rating', rating);
+    formData.append('comment', comment);
+    console.log(formData,'formData');
+    
+  const res = await authService.rattingDocument(categoryId,formData);
+    // const res = await authService.post(
+    //   `/api/user/documents/${categoryId}/ratings`,
+    //   formData,
+    //   {
+    //     headers: { 'Content-Type': 'multipart/form-data' },
+    //   }
+    // );
+console.log(res,"ress");
+
+    if (res?.status) {
+      Alert.alert('Success', 'Rating submitted successfully');
+      setRatingModalVisible(false);
+      setRating(0);
+      setComment('');
+    }
+  } catch (error) {
+    console.log('Rating Error:', error?.response?.data?.message);
+    Alert.alert('Error', error?.response?.data?.message || 'Failed to submit rating');
+  } finally {
+    setRatingLoading(false);
+  }
+};
+
   // file_url should be returned by API as the video path; adjust if different (eg. file_path)
   const videoUri = `${BASE_URL}${video?.file_url}`;
 
@@ -207,12 +273,40 @@ console.log(res, "reeeeeeee");
         <View style={styles.topRow}>
           <Text style={styles.author}>{strings.video_details.by} M.Jmpot</Text>
 
-          <View style={styles.ratingRow}>
-            {[1, 2, 3, 4].map((i) => (
-              <Ionicons key={i} name="star" size={18} color="#f4c430" />
-            ))}
-            <Ionicons name="star-outline" size={18} color="#f4c430" />
-          </View>
+             {/* <TouchableOpacity onPress={()=>navigation.navigate('RatingListScreen',{documentId:categoryId})} style={styles.ratingRow}>
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Ionicons
+                      key={i}
+                      name={i <= video?.total_ratings ? 'star' : 'star-outline'}
+                      size={16}
+                      color="#f4c430"
+                    />
+                  ))}
+                </TouchableOpacity>
+             */}
+              <View style={styles.rate_container}>
+      <View style={styles.starRow}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <TouchableOpacity
+          style={styles.ratingRow}
+            key={i}
+            disabled={false}
+           onPress={()=>navigation.navigate('RatingListScreen',{documentId:categoryId})}
+          >
+            <Ionicons
+              name={i <= video?.total_ratings ? 'star' : 'star-outline'}
+              size={16}
+              color="#f4c430"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* ⭐ Rating count */}
+      <Text style={styles.countText}>
+         {video?.total_ratings}/5
+      </Text>
+    </View>
         </View>
 
         <Text style={styles.description}>
@@ -309,7 +403,7 @@ console.log(res, "reeeeeeee");
    <View style={styles.topRow}>
   {/* Left Shuffle Icon */}
   <TouchableOpacity style={styles.shuffleIcon}>
-    <Ionicons name="shuffle" size={20} color="#000" />
+    {/* <Ionicons name="shuffle" size={20} color="#000" /> */}
   </TouchableOpacity>
 
   {/* Right Icons */}
@@ -341,26 +435,125 @@ console.log(res, "reeeeeeee");
 
         {/* Bottom action buttons */}
         <View style={styles.actionsRow}>
-          <ActionBtn label={strings.video_details.comment} icon="chatbubble-outline" />
-          <ActionBtn label={strings.video_details.share} icon="share-outline" onPress={handleShare} />
-          <ActionBtn label={strings.video_details.rate_us} icon="star-outline" />
+          <ActionBtn label={strings.video_details.comment} icon="chatbubble-outline"   count={video?.total_comments}
+onPress={() => setCommentVisible(true)}
+ />
+
+          <ActionBtn label={strings.video_details.share} icon="share-outline" onPress={()=>handleShare(video)} />
+          <ActionBtn label={strings.video_details.rate_us} icon="star-outline"onPress={() => { 
+            
+            setRatingModalVisible(true)
+            }} />
         </View>
       </View>
+      <Modal
+  visible={ratingModalVisible}
+  transparent
+  animationType="slide"
+  onRequestClose={() => setRatingModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+
+      <Text style={styles.modalTitle}>Rate this Document</Text>
+
+      {/* ⭐ STAR RATING */}
+      <View style={styles.starRow}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <TouchableOpacity key={i} onPress={() => setRating(i)}>
+            <Ionicons
+              name={i <= rating ? 'star' : 'star-outline'}
+              size={32}
+              color="#f4c430"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* 📝 COMMENT */}
+      <TextInput
+        placeholder="Write your comment..."
+        value={comment}
+        onChangeText={setComment}
+        multiline
+        style={styles.commentInput}
+      />
+
+      {/* 💾 BUTTONS */}
+      <View style={styles.modalActions}>
+        <TouchableOpacity
+          style={styles.cancelBtn}
+          onPress={() => setRatingModalVisible(false)}
+        >
+          <Text style={styles.cancelText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.saveBtn}
+          onPress={submitRating}
+          disabled={ratingLoading}
+        >
+          {ratingLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.saveText}>Save</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+    </View>
+  </View>
+</Modal>
+{/* <Modal
+  visible={commentVisible}
+  animationType="slide"
+  transparent
+  onRequestClose={() => setCommentVisible(false)}
+> */}
+{commentVisible?
+  <View style={styles.commentModalOverlay}>
+    <View style={styles.commentModalContainer}>
+
+      {/* Header */}
+      <View style={styles.commentHeader}>
+        <Text style={styles.commentTitle}>Comments</Text>
+        <TouchableOpacity onPress={() => setCommentVisible(false)}>
+          <Ionicons name="close" size={24} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Comment Screen */}
+      <CommentScreen
+        documentId={categoryId}
+        onClose={() => setCommentVisible(false)}
+      />
+
+    </View>
+  </View>:null}
+{/* </Modal> */}
+
     </SafeAreaView>
   );
 }
 
-const ActionBtn = ({ label, icon,onPress }) => (
-  <TouchableOpacity onPress={onPress}style={styles.actionBtn} activeOpacity={0.85}>
+const ActionBtn = ({ label, icon, count, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.actionBtn}>
     <Ionicons name={icon} size={18} color="#fff" />
     <Text style={styles.actionLabel}>{label}</Text>
+
+    {count > 0 && (
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>{count}</Text>
+      </View>
+    )}
   </TouchableOpacity>
 );
+
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 18,
-    paddingTop: 8,
+    //paddingTop: 8,
   },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   noDataText: { fontSize: 18, color: "#777" },
@@ -368,13 +561,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    marginTop: 6,
+    marginTop: 2,
   },
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 6,
+    marginTop: 2,
   },
   author: {
     color: "#666",
@@ -386,15 +579,15 @@ const styles = StyleSheet.create({
   },
   description: {
     color: "#444",
-    marginTop: 12,
+    marginTop: 4,
     lineHeight: 20,
     fontSize: 14,
   },
 
   videoWrapper: {
-    marginTop: 14,
+    marginTop: 4,
     width: "100%",
-    height: 320,
+    height: 280,
     borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#000",
@@ -473,11 +666,11 @@ const styles = StyleSheet.create({
   },
 
   rightTopIcons: {
-    marginTop: 8,
+    marginTop: 2,
     // align them on the right row: we place them visually right under video area
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: 18,
+    gap: 8,
     marginRight: 6,
   },
   iconBtn: {
@@ -485,7 +678,7 @@ const styles = StyleSheet.create({
   },
 
   actionsRow: {
-    marginTop: 26,
+    marginTop: 6,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 4,
@@ -533,6 +726,130 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+modalContainer: {
+  width: '85%',
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  padding: 20,
+},
+
+modalTitle: {
+  fontSize: 18,
+  fontWeight: '700',
+  textAlign: 'center',
+  marginBottom: 16,
+},
+
+starRow: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  marginBottom: 16,
+},
+
+commentInput: {
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 8,
+  padding: 10,
+  marginTop:10,
+  minHeight: 80,
+  textAlignVertical: 'top',
+},
+
+modalActions: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 20,
+},
+
+cancelBtn: {
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+},
+
+cancelText: {
+  color: '#666',
+  fontSize: 16,
+},
+
+saveBtn: {
+  backgroundColor: '#000',
+  paddingVertical: 10,
+  paddingHorizontal: 30,
+  borderRadius: 8,
+},
+
+saveText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+},
+badge: {
+  position: 'absolute',
+  top: -6,
+  right: -6,
+  backgroundColor: 'red',
+  minWidth: 18,
+  height: 18,
+  borderRadius: 9,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 4,
+},
+badgeText: {
+  color: '#fff',
+  fontSize: 11,
+  fontWeight: '700',
+},
+rate_container: {
+    alignItems: 'center',
+    flexDirection:'row'
+  },
+  starRow: {
+    flexDirection: 'row',
+  },
+  countText: {
+    marginTop: 4,
+    fontSize: 14,
+    color: '#777',
+    marginLeft:10
+  },
+  commentModalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  justifyContent: 'flex-end',
+},
+
+commentModalContainer: {
+  height: '100%',
+  backgroundColor: '#fff',
+  // borderTopLeftRadius: 16,
+  // borderTopRightRadius: 16,
+  //overflow: 'hidden',
+},
+
+commentHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: 16,
+  borderBottomWidth: 1,
+  borderColor: '#eee',
+},
+
+commentTitle: {
+  fontSize: 16,
+  fontWeight: '700',
+},
+
+
 });
 
 // import React, { useEffect, useRef, useState } from "react";

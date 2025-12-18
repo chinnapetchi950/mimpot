@@ -27,6 +27,9 @@ import ArticleDetailsScreen from '../screens/ArticleDetailScreen';
 import NewDetailsScreen from '../screens/NewsDetail';
 import QuickActionsScreen from '../screens/QuickActionScreens';
 import SearchResultScreen from '../screens/SearchResultScreen';
+import RatingListScreen from '../screens/RattingListScreen';
+import CommentScreen from '../screens/CommentScreen';
+import SubscriptionScreen from '../screens/SubcribtionList';
 
 
 const Stack = createNativeStackNavigator();
@@ -69,6 +72,9 @@ export default function AppNavigator() {
             <Stack.Screen name="NewDetailsScreen" component={NewDetailsScreen} />
                         <Stack.Screen name="QuickActionsScreen" component={QuickActionsScreen} />
       <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
+      <Stack.Screen name="RatingListScreen" component={RatingListScreen} />
+      <Stack.Screen name="CommentScreen" component={CommentScreen} />
+      <Stack.Screen name="SubscriptionScreen" component={SubscriptionScreen} />
 
 
     </Stack.Navigator>

@@ -63,9 +63,9 @@ console.log("searchQuery",searchQuery);
     fetchDocuments();
   }, []);
 
-  const handleSearch = () => {
-    fetchDocuments(1, search);
-  };
+ const handleSearch = (text = search) => {
+  fetchDocuments(1, text);
+};
 
   const handleLoadMore = () => {
     if (hasMore && !loadingMore && !loading) {
@@ -112,16 +112,23 @@ console.log("searchQuery",searchQuery);
       <Text style={styles.header}>{strings.explore.explore_laws_updates}</Text>
 
       <View style={styles.searchBox}>
+         <TouchableOpacity onPress={()=>handleSearch(search)}>
+          <Ionicons name="search" size={20} />
+        </TouchableOpacity>
         {/* <Ionicons name="search" size={20} /> */}
         <TextInput
           placeholder={strings.explore.search_placeholder}
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
-          onSubmitEditing={handleSearch}
+              onSubmitEditing={() => handleSearch(search)}
+
         />
-        <TouchableOpacity onPress={handleSearch}>
-          <Ionicons name="search" size={20} />
+        <TouchableOpacity   onPress={() => {
+    setSearch('');
+    handleSearch(''); // ✅ explicitly pass empty string
+  }}>
+          <Ionicons name="close" size={20} />
         </TouchableOpacity>
       </View>
 
