@@ -35,6 +35,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { useFocusEffect } from '@react-navigation/native';
 import strings from '../localization/en';
 import VideoCard from '../components/VideoCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
 
@@ -116,6 +117,13 @@ useFocusEffect(
   const fetchHome = async () => {
     setLoading(true);
     try {
+      const response = await authService.getCurrentSubscription(); // call your API
+            console.log('Subscription API response:', response.data);
+            // console.log(response?.data?.data!=null?true:false,'response?.data?.data!=null?true:false');
+            
+const isSubscribed = response?.data?.data != null;
+
+await AsyncStorage.setItem('isSubcribe', JSON.stringify(isSubscribed));
       const res = await authService.home("");
       const apiData = res.data?.data;
 

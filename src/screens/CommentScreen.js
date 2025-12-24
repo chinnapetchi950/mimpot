@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { authService } from '../api/authService';
 import { useSelector } from 'react-redux';
+import strings from '../localization/en';
 export default function CommentScreen({ documentId, onClose }) {
   // const { documentId } = route.params;
 
@@ -83,12 +84,12 @@ console.log('commentres======>',res?.data);
 };
 const deleteComment = (commentId) => {
   Alert.alert(
-    'Delete Comment',
-    'Are you sure you want to delete this comment?',
+    strings.comments.delete_comment_title,
+    strings.comments.delete_comment_message,
     [
-      { text: 'Cancel', style: 'cancel' },
+      { text: strings.common.cancel, style: 'cancel' },
       {
-        text: 'Delete',
+        text: strings.common.delete,
         style: 'destructive',
         onPress: async () => {
           try {
@@ -165,7 +166,7 @@ setComments(prev =>
       {loading ? (
         <ActivityIndicator style={{ marginTop: 20 }} />
       ) : (
-        <FlatList
+          <FlatList
           data={comments}
          keyExtractor={(item, index) =>
   item?.id ? item.id.toString() : `comment-${index}`
@@ -177,7 +178,7 @@ setComments(prev =>
           }
           ListEmptyComponent={
             <Text style={styles.noDataText}>
-              No comments found
+              {strings.comments.no_comments_found}
             </Text>
           }
           onEndReached={loadMore}
@@ -199,7 +200,7 @@ setComments(prev =>
           <TextInput
             value={commentText}
             onChangeText={setCommentText}
-            placeholder="Write a comment..."
+            placeholder={strings.comments.write_a_comment}
             style={styles.input}
             multiline
           />
@@ -268,13 +269,15 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    maxHeight: 100,
+    maxHeight: 180,
+    height:50,
     borderWidth: 1,
+    // backgroundColor:'red',
     borderColor: '#ccc',
-    borderRadius: 20,
-    paddingHorizontal: 14,
+    borderRadius: 25,
+    paddingHorizontal: 40,
     paddingVertical: 8,
-    marginRight: 8,
+    marginRight: 18,
   },
   sendBtn: {
     backgroundColor: '#007bff',

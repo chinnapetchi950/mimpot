@@ -24,6 +24,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import strings from "../localization/en";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import CommentScreen from "./CommentScreen";
+import { useFocusEffect } from "@react-navigation/native";
+
 
 export default function DetailsScreen({ navigation, route }) {
   const { categoryId } = route.params || {};
@@ -44,17 +46,49 @@ const [ratingModalVisible, setRatingModalVisible] = useState(false);
 const [rating, setRating] = useState(0);
 const [comment, setComment] = useState('');
 const [ratingLoading, setRatingLoading] = useState(false);
-const [commentVisible, setCommentVisible] = useState(false);
+const [commentVisible, setCommentVisible] = useState(true);
+const [showVideo, setShowVideo] = useState(true);
 
+// const videoRef = useRef(null);
+const PREVIEW_DURATION = 10; // seconds
+
+// const [paused, setPaused] = useState(false);
+const [isSubscribe, setIsSubscribe] = useState(false);
   const BASE_URL = "http://testlink2.pillersofttechnologies.com";
   const videoRef = useRef(null);
+const [lockPlayback, setLockPlayback] = useState(false);
+const previewEndedRef = useRef(false);
+const alertShownRef = useRef(false);
 
   useEffect(() => {
     fetchDocument();
     // cleanup if needed
     return () => {};
   }, []);
+useEffect(() => {
+  const getSubscriptionStatus = async () => {
+    const value = await AsyncStorage.getItem("isSubcribe");
+    setIsSubscribe(JSON.parse(value));
+  };
 
+  getSubscriptionStatus();
+}, []);
+useEffect(() => {
+  if (isSubscribe) {
+    previewEndedRef.current = false;
+    setShowVideo(true)
+    setPaused(false);
+  }
+}, [isSubscribe]);
+useFocusEffect(
+  React.useCallback(() => {
+    refreshData(); // API / AsyncStorage check
+  }, [])
+);
+const refreshData = async () => {
+  const value = await AsyncStorage.getItem("isSubcribe");
+  setIsSubscribe(JSON.parse(value));
+};
   const fetchDocument = async () => {
     try {
       setLoading(true);
@@ -80,17 +114,25 @@ const [commentVisible, setCommentVisible] = useState(false);
     return `${mm}:${ss}`;
   };
 
-  const onLoad = (meta) => {
-    // meta.duration is in seconds
-    setDuration(meta.duration || 0);
-  };
+  // const onLoad = (meta) => {
+  //   // meta.duration is in seconds
+  //   setDuration(meta.duration || 0);
+  // };
+const onLoad = () => {
+  // 🔒 Hard stop on first load
+  setPaused(true);
 
-  const onProgress = (progress) => {
-    // progress.currentTime in seconds
-    if (!isSeeking) {
-      setCurrentTime(progress.currentTime);
-    }
-  };
+  // Reset to start
+  requestAnimationFrame(() => {
+    videoRef.current?.seek(0);
+  });
+};
+  // const onProgress = (progress) => {
+  //   // progress.currentTime in seconds
+  //   if (!isSeeking) {
+  //     setCurrentTime(progress.currentTime);
+  //   }
+  // };
 
   const handleSeekStart = () => {
     setIsSeeking(true);
@@ -149,7 +191,7 @@ const buildShareMessage = (data) => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || 'No description available'}
+${data.description || strings.details.no_description_available}
 
 📲 Check this document in M.Impot App
 `;
@@ -171,16 +213,11 @@ ${data.description || 'No description available'}
     );
   }
   const onClickDownload = async (item) => {
-  if (item?.is_paid === true) {
-    Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-    );
-    return;
-  }
-
-  // continue normal flow
-  try {
+    console.log(item?.is_paid,isSubscribe);
+    
+  if (item?.is_paid === true&&isSubscribe===true) {
+    
+    try {
     setIsdownloadLoading(true);
 
     const res = await authService.downloadDocument(item.id);
@@ -189,10 +226,38 @@ ${data.description || 'No description available'}
       Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
     }
   } catch (e) {
-    console.log(e);
+    console.log(e?.response);
   } finally {
     setIsdownloadLoading(false);
   }
+  }else{
+
+  
+Alert.alert(
+  strings.details.payment_required,
+  strings.details.payment_message,
+  [
+    {
+      text: strings.common.cancel,
+      style: "cancel",
+    },
+    {
+      text: strings.common.continue,
+      onPress: () => {
+         navigation.navigate("SubscriptionScreen", {
+          redirectTo: "DetailScreen",
+          redirectParams: { videoId: item.id },
+        });
+        // navigation.navigate("SubscriptionScreen");
+      },
+    },
+  ],
+  { cancelable: true }
+);
+    return;
+}
+  // continue normal flow
+  
 };
 const onClickbookMark = async () => {
   try {
@@ -214,7 +279,7 @@ console.log(res, "reeeeeeee");
 };
 const submitRating = async () => {
   if (rating < 1) {
-    Alert.alert('Rating required', 'Please select rating 1 to 5');
+    Alert.alert(strings.rating.rating_required, strings.rating.select_rating_1_to_5);
     return;
   }
 
@@ -237,19 +302,57 @@ const submitRating = async () => {
 console.log(res,"ress");
 
     if (res?.status) {
-      Alert.alert('Success', 'Rating submitted successfully');
+      Alert.alert(strings.common.success, strings.rating.rating_submitted_successfully);
       setRatingModalVisible(false);
       setRating(0);
       setComment('');
     }
   } catch (error) {
     console.log('Rating Error:', error?.response?.data?.message);
-    Alert.alert('Error', error?.response?.data?.message || 'Failed to submit rating');
+    Alert.alert(strings.common.error, error?.response?.data?.message || strings.rating.failed_to_submit_rating);
   } finally {
     setRatingLoading(false);
   }
 };
+const onProgress = (data) => {
+  if (Platform.OS !== "android") return;
 
+  if (!isSubscribe&&video?.is_paid && !previewEndedRef.current) {
+    if (data.currentTime >= PREVIEW_DURATION) {
+      previewEndedRef.current = true;
+
+      // 🔥 HARD STOP — UNMOUNT VIDEO
+      setPaused(true);
+      setShowVideo(false);
+
+      showSubscriptionAlert();
+    }
+  }
+};
+
+
+const showSubscriptionAlert = () => {
+  Alert.alert(
+    strings.details.payment_required,
+    strings.details.payment_message_video,
+    [
+      {
+        text: strings.common.cancel,
+        style: "cancel",
+      },
+      {
+        text: strings.common.continue,
+        onPress: () =>{
+            navigation.navigate("SubscriptionScreen", {
+          redirectTo: "DetailsScreen",
+          redirectParams: { videoId: video?.id}
+        });
+        } 
+        //navigation.navigate("SubscriptionScreen"),
+      },
+    ]
+  );
+};
   // file_url should be returned by API as the video path; adjust if different (eg. file_path)
   const videoUri = `${BASE_URL}${video?.file_url}`;
 
@@ -314,90 +417,30 @@ console.log(res,"ress");
         </Text>
 
         {/* VIDEO + OVERLAYS */}
-        <View style={styles.videoWrapper}>
-          <Video
-            ref={videoRef}
-            source={{ uri: videoUri }}
-            style={styles.video}
-            resizeMode="cover"
-            paused={paused}
-            onLoad={onLoad}
-            onProgress={onProgress}
-            controls={true}
-            ignoreSilentSwitch={"obey"}
-          />
+       <View style={styles.videoWrapper}>
+  {showVideo ? (
+    <Video
+      ref={videoRef}
+      source={{ uri: videoUri }}
+      style={styles.video}
+      resizeMode="cover"
+      paused={paused}
+      controls={true}
+      repeat={false}
+      onLoad={onLoad}
+      onProgress={onProgress}
+    />
+  ) : (
+    // 🔒 PAYWALL PLACEHOLDER
+    <View style={styles.lockedVideo}>
+      <Ionicons name="lock-closed" size={48} color="#fff" />
+      <Text style={styles.lockText}>
+        Subscribe to continue watching
+      </Text>
+    </View>
+  )}
+</View>
 
-          {/* shuffle icon - inside video bottom-left above the overlay */}
-          
-
-          {/* Center controls: back 10s, play/pause, forward 10s */}
-          <View style={styles.centerControls}>
-            {/* <TouchableOpacity
-              style={styles.skipBtn}
-              onPress={() => skipBackward(10)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="play-back" size={28} color="#fff" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.bigPlayBtn}
-              onPress={() => setPaused((p) => !p)}
-              activeOpacity={0.9}
-            >
-              <Ionicons
-                name={paused ? "play" : "pause"}
-                size={36}
-                color="#fff"
-                style={{ marginLeft: 2 }}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.skipBtn}
-              onPress={() => skipForward(10)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="play-forward" size={28} color="#fff" />
-            </TouchableOpacity> */}
-          </View>
-
-          {/* bottom-left overlay: title, by, slider and times */}
-          <View style={styles.overlayBottom}>
-            <View style={styles.overlayTextWrap}>
-              <Text style={styles.overlayTitle}>{video?.title}</Text>
-              <Text style={styles.overlayBy}>{strings.video_details.by} M.Jmpot</Text>
-            </View>
-
-            {/* Slider inside video */}
-            <View style={styles.sliderWrap}>
-              {/* <Slider
-                style={styles.slider}
-                value={isSeeking ? seekPosition : currentTime}
-                minimumValue={0}
-                maximumValue={duration}
-                step={0.1}
-                onValueChange={(val) => {
-                  setSeekPosition(val);
-                }}
-                onSlidingStart={() => {
-                  setIsSeeking(true);
-                }}
-                onSlidingComplete={(val) => {
-                  handleSeekComplete(val);
-                }}
-                minimumTrackTintColor="#39A8F6"
-                maximumTrackTintColor="#ffffffaa"
-                thumbTintColor="#39A8F6"
-              />
-
-              <View style={styles.timeRowInside}>
-                <Text style={styles.timeText}>{formatTime(isSeeking ? seekPosition : currentTime)}</Text>
-                <Text style={styles.timeText}>{formatTime(duration)}</Text>
-              </View> */}
-            </View>
-          </View>
-        </View>
 
         {/* Right-side top icons (download + bookmark) - placed visually next to video */}
    <View style={styles.topRow}>
@@ -517,8 +560,10 @@ onPress={() => setCommentVisible(true)}
       {/* Header */}
       <View style={styles.commentHeader}>
         <Text style={styles.commentTitle}>Comments</Text>
-        <TouchableOpacity onPress={() => setCommentVisible(false)}>
-          <Ionicons name="close" size={24} />
+        <TouchableOpacity 
+        // onPress={() => setCommentVisible(false)}
+        >
+          {/* <Ionicons name="close" size={24} /> */}
         </TouchableOpacity>
       </View>
 
@@ -847,6 +892,17 @@ commentHeader: {
 commentTitle: {
   fontSize: 16,
   fontWeight: '700',
+},
+lockedVideo: {
+  flex: 1,
+  backgroundColor: "#000",
+  justifyContent: "center",
+  alignItems: "center",
+},
+lockText: {
+  color: "#fff",
+  marginTop: 12,
+  fontSize: 16,
 },
 
 

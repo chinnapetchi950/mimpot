@@ -13,8 +13,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { authService } from "../api/authService";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+export default function SubscriptionScreen({route, navigation }) {
+    const { redirectTo, redirectParams } = route.params || {};
 
-export default function SubscriptionScreen({ navigation }) {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 const [paymentVisible, setPaymentVisible] = useState(false);
@@ -129,7 +131,17 @@ const fetchPlanDetail = async (planId) => {
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
   }
+const closefun=async()=>{
+  setShowSuccess(false)
+  if (redirectTo) {
+      await AsyncStorage.setItem('isSubcribe', JSON.stringify(true));
 
+    navigation.goBack()
+
+  }else{
+    navigation.navigate('MainTabs')
+  }
+}
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#FFF'}}>
         <CustomHeader
@@ -217,7 +229,8 @@ const fetchPlanDetail = async (planId) => {
     <View style={styles.modal}>
       <TouchableOpacity
         style={styles.closeIcon}
-        onPress={() => {setShowSuccess(false),navigation.navigate('MainTabs')}}
+        
+        onPress={() => closefun()}
       >
         <Ionicons name="close" size={24} color="#000" />
       </TouchableOpacity>

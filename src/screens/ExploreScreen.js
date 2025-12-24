@@ -16,7 +16,7 @@ import strings from "../localization/en";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ImageWithLoader from "../components/ImageWithloader";
 
-export default function ExploreScreen() {
+export default function ExploreScreen({navigation}) {
   const [search, setSearch] = useState("");
   const [documents, setDocuments] = useState([]);
   const [page, setPage] = useState(1);
@@ -74,7 +74,7 @@ console.log("searchQuery",searchQuery);
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={()=>navigation.navigate("TaxDetailsScreen", { item })} style={styles.card}>
       <ImageWithLoader source={{ uri:`${BASE_URL}${item.image}`}} style={styles.cardImage} />
 
       <Text numberOfLines={2} style={styles.cardTitle}>
@@ -82,7 +82,7 @@ console.log("searchQuery",searchQuery);
       </Text>
 
       <Text numberOfLines={3} style={styles.cardDesc}>
-        {item.description || "No description available."}
+        {item.description || strings.details.no_description_available}
       </Text>
 
       <View style={styles.row}>
@@ -90,11 +90,11 @@ console.log("searchQuery",searchQuery);
           {moment(item.created_at).format("DD-MM-YYYY")}
         </Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>navigation.navigate("TaxDetailsScreen", { item })}>
           <Text style={styles.read}>{strings.articles.read_more}</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderEmpty = () => {

@@ -16,6 +16,7 @@ import CustomHeader from "../components/CustomHeader";
 import { colors } from "../styles/theme";
 import strings from "../localization/en";
 import { authService } from "../api/authService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ManageSubscriptionScreen = ({ navigation }) => {
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -42,14 +43,14 @@ const [showSuccess,setShowSuccess]=useState(false)
       }
     } catch (error) {
       console.log("Fetch subscription error:", error);
-      Alert.alert(strings.common.error, "Failed to load subscription data");
+      Alert.alert(strings.common.error, strings.subscription.failed_to_load_data);
     } finally {
       setLoading(false);
     }
   };
 
   /* ================= CANCEL SUBSCRIPTION ================= */
-  const subscriptionCancelapi = () => {
+  const subscriptionCancelapi = async() => {
     Alert.alert(
       strings.subscription.cancel,
       strings.subscription.cancel_confirm,
@@ -64,12 +65,14 @@ const [showSuccess,setShowSuccess]=useState(false)
 console.log("res--->",res);
 
               if (res?.data?.status) {
+                await AsyncStorage.setItem('isSubcribe', JSON.stringify(false));
                 Alert.alert(strings.common.success, res.data.message);
+
                 fetchManageSubscription();
               }
             } catch (error) {
               console.log("Cancel subscription error:", error);
-              Alert.alert(strings.common.error, "Failed to cancel subscription");
+              Alert.alert(strings.common.error, strings.subscription.failed_to_cancel_subscription);
             } finally {
               setCancelLoading(false);
             }
@@ -124,7 +127,7 @@ if(res?.data?.status===true){
     setShowSuccess(true)
 }else{
     setPaymentVisible(false);
-Alert.alert("Error", res?.data?.message)
+Alert.alert(strings.common.error, res?.data?.message)
 }
     // 🔗 CALL PAYMENT API HERE
     // POST api/user/subscribe
@@ -135,7 +138,7 @@ Alert.alert("Error", res?.data?.message)
   } catch (error) {
     console.log("Payment Error:", error?.response);
     setPaymentVisible(false);
-    Alert.alert("Error", error?.response?.data?.message)
+    Alert.alert(strings.common.error, error?.response?.data?.message)
   }
 };
 const fetchPlanDetail = async (planId) => {
@@ -175,7 +178,7 @@ const fetchPlanDetail = async (planId) => {
               {strings.subscription.current_plan}
             </Text>
 
-            <TouchableOpacity onPress={subscriptionCancelapi}>
+            <TouchableOpacity style={{padding:10}} onPress={()=>subscriptionCancelapi()}>
               {cancelLoading ? (
                 <ActivityIndicator size="small" />
               ) : (
@@ -267,7 +270,9 @@ style={styles.purchaseBtn}>
               <TouchableOpacity onPress={() => setPaymentVisible(false)}>
                 <Ionicons name="arrow-back" size={22} />
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>Proceed payment</Text>
+              <Text style={styles.modalTitle}>
+                {strings.subscription.proceed_payment_title}
+              </Text>
               <View style={{ width: 22 }} />
             </View>
       
@@ -276,7 +281,9 @@ style={styles.purchaseBtn}>
             ) : (
               <>
                 {/* Selected Plan */}
-                <Text style={styles.sectionTitle}>Selected Plan</Text>
+                <Text style={styles.sectionTitle}>
+                  {strings.subscription.selected_plan_title}
+                </Text>
       
                 <View style={styles.planRow}>
                   <View style={styles.planLeft}>
@@ -299,7 +306,9 @@ style={styles.purchaseBtn}>
                   style={styles.payNowBtn}
                   onPress={()=>handlePayNow(planDetail?.id)}
                 >
-                  <Text style={styles.payNowText}>Pay Now →</Text>
+                  <Text style={styles.payNowText}>
+                    {strings.subscription.pay_now}
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
@@ -320,10 +329,10 @@ style={styles.purchaseBtn}>
       
             <Ionicons name="checkmark-circle-outline" size={60} color="#3BAFDA" />
             <Text style={[styles.planPrice,{ fontWeight:'500',paddingTop:15}]}>
-              Payment Successfully Completed
+              {strings.subscription.payment_success_title}
             </Text>
             <Text style={[styles.planPrice,{padding:24,fontWeight:'500'}]}>
-              Your Plan Is Now Active
+              {strings.subscription.payment_success_title}
             </Text>
           </View>
         </View>

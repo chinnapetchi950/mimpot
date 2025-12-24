@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Modal,
+  Alert
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +17,10 @@ import DownloadModal from "../components/DownloadModal";
 import TaxCard from "../components/TaxCard";
 import { authService,imageUrl } from "../api/authService";
 import strings from "../localization/en";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import RNBlobUtil from 'react-native-blob-util';
+import Pdf from "react-native-pdf";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const [showDownload, setShowDownload] = useState(false);
@@ -23,11 +29,37 @@ export default function UnderstandingTaxScreen({ navigation }) {
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-
+ const [isSubscribe, setIsSubscribe] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+const [pdfLoading, setPdfLoading] = useState(false);
+const [selectedItem, setSelectedItem] = useState(null);
+  const [downloadLoading, setIsDownloadLoading] = useState(false);
+  // const [isBookmarked, setIsBookmarked] = useState(false);
+  // const [bookmarkLoading, setBookmarkLoading] = useState(false);
   useEffect(() => {
     fetchDocuments(page);
+    // getSubscriptionStatus();
   }, []);
+useEffect(() => {
+  const getSubscriptionStatus = async () => {
+    const value = await AsyncStorage.getItem("isSubcribe");
+    console.log(value,'valuevaluevaluevaluevalue');
+    
+    setIsSubscribe(JSON.parse(value));
+  };
 
+  getSubscriptionStatus();
+}, []);
+useFocusEffect(
+  React.useCallback(() => {
+    refreshData(); // API / AsyncStorage check
+  }, [])
+);
+const refreshData = async () => {
+  const value = await AsyncStorage.getItem("isSubcribe");
+  setIsSubscribe(JSON.parse(value));
+};
   // API CALL
   const fetchDocuments = async (pageNumber = 1) => {
     if (pageNumber === 1) setLoading(true);
@@ -61,6 +93,115 @@ export default function UnderstandingTaxScreen({ navigation }) {
       fetchDocuments(page + 1);
     }
   };
+const openPdfModal = async (item) => {
+  console.log(isSubscribe,item?.is_paid);
+  setSelectedItem(item)
+  // 🔒 Block unpaid users
+  if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
+setShowPdfModal(true); // Show modal first
+  setPdfLoading(true);   // Start loader
+
+  try {
+    const url = item?.file_path?.startsWith("http")
+      ? item.file_path
+      : `${imageUrl}${item.file_path}`;
+
+    const localPath = `${RNBlobUtil.fs.dirs.CacheDir}/${item.id}.pdf`;
+
+    // Download PDF to local cache
+    const res = await RNBlobUtil.config({ path: localPath }).fetch('GET', url);
+
+    setPdfUrl(res.path()); // Set local PDF path
+  } catch (err) {
+    console.log('PDF Download Error:', err);
+    Alert.alert('Error', 'Failed to load PDF');
+    setShowPdfModal(false); // Close modal on error
+  } finally {
+    setPdfLoading(false); // Stop loader
+  }
+  }
+  else{
+Alert.alert(
+      strings.details.payment_required,
+      strings.details.payment_message,
+      [
+        { text: strings.common.cancel, style: "cancel" },
+        { text: strings.common.continue, 
+          onPress: () => { navigation.navigate("SubscriptionScreen", {
+          redirectTo: "TaxLawScreen",
+         // redirectParams: { videoId: item.id },
+        });}
+         },
+      ]
+    );
+    return;
+  }
+ 
+
+  
+};
+const onClickDownload = async (item) => {
+  console.log(isSubscribe,"isSubscribe");
+  
+    if (item?.is_paid === true&&isSubscribe===true) {
+      
+    try {
+      setIsDownloadLoading(true);
+      const res = await authService.downloadDocument(item.id);
+      if (res?.status) {
+        Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+      }
+    } catch (err) {
+      console.log("Download Error:", err);
+    } finally {
+      setIsDownloadLoading(false);
+    }
+    }
+    else{
+      Alert.alert(
+      strings.details.payment_required,
+      strings.details.payment_message,
+      [
+        { text: strings.common.cancel, style: "cancel" },
+        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
+          redirectTo: "TaxLawScreen",
+         // redirectParams: { videoId: item.id },
+        });} },
+      ]
+    );
+    return;
+    }
+
+    
+
+  };
+ const onClickBookMark = async (item, index) => {
+  try {
+    // 🔁 Optimistic UI update
+    setData(prev =>
+      prev.map((it, i) =>
+        i === index
+          ? { ...it, is_bookmarked: !it.is_bookmarked }
+          : it
+      )
+    );
+
+    // 📡 API call
+    await authService.toggleBookmark(item.id);
+
+  } catch (err) {
+    console.log("Bookmark Error:", err);
+
+    // ❌ rollback if API fails
+    setData(prev =>
+      prev.map((it, i) =>
+        i === index
+          ? { ...it, is_bookmarked: item.is_bookmarked }
+          : it
+      )
+    );
+  }
+};
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -113,9 +254,13 @@ export default function UnderstandingTaxScreen({ navigation }) {
                 id: item.id,
                 title: item.title,
                 image: `${imageUrl}${item.image}`,
+                is_bookmarked:item?.is_bookmarked,
+                item:item
               }}
               onRead={() => navigation.navigate("TaxDetailsScreen", { item })}
-              onDownload={() => setShowDownload(true)}
+              onDownload={() => openPdfModal(item)}
+                onBookmark={() => onClickBookMark(item, index)}
+
             />
           ))}
 
@@ -126,6 +271,33 @@ export default function UnderstandingTaxScreen({ navigation }) {
         </ScrollView>
 
         <DownloadModal visible={showDownload} onClose={() => setShowDownload(false)} />
+           <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
+        <View style={styles.pdfModalContainer}>
+          <View style={styles.pdfHeader}>
+            <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+              <Ionicons name="close" size={26} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.pdfTitle}>PDF Preview</Text>
+            <TouchableOpacity onPress={()=>onClickDownload(selectedItem)}>
+              <Ionicons name="download-outline" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+ {pdfLoading && (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
+      </View>
+    )}
+          {!pdfLoading && pdfUrl && (
+            <Pdf
+              source={{ uri: pdfUrl, cache: true }}
+              style={styles.pdfView}
+              trustAllCerts={true}
+              onError={e => console.log("PDF Error:", e)}
+            />
+          )}
+        </View>
+      </Modal>
       </View>
     </SafeAreaView>
   );
@@ -165,4 +337,28 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#777",
   },
+  pdfModalContainer: {
+  flex: 1,
+  backgroundColor: "#fff",
+},
+
+pdfHeader: {
+  height: 56,
+  paddingHorizontal: 16,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+},
+
+pdfTitle: {
+  fontSize: 16,
+  fontWeight: "600",
+},
+
+pdfView: {
+  flex: 1,
+  width: "100%",
+},
 });

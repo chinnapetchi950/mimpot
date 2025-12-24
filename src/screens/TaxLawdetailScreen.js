@@ -3,41 +3,60 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Share
+  Share,
+  Modal,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Pdf from "react-native-pdf";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
 import strings from "../localization/en";
+import RNBlobUtil from 'react-native-blob-util';
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function TaxDetailsScreen({ route, navigation }) {
-  const { item } = route.params; // contains { id }
+  const { item } = route.params;
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-const [isBookmarked, setIsBookmarked] = useState(false);
-const [bookmarkLoading, setBookmarkLoading] = useState(false);
-const [downloadLoading, setIsdownloadLoading] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [downloadLoading, setIsDownloadLoading] = useState(false);
+  const [isSubscribe, setIsSubscribe] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+const [pdfLoading, setPdfLoading] = useState(false); // Loader while downloading
 
   useEffect(() => {
     fetchDetails();
+    getSubscriptionStatus();
   }, []);
 
-  // 📌 API CALL
+  const getSubscriptionStatus = async () => {
+    const value = await AsyncStorage.getItem("isSubcribe");
+    setIsSubscribe(JSON.parse(value));
+  };
+  useFocusEffect(
+  React.useCallback(() => {
+    refreshData(); // API / AsyncStorage check
+  }, [])
+);
+const refreshData = async () => {
+  const value = await AsyncStorage.getItem("isSubcribe");
+  setIsSubscribe(JSON.parse(value));
+};
+
   const fetchDetails = async () => {
-    console.log(item);
-    
     try {
-      const response = await  authService.taxlawdetail(item.id)
-     const result = response?.data;
-console.log(result, 'result');
-      setDetails(result.data);         // <-- store API result
+      const response = await authService.taxlawdetail(item.id);
+      setDetails(response?.data?.data);
     } catch (err) {
       console.log("API Error:", err);
     } finally {
@@ -45,82 +64,58 @@ console.log(result, 'result');
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
-  }
+  const onClickBookMark = async () => {
+    try {
+      setBookmarkLoading(true);
+      const res = await authService.toggleBookmark(item?.id);
+      if (res?.status) setIsBookmarked(prev => !prev);
+    } catch (err) {
+      console.log("Bookmark Error:", err);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
-  // if (!details) {
-  //   return (
-  //     <View style={styles.loader}>
-  //       <Text>No details found</Text>
-  //     </View>
-  //   );
-  // }
-console.log(details);
-
-  const fullImage = `${imageUrl}${details?.image}`;
-const onClickbookMark = async () => {
-  try {
-    setBookmarkLoading(true);
-
-    const res = await authService.toggleBookmark(item?.id);
-console.log(res, "reeeeeeee");
-
-    // API returns true or false status
-    if (res?.status) {
-      setIsBookmarked(prev => !prev);
+  const onClickDownload = async () => {
+    if (item?.is_paid === true&&isSubscribe===true) {
+      try {
+      setIsDownloadLoading(true);
+      const res = await authService.downloadDocument(details.id);
+      if (res?.status) {
+        Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+      }
+    } catch (err) {
+      console.log("Download Error:", err);
+    } finally {
+      setIsDownloadLoading(false);
     }
 
-  } catch (error) {
-    console.log("Bookmark Error:", error?.response);
-  } finally {
-    setBookmarkLoading(false);
-  }
-};
-
-const onClickDownload = async (item) => {
-  if (item?.is_paid === true) {
-    Alert.alert(
+    }else{
+      Alert.alert(
       strings.details.payment_required,
       strings.details.payment_message,
-    );
-    return;
-  }
-
-  // continue normal flow
-  try {
-    setIsdownloadLoading(true);
-
-    const res = await authService.downloadDocument(item.id);
-console.log(res,'resresresres');
-
-    if (res?.status) {
-      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+      [
+        { text: strings.common.cancel, style: "cancel" },
+        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
+          redirectTo: "TaxDetailsScreen",
+         // redirectParams: { videoId: item.id },
+        });} },
+      ]
+    );      return;
     }
-  } catch (e) {
-    console.log(e);
-  } finally {
-    setIsdownloadLoading(false);
-  }
-};
-const handleShare = async (data) => {
-  try {
-    const message = buildShareMessage(data);
 
-    await Share.share({
-      title: 'M.Impot',
-      message: message,
-    });
-  } catch (error) {
-    console.log('Share Error:', error);
-  }
-};
-const buildShareMessage = (data) => {
-  return `
+    
+  };
+
+  const handleShare = async data => {
+    try {
+      await Share.share({ title: "M.Impot", message: buildShareMessage(data) });
+    } catch (err) {
+      console.log("Share Error:", err);
+    }
+  };
+
+  const buildShareMessage = data => `
 📄 *${data.title}*
 
 🗂 Category: ${data.category?.name}
@@ -133,11 +128,87 @@ const buildShareMessage = (data) => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || 'No description available'}
+${data.description || strings.details.no_description_available}
 
 📲 Check this document in M.Impot App
 `;
+
+  // const openPdfModal = () => {
+  //   if (details?.is_paid && !isSubscribe) {
+  //     Alert.alert(strings.details.payment_required, strings.details.payment_message, [
+  //       { text: strings.common.cancel, style: "cancel" },
+  //       {
+  //         text: strings.common.continue,
+  //         onPress: () => navigation.navigate("SubscriptionScreen"),
+  //       },
+  //     ]);
+  //     return;
+  //   }
+
+  //   const url = details?.file_path?.startsWith("http")
+  //     ? details.file_path
+  //     : `${imageUrl}${details.file_path}`;
+
+  //   setPdfUrl(url);
+  //   setShowPdfModal(true);
+  // };
+
+const openPdfModal = async () => {
+  // 🔒 Block unpaid users
+  if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
+setShowPdfModal(true); // Show modal first
+  setPdfLoading(true);   // Start loader
+
+  try {
+    const url = details?.file_path?.startsWith("http")
+      ? details.file_path
+      : `${imageUrl}${details.file_path}`;
+
+    const localPath = `${RNBlobUtil.fs.dirs.CacheDir}/${details.id}.pdf`;
+
+    // Download PDF to local cache
+    const res = await RNBlobUtil.config({ path: localPath }).fetch('GET', url);
+
+    setPdfUrl(res.path()); // Set local PDF path
+  } catch (err) {
+    console.log('PDF Download Error:', err);
+    Alert.alert('Error', 'Failed to load PDF');
+    setShowPdfModal(false); // Close modal on error
+  } finally {
+    setPdfLoading(false); // Stop loader
+  }
+  }
+  else{
+Alert.alert(
+      strings.details.payment_required,
+      strings.details.payment_message,
+      [
+        { text: strings.common.cancel, style: "cancel" },
+        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
+          redirectTo: "TaxDetailsScreen",
+         // redirectParams: { videoId: item.id },
+        });} },
+      ]
+    );
+    return;
+  }
+ 
+
+  
 };
+
+
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  const fullImage = `${imageUrl}${details?.image}`;
+
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -151,47 +222,41 @@ ${data.description || 'No description available'}
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* IMAGE */}
-        <ImageWithLoader
-          source={{ uri: fullImage }}
-          style={styles.heroImage}
-        />
+        <ImageWithLoader source={{ uri: fullImage }} style={styles.heroImage} />
 
         {/* DATE + ACTIONS */}
         <View style={styles.row}>
-          <Text style={styles.date}>{moment(details?.date||details?.created_at).format("DD-MM-YYYY")}</Text>
+          <Text style={styles.date}>
+            {moment(details?.date || details?.created_at).format("DD-MM-YYYY")}
+          </Text>
 
           <View style={styles.iconRow}>
-            <TouchableOpacity onPress={()=>handleShare(details)} >
+            <TouchableOpacity onPress={() => handleShare(details)}>
+              <Icon name="share-outline" size={24} color="#000" />
+            </TouchableOpacity>
 
-           
-            <Icon name="share-outline" size={24} color="#000" />
-             </TouchableOpacity>
-            {details?.file_path!=null?
-<TouchableOpacity onPress={()=>onClickDownload(details)} style={styles.iconBtn}>
-     
-  {downloadLoading ? (
-    <ActivityIndicator size={16} color="#000" />
-  ) : (
-            <Ionicons
-              name="download-outline"
-              size={24}
-              color="#000"
-              style={{ marginHorizontal: 18 }}
-            />)}
-            </TouchableOpacity>:null}
+            {details?.file_path && (
+              <TouchableOpacity onPress={openPdfModal} style={styles.iconBtn}>
+                {downloadLoading ? (
+                  <ActivityIndicator size={16} color="#000" />
+                ) : (
+                  <FontAwesome name="file-pdf-o" size={38} color="red" />
+                )}
+              </TouchableOpacity>
+            )}
 
-<TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
-     
-  {bookmarkLoading ? (
-    <ActivityIndicator size={16} color="#000" />
-  ) : (
-    <Ionicons
-      name={isBookmarked ||details?.is_bookmarked? "bookmark" : "bookmark-outline"}
-      size={24}
-      color="#000"
-    />
-  )}
-</TouchableOpacity>          </View>
+            <TouchableOpacity onPress={onClickBookMark} style={styles.iconBtn}>
+              {bookmarkLoading ? (
+                <ActivityIndicator size={16} color="#000" />
+              ) : (
+                <Ionicons
+                  name={isBookmarked || details?.is_bookmarked ? "bookmark" : "bookmark-outline"}
+                  size={28}
+                  color="#000"
+                />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* TITLE */}
@@ -200,6 +265,35 @@ ${data.description || 'No description available'}
         {/* DESCRIPTION */}
         <Text style={styles.desc}>{details?.description}</Text>
       </ScrollView>
+
+      {/* PDF MODAL */}
+      <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
+        <View style={styles.pdfModalContainer}>
+          <View style={styles.pdfHeader}>
+            <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+              <Ionicons name="close" size={26} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.pdfTitle}>PDF Preview</Text>
+            <TouchableOpacity onPress={()=>onClickDownload()}>
+              <Ionicons name="download-outline" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+ {pdfLoading && (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
+      </View>
+    )}
+          {!pdfLoading && pdfUrl && (
+            <Pdf
+              source={{ uri: pdfUrl, cache: true }}
+              style={styles.pdfView}
+              trustAllCerts={true}
+              onError={e => console.log("PDF Error:", e)}
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -243,6 +337,7 @@ const styles = StyleSheet.create({
   iconRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap:15
   },
   title: {
     fontSize: 21,
@@ -256,4 +351,35 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 15,
   },
+  previewBtn: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginTop: 10,
+},
+
+pdfModalContainer: {
+  flex: 1,
+  backgroundColor: "#fff",
+},
+
+pdfHeader: {
+  height: 56,
+  paddingHorizontal: 16,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+},
+
+pdfTitle: {
+  fontSize: 16,
+  fontWeight: "600",
+},
+
+pdfView: {
+  flex: 1,
+  width: "100%",
+},
+
 });

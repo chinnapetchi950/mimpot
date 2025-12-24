@@ -65,7 +65,7 @@ const buildShareMessage = (data) => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || 'No description available'}
+${data.description || strings.details.no_description_available}
 
 📲 Check this document in M.Impot App
 `;

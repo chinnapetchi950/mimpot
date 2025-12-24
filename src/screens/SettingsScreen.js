@@ -23,7 +23,7 @@ import { authService } from '../api/authService';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken, clearUser } from '../store/userSlice';
 import strings from '../localization/en';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const SettingsScreen = ({ navigation }) => {
   const [userdata, setuserData] = useState();
 const [imageLoading, setImageLoading] = useState(true);
@@ -103,8 +103,10 @@ const [imageLoading, setImageLoading] = useState(true);
       if (res?.data?.status) {
         if (res.data.data) {
           // User has active subscription → go to ManageSubscription
+      await AsyncStorage.setItem('isSubcribe', JSON.stringify(true));
           navigation.navigate('ManageSubscription',{currentplan:res.data.data});
         } else {
+          await AsyncStorage.setItem('isSubcribe', JSON.stringify(false));
           // No active subscription → go to SubscriptionList
           navigation.navigate('SubscriptionScreen'); // or SubscriptionList screen
         }

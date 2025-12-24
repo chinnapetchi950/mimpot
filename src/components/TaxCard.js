@@ -4,8 +4,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import ImageWithLoader from "./ImageWithloader";
 import strings from "../localization/en";
 
-export default function TaxCard({ item, onRead, onDownload }) {
-  console.log(item.image,'image');
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+
+export default function TaxCard({ item, onRead, onDownload ,onBookmark}) {
+  console.log(item,'image');
   
   return (
     <View style={styles.card}>
@@ -16,18 +18,21 @@ export default function TaxCard({ item, onRead, onDownload }) {
           <TouchableOpacity style={styles.readBtn} onPress={onRead}>
             <Text style={styles.readText}>{strings.articles.read}</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.downloadBtn} onPress={onDownload}>
-            <Ionicons name="download-outline" size={22} color="#000" />
+{item?.item?.file_path && 
+          <TouchableOpacity style={styles.downloadBtn} 
+          onPress={()=>onDownload()}
+          >
+            <FontAwesome name="file-pdf-o" size={38} color="red" />
           </TouchableOpacity>
+}
         </View>
       </View>
 
       <View style={{ position: "relative" }}>
         <ImageWithLoader source={{uri:item.image}} style={styles.image} />
 
-        <TouchableOpacity style={styles.bookmarkWrap}>
-          <Ionicons name="bookmark-outline" size={20} color="#fff" />
+        <TouchableOpacity onPress={()=>onBookmark()} style={styles.bookmarkWrap}>
+          <Ionicons name={item?.is_bookmarked ? "bookmark" : "bookmark-outline"} size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>

@@ -28,6 +28,7 @@ const strings = {
     success: "Success",
     something_went_wrong: "Something went wrong",
     try_again: "Please try again",
+    continue:'Continue'
   },
 
   // ============================================
@@ -251,6 +252,7 @@ const strings = {
     read_more: "Read More",
     details_view: "Details View",
     no_details_found: "No details found",
+    no_summary_available: "No summary available",
   },
 
   // ============================================
@@ -346,6 +348,16 @@ const strings = {
   },
 
   // ============================================
+  // COMMENTS
+  // ============================================
+  comments: {
+    no_comments_found: "No comments found",
+    write_a_comment: "Write a comment...",
+    delete_comment_title: "Delete Comment",
+    delete_comment_message: "Are you sure you want to delete this comment?",
+  },
+
+  // ============================================
   // SUBSCRIPTION
   // ============================================
   subscription: {
@@ -358,8 +370,14 @@ const strings = {
     available_plan: "Available plan",
     yearly: "Yearly",
     purchase: "Purchase",
-      cancel_confirm: "Are you sure you want to cancel your subscription?",
-
+    cancel_confirm: "Are you sure you want to cancel your subscription?",
+    failed_to_load_data: "Failed to load subscription data",
+    failed_to_cancel_subscription: "Failed to cancel subscription",
+    proceed_payment_title: "Proceed payment",
+    selected_plan_title: "Selected Plan",
+    pay_now: "Pay Now →",
+    payment_success_title: "Payment Successfully Completed",
+    payment_success_subtitle: "Your Plan Is Now Active",
   },
 
   // ============================================
@@ -388,7 +406,10 @@ const strings = {
     no_date: "No date",
     payment_required: "Payment Required",
     payment_message: "Please complete the payment to download this file.",
+    payment_message_video: "Please complete the payment to view full video.",
+
     file_downloaded_successfully: "File downloaded successfully",
+    no_description_available: "No description available",
   },
 
   // ============================================
@@ -408,6 +429,16 @@ const strings = {
     share: "Share",
     rate_us: "Rate Us",
     by: "By",
+  },
+
+  // ============================================
+  // RATING
+  // ============================================
+  rating: {
+    rating_required: "Rating required",
+    select_rating_1_to_5: "Please select rating 1 to 5",
+    rating_submitted_successfully: "Rating submitted successfully",
+    failed_to_submit_rating: "Failed to submit rating",
   },
 
   // ============================================

@@ -101,7 +101,7 @@ const buildShareMessage = (data) => {
 👁 Views: ${data.views_count}
 
 📝 Summary:
-${data.excerpt || "No summary available"}
+${data.excerpt || strings.news.no_summary_available}
 
 🔗 Read full news in M.Impot App
 `;
