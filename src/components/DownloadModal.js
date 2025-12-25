@@ -8,9 +8,10 @@ import {
   StyleSheet,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 export default function DownloadModal({ visible, onClose }) {
+  const { t } = useTranslation();
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
@@ -21,9 +22,9 @@ export default function DownloadModal({ visible, onClose }) {
 
           <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 10 }} />
 
-          <Text style={styles.title}>{strings.download.downloading}</Text>
+          <Text style={styles.title}>{t('download.downloading')}</Text>
           <Text style={styles.subtitle}>
-            {strings.download.download_message}
+            {t('download.download_message')}
           </Text>
         </View>
       </View>

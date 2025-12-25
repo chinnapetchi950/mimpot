@@ -14,9 +14,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { authService } from '../api/authService';
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 export default function TaxRegulation({ navigation, route }) {
+  const { t } = useTranslation();
   const { categoryId ,name} = route.params;
 
   // const [activeTab, setActiveTab] = useState("articles");
@@ -27,11 +28,11 @@ export default function TaxRegulation({ navigation, route }) {
   const [loadingMore, setLoadingMore] = useState(false);
 const [activeTab, setActiveTab] = useState('articles'); // 'all' or 'news'
 
-
-const tabsData = [
-  { key: 'articles', label: strings.tax_regulation.articles },
-  { key: 'videos', label: strings.tax_regulation.videos },
-];
+  const tabsData = [
+    { key: 'articles', label: t('tax_regulation.articles') },
+    { key: 'videos', label: t('tax_regulation.videos') },
+  ];
+  
   useEffect(() => {
     resetAndFetch();
   }, [activeTab]);
@@ -129,7 +130,7 @@ console.log("docresponseartcles==============>",response?.data);
           ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
+        <Text style={styles.noDataText}>{t('videos.no_data_available')}</Text>
       </View>
     )
   }
@@ -157,7 +158,7 @@ console.log("docresponseartcles==============>",response?.data);
           ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
+        <Text style={styles.noDataText}>{t('videos.no_data_available')}</Text>
       </View>
     )
   }

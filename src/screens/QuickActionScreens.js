@@ -27,11 +27,12 @@ import Storage from '../utils/storage';
 import { setUser, setToken } from '../store/userSlice';
 const { width } = Dimensions.get('window');
 import Tabs from '../components/Tabs';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 
 
 export default function QuickActionsScreen({route, navigation }) {
+  const { t } = useTranslation();
       const { title } = route.params; // contains { id }
 
   const [topLawData, setTopLawData] = useState([]);
@@ -42,12 +43,12 @@ export default function QuickActionsScreen({route, navigation }) {
   const [searchText, setSearchText] = useState(''); // ✅ search text
 const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
 
-const tabsData = [
-  { key: 'all', label: strings.quick_actions.bookmark },
-  { key: 'news', label: strings.quick_actions.news_bookmark },
-];
-
   const dispatch = useDispatch();
+  
+  const tabsData = [
+    { key: 'all', label: t('quick_actions.bookmark') },
+    { key: 'news', label: t('quick_actions.news_bookmark') },
+  ];
   const { user, token } = useSelector(state => state.user);
   console.log(user?.user, 'Redux user data'); //console.log(user,"data");
   useEffect(() => {
@@ -113,7 +114,7 @@ const fetchquickActions = async () => {
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
           <ActivityIndicator size="large" color="#000" />
-          <Text style={{ marginTop: 10 }}>{strings.quick_actions.loading}</Text>
+          <Text style={{ marginTop: 10 }}>{t('quick_actions.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -144,7 +145,7 @@ const fetchquickActions = async () => {
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={{ width: 30 }} />
         </View>
-        {title === strings.quick_actions.bookmarked && (
+        {title === t('quick_actions.bookmarked') && (
   <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
         )}
         
@@ -164,7 +165,7 @@ const fetchquickActions = async () => {
     ))}
   </View>
 )} */}
-{title === strings.quick_actions.bookmarked ? (
+{title === t('quick_actions.bookmarked') ? (
   <>
     {activeTab === 'news' ? (
       news?.length > 0 ? (
@@ -178,13 +179,13 @@ const fetchquickActions = async () => {
           ))}
         </View>
       ) : (
-        <Text style={styles.noData}>{strings.quick_actions.no_news_found}</Text>
+        <Text style={styles.noData}>{t('quick_actions.no_news_found')}</Text>
       )
     ) : (
       // 'All' tab
       <>
         {news?.length === 0 && learning?.length === 0 ? (
-          <Text style={styles.noData}>{strings.quick_actions.no_data_found}</Text>
+          <Text style={styles.noData}>{t('quick_actions.no_data_found')}</Text>
         ) : (
           <>
             <View style={styles.newsGrid}>
@@ -213,7 +214,7 @@ const fetchquickActions = async () => {
           <View style={{ alignItems: 'center', marginTop: 40 }}>
             {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
             <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
-              {strings.quick_actions.no_data_found}
+              {t('quick_actions.no_data_found')}
             </Text>
           </View>
         ) : (

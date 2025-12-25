@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import { useTranslation } from "react-i18next";
 
 /**
  * Props:
@@ -22,6 +23,9 @@ const AppHeader = ({
   rightIcon = null,
   onRightPress = () => {},
 }) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language === 'en' ? 'En' : 'Fr';
+  
   return (
     <View style={styles.container}>
       {/* status row (time on left + status icons right) */}
@@ -51,7 +55,7 @@ const AppHeader = ({
           showLanguage && (
             <TouchableOpacity style={styles.langBox} onPress={onLanguagePress}>
               <Image source={require("../assets/images/flag.png")} style={styles.flag} />
-              <Text style={styles.langText}>En</Text>
+              <Text style={styles.langText}>{currentLang}</Text>
               <Ionicons name="chevron-down" size={hp("1.8%")} color="#555" />
             </TouchableOpacity>
           )

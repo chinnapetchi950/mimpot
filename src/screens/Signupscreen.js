@@ -12,39 +12,40 @@ import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
 import DividerOr from '../components/DividerOr';
 import { authService } from '../api/authService';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 const { width, height } = Dimensions.get('window');
 
-const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email(strings.auth.invalid_email_format)
-    .required(strings.auth.email_is_required),
-
-  password: Yup.string()
-    .min(6, strings.auth.password_min_length)
-    .required(strings.auth.password_is_required),
-password_confirmation: Yup.string()
-    .min(6, strings.auth.confirm_password_min_length)
-    .required(strings.auth.confirm_password_required_text),
-  firstname: Yup.string()
-    .required(strings.auth.name_is_required),
-
-  lastname: Yup.string()
-    .required(strings.auth.last_name_is_required),
-
-  // id_number: Yup.string()
-  //   .required("ID number is required"),
-});
-
 export default function SignupScreen({navigation}) {
+  const { t } = useTranslation();
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const SignupSchema = Yup.object().shape({
+    email: Yup.string()
+      .email(t('auth.invalid_email_format'))
+      .required(t('auth.email_is_required')),
+
+    password: Yup.string()
+      .min(6, t('auth.password_min_length'))
+      .required(t('auth.password_is_required')),
+    password_confirmation: Yup.string()
+      .min(6, t('auth.confirm_password_min_length'))
+      .required(t('auth.confirm_password_required_text')),
+    firstname: Yup.string()
+      .required(t('auth.name_is_required')),
+
+    lastname: Yup.string()
+      .required(t('auth.last_name_is_required')),
+
+    // id_number: Yup.string()
+    //   .required("ID number is required"),
+  });
+
   const handleRegister = async (values) => {
     if (!agree) {
-      Alert.alert(strings.auth.terms_title, strings.auth.terms_alert);
+      Alert.alert(t('auth.terms_title'), t('auth.terms_alert'));
       return;
     }
 
@@ -59,11 +60,11 @@ export default function SignupScreen({navigation}) {
       }
 
 Alert.alert(
-  strings.common.success,
-  strings.auth.account_created_successfully,
+  t('common.success'),
+  t('auth.account_created_successfully'),
   [
     {
-      text: strings.common.ok,
+      text: t('common.ok'),
       onPress: () => {
         console.log("OK Pressed");
         // 👉 navigate or perform action here
@@ -76,8 +77,8 @@ Alert.alert(
       console.log("REGISTER ERROR:", error.response?.data || error);
 
       Alert.alert(
-        strings.common.error,
-        error.response?.data?.message || strings.auth.registration_failed
+        t('common.error'),
+        error.response?.data?.message || t('auth.registration_failed')
       );
     } finally {
       setLoading(false);
@@ -98,14 +99,14 @@ Alert.alert(
             source={require('../assets/images/round_logo.png')}
             style={styles.logoSmall}
           />
-          <Text style={styles.headerTitle}>{strings.signup.access_share}</Text>
-          <Text style={styles.headerSubtitle}>{strings.signup.learn_tax_laws_easily}</Text>
+          <Text style={styles.headerTitle}>{t('signup.access_share')}</Text>
+          <Text style={styles.headerSubtitle}>{t('signup.learn_tax_laws_easily')}</Text>
         </View>
       </ImageBackground>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.whiteCard}>
-          <Text style={styles.pageTitle}>{strings.auth.sign_up}</Text>
+          <Text style={styles.pageTitle}>{t('auth.sign_up')}</Text>
 
           {/* FORM */}
           <Formik
@@ -131,7 +132,7 @@ Alert.alert(
 
                 {/* EMAIL */}
                 <InputField
-                  placeholder={strings.auth.email_required}
+                  placeholder={t('auth.email_required')}
                   value={values.email}
                   onChangeText={handleChange("email")}
                 />
@@ -141,7 +142,7 @@ Alert.alert(
 
                 {/* PASSWORD */}
                 <InputField
-                  placeholder={strings.auth.password_required}
+                  placeholder={t('auth.password_required')}
                   secureTextEntry
                   value={values.password}
                   onChangeText={handleChange("password")}
@@ -150,7 +151,7 @@ Alert.alert(
                   <Text style={styles.errorText}>{errors.password}</Text>
                 )}
                 <InputField
-                  placeholder={strings.auth.confirm_password_required}
+                  placeholder={t('auth.confirm_password_required')}
                   secureTextEntry
                   value={values.password_confirmation}
                   onChangeText={handleChange("password_confirmation")}
@@ -161,7 +162,7 @@ Alert.alert(
 
                 {/* NAME */}
                 <InputField
-                  placeholder={strings.auth.name_required}
+                  placeholder={t('auth.name_required')}
                   value={values.firstname}
                   onChangeText={handleChange("firstname")}
                 />
@@ -171,7 +172,7 @@ Alert.alert(
 
                 {/* LAST NAME */}
                 <InputField
-                  placeholder={strings.auth.last_name_required}
+                  placeholder={t('auth.last_name_required')}
                   value={values.lastname}
                   onChangeText={handleChange("lastname")}
                 />
@@ -181,7 +182,7 @@ Alert.alert(
 
                 {/* ID NUMBER */}
                 <InputField
-                  placeholder={strings.auth.id_number}
+                  placeholder={t('auth.id_number')}
                   value={values.id_number}
                   onChangeText={handleChange("id_number")}
                 />
@@ -199,15 +200,15 @@ Alert.alert(
                   </TouchableOpacity>
 
                   <Text style={styles.termText}>
-                    {strings.auth.terms_agreement}{" "}
-                    <Text style={styles.link}>{strings.auth.terms_and_conditions}</Text> and{" "}
-                    <Text style={styles.link}>{strings.auth.privacy_policy}</Text>.
+                    {t('auth.terms_agreement')}{" "}
+                    <Text style={styles.link}>{t('auth.terms_and_conditions')}</Text> and{" "}
+                    <Text style={styles.link}>{t('auth.privacy_policy')}</Text>.
                   </Text>
                 </View>
 
                 {/* SIGN UP BUTTON */}
                 <PrimaryButton
-                  title={loading ? strings.common.please_wait : strings.auth.sign_up}
+                  title={loading ? t('common.please_wait') : t('auth.sign_up')}
                   onPress={handleSubmit}
                   disabled={loading}
                 />
@@ -222,7 +223,7 @@ Alert.alert(
 
                 {/* LOGIN LINK */}
                 <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.loginLink}>
-                  <Text style={styles.loginText}>{strings.auth.login}</Text>
+                  <Text style={styles.loginText}>{t('auth.login')}</Text>
                 </TouchableOpacity>
 
                 <DividerOr />
@@ -232,7 +233,7 @@ Alert.alert(
                     source={require('../assets/images/google.png')}
                     style={styles.googleIcon}
                   />
-                  <Text style={styles.googleText}>{strings.auth.continue_with_google_lower}</Text>
+                  <Text style={styles.googleText}>{t('auth.continue_with_google_lower')}</Text>
                 </TouchableOpacity>
 
               </>

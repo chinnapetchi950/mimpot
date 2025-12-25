@@ -21,13 +21,14 @@ import { authService } from "../api/authService";
 import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import CommentScreen from "./CommentScreen";
 import { useFocusEffect } from "@react-navigation/native";
 
 
 export default function DetailsScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const { categoryId } = route.params || {};
 
   const [video, setVideo] = useState(null);
@@ -191,7 +192,7 @@ const buildShareMessage = (data) => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || strings.details.no_description_available}
+${data.description || t('details.no_description_available')}
 
 📲 Check this document in M.Impot App
 `;
@@ -208,14 +209,14 @@ ${data.description || strings.details.no_description_available}
   if (!video) {
     return (
       <View style={styles.center}>
-        <Text style={styles.noDataText}>{strings.videos.no_data_available}</Text>
+        <Text style={styles.noDataText}>{t('videos.no_data_available')}</Text>
       </View>
     );
   }
   const onClickDownload = async (item) => {
     console.log(item?.is_paid,isSubscribe);
     
-  if (item?.is_paid === true&&isSubscribe===true) {
+  // if (item?.is_paid === true&&isSubscribe===true) {
     
     try {
     setIsdownloadLoading(true);
@@ -223,39 +224,39 @@ ${data.description || strings.details.no_description_available}
     const res = await authService.downloadDocument(item.id);
 
     if (res?.status) {
-      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+      Alert.alert(t('common.success'), t('details.file_downloaded_successfully'));
     }
   } catch (e) {
     console.log(e?.response);
   } finally {
     setIsdownloadLoading(false);
   }
-  }else{
+//   }else{
 
   
-Alert.alert(
-  strings.details.payment_required,
-  strings.details.payment_message,
-  [
-    {
-      text: strings.common.cancel,
-      style: "cancel",
-    },
-    {
-      text: strings.common.continue,
-      onPress: () => {
-         navigation.navigate("SubscriptionScreen", {
-          redirectTo: "DetailScreen",
-          redirectParams: { videoId: item.id },
-        });
-        // navigation.navigate("SubscriptionScreen");
-      },
-    },
-  ],
-  { cancelable: true }
-);
-    return;
-}
+// Alert.alert(
+//   t('details.payment_required'),
+//   t('details.payment_message'),
+//   [
+//     {
+//       text: t('common.cancel'),
+//       style: "cancel",
+//     },
+//     {
+//       text: t('common.continue'),
+//       onPress: () => {
+//          navigation.navigate("SubscriptionScreen", {
+//           redirectTo: "DetailScreen",
+//           redirectParams: { videoId: item.id },
+//         });
+//         // navigation.navigate("SubscriptionScreen");
+//       },
+//     },
+//   ],
+//   { cancelable: true }
+// );
+//     return;
+// }
   // continue normal flow
   
 };
@@ -279,7 +280,7 @@ console.log(res, "reeeeeeee");
 };
 const submitRating = async () => {
   if (rating < 1) {
-    Alert.alert(strings.rating.rating_required, strings.rating.select_rating_1_to_5);
+    Alert.alert(t('rating.rating_required'), t('rating.select_rating_1_to_5'));
     return;
   }
 
@@ -302,14 +303,14 @@ const submitRating = async () => {
 console.log(res,"ress");
 
     if (res?.status) {
-      Alert.alert(strings.common.success, strings.rating.rating_submitted_successfully);
+      Alert.alert(t('common.success'), t('rating.rating_submitted_successfully'));
       setRatingModalVisible(false);
       setRating(0);
       setComment('');
     }
   } catch (error) {
     console.log('Rating Error:', error?.response?.data?.message);
-    Alert.alert(strings.common.error, error?.response?.data?.message || strings.rating.failed_to_submit_rating);
+    Alert.alert(t('common.error'), error?.response?.data?.message || t('rating.failed_to_submit_rating'));
   } finally {
     setRatingLoading(false);
   }
@@ -333,15 +334,15 @@ const onProgress = (data) => {
 
 const showSubscriptionAlert = () => {
   Alert.alert(
-    strings.details.payment_required,
-    strings.details.payment_message_video,
+    t('details.payment_required'),
+    t('details.payment_message_video'),
     [
       {
-        text: strings.common.cancel,
+        text: t('common.cancel'),
         style: "cancel",
       },
       {
-        text: strings.common.continue,
+        text: t('common.continue'),
         onPress: () =>{
             navigation.navigate("SubscriptionScreen", {
           redirectTo: "DetailsScreen",
@@ -360,7 +361,7 @@ const showSubscriptionAlert = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
       <CustomHeader
-        title={strings.video_details.details_view}
+        title={t('video_details.details_view')}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -374,7 +375,7 @@ const showSubscriptionAlert = () => {
         <Text style={styles.title}>{video?.title}</Text>
 
         <View style={styles.topRow}>
-          <Text style={styles.author}>{strings.video_details.by} M.Jmpot</Text>
+          <Text style={styles.author}>{t('video_details.by')} M.Jmpot</Text>
 
              {/* <TouchableOpacity onPress={()=>navigation.navigate('RatingListScreen',{documentId:categoryId})} style={styles.ratingRow}>
                   {[1, 2, 3, 4, 5].map(i => (
@@ -478,12 +479,12 @@ const showSubscriptionAlert = () => {
 
         {/* Bottom action buttons */}
         <View style={styles.actionsRow}>
-          <ActionBtn label={strings.video_details.comment} icon="chatbubble-outline"   count={video?.total_comments}
+          <ActionBtn label={t('video_details.comment')} icon="chatbubble-outline"   count={video?.total_comments}
 onPress={() => setCommentVisible(true)}
  />
 
-          <ActionBtn label={strings.video_details.share} icon="share-outline" onPress={()=>handleShare(video)} />
-          <ActionBtn label={strings.video_details.rate_us} icon="star-outline"onPress={() => { 
+          <ActionBtn label={t('video_details.share')} icon="share-outline" onPress={()=>handleShare(video)} />
+          <ActionBtn label={t('video_details.rate_us')} icon="star-outline"onPress={() => { 
             
             setRatingModalVisible(true)
             }} />
@@ -515,7 +516,7 @@ onPress={() => setCommentVisible(true)}
 
       {/* 📝 COMMENT */}
       <TextInput
-        placeholder="Write your comment..."
+        placeholder={t('comments.write_your_comment')}
         value={comment}
         onChangeText={setComment}
         multiline

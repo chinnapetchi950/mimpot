@@ -5,9 +5,10 @@ import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { common } from "../styles/theme";
 import { authService } from "../api/authService";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 const TermsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
  
  const [html, setHtml] = useState("");
    const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ const TermsScreen = ({ navigation }) => {
   return (
     <View style={common.screen}>
 <CustomHeader
-  title={strings.settings.terms_and_conditions}
+  title={t('settings.terms_and_conditions')}
 rightComponent={<TouchableOpacity></TouchableOpacity>}
   leftComponent={
     <TouchableOpacity onPress={() => navigation.goBack()}>

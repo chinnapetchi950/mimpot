@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../styles/theme';;
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 export default function WelcomeScreen({ navigation }) {
+  const { t } = useTranslation();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoWrap}>
@@ -14,18 +15,18 @@ export default function WelcomeScreen({ navigation }) {
         </View> */}
       </View>
 
-      <Text style={styles.appTitle}>{strings.welcome.app_title}</Text>
-      <Text style={styles.subtitle}>{strings.welcome.subtitle}</Text>
+      <Text style={styles.appTitle}>{t('welcome.app_title')}</Text>
+      <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
 
       <TouchableOpacity style={styles.primary} onPress={()=> navigation.navigate('Login')}>
-        <Text style={styles.primaryText}>{strings.welcome.log_in}</Text>
+        <Text style={styles.primaryText}>{t('welcome.log_in')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={()=> navigation.navigate('Signup')}>
-        <Text style={styles.link}>{strings.welcome.create_account}</Text>
+        <Text style={styles.link}>{t('welcome.create_account')}</Text>
       </TouchableOpacity>
 
-      <Text style={styles.footer}>{strings.welcome.footer}</Text>
+      <Text style={styles.footer}>{t('welcome.footer')}</Text>
     </SafeAreaView>
   );
 }

@@ -16,8 +16,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { authService } from '../api/authService';
 import { useSelector } from 'react-redux';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 export default function CommentScreen({ documentId, onClose }) {
+  const { t } = useTranslation();
   // const { documentId } = route.params;
 
   const [comments, setComments] = useState([]);
@@ -84,12 +85,12 @@ console.log('commentres======>',res?.data);
 };
 const deleteComment = (commentId) => {
   Alert.alert(
-    strings.comments.delete_comment_title,
-    strings.comments.delete_comment_message,
+    t('comments.delete_comment_title'),
+    t('comments.delete_comment_message'),
     [
-      { text: strings.common.cancel, style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: strings.common.delete,
+        text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
           try {
@@ -178,7 +179,7 @@ setComments(prev =>
           }
           ListEmptyComponent={
             <Text style={styles.noDataText}>
-              {strings.comments.no_comments_found}
+              {t('comments.no_comments_found')}
             </Text>
           }
           onEndReached={loadMore}
@@ -200,7 +201,7 @@ setComments(prev =>
           <TextInput
             value={commentText}
             onChangeText={setCommentText}
-            placeholder={strings.comments.write_a_comment}
+            placeholder={t('comments.write_a_comment')}
             style={styles.input}
             multiline
           />

@@ -28,7 +28,8 @@ const strings = {
     success: "Success",
     something_went_wrong: "Something went wrong",
     try_again: "Please try again",
-    continue:'Continue'
+    continue:'Continue',
+      coming_soon: "Coming Soon",
   },
 
   // ============================================
@@ -78,6 +79,13 @@ const strings = {
     privacy_policy: "Privacy Policy",
     terms_alert: "You must agree to continue.",
     terms_title: "Terms",
+    forgot_password_screen: "Forgot Password",
+    forgot_password_desc: "Enter registered email address to get your password reset information",
+    reset_password: "Reset Password",
+    email_is_required: "Email is required",
+    invalid_email :"Invalid email address",
+    password_reset_link_sent: "Password reset link sent to your email",
+    sign_in: "Sign In"
   },
 
   // ============================================
@@ -355,6 +363,7 @@ const strings = {
     write_a_comment: "Write a comment...",
     delete_comment_title: "Delete Comment",
     delete_comment_message: "Are you sure you want to delete this comment?",
+    write_your_comment: "Write your comment...",
   },
 
   // ============================================
@@ -373,11 +382,16 @@ const strings = {
     cancel_confirm: "Are you sure you want to cancel your subscription?",
     failed_to_load_data: "Failed to load subscription data",
     failed_to_cancel_subscription: "Failed to cancel subscription",
+    failed_to_check_subscription: "Failed to check subscription",
     proceed_payment_title: "Proceed payment",
     selected_plan_title: "Selected Plan",
     pay_now: "Pay Now →",
     payment_success_title: "Payment Successfully Completed",
     payment_success_subtitle: "Your Plan Is Now Active",
+    unlock_downloads: "Unlock Downloads",
+    subscribe_description: "Subscribe to access unlimited PDF & Video downloads.",
+    coming_soon_description:
+    "This feature will be enabled in a future release.",
   },
 
   // ============================================
@@ -410,6 +424,7 @@ const strings = {
 
     file_downloaded_successfully: "File downloaded successfully",
     no_description_available: "No description available",
+    failed_to_load_pdf: "Failed to load PDF",
   },
 
   // ============================================

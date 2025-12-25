@@ -16,13 +16,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import DownloadModal from "../components/DownloadModal";
 import TaxCard from "../components/TaxCard";
 import { authService,imageUrl } from "../api/authService";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RNBlobUtil from 'react-native-blob-util';
 import Pdf from "react-native-pdf";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function UnderstandingTaxScreen({ navigation }) {
+  const { t } = useTranslation();
   const [showDownload, setShowDownload] = useState(false);
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -97,7 +98,7 @@ const openPdfModal = async (item) => {
   console.log(isSubscribe,item?.is_paid);
   setSelectedItem(item)
   // 🔒 Block unpaid users
-  if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
+  // if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
 setShowPdfModal(true); // Show modal first
   setPdfLoading(true);   // Start loader
 
@@ -114,28 +115,28 @@ setShowPdfModal(true); // Show modal first
     setPdfUrl(res.path()); // Set local PDF path
   } catch (err) {
     console.log('PDF Download Error:', err);
-    Alert.alert('Error', 'Failed to load PDF');
+    Alert.alert(t('common.error'), t('details.failed_to_load_pdf'));
     setShowPdfModal(false); // Close modal on error
   } finally {
     setPdfLoading(false); // Stop loader
   }
-  }
-  else{
-Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-      [
-        { text: strings.common.cancel, style: "cancel" },
-        { text: strings.common.continue, 
-          onPress: () => { navigation.navigate("SubscriptionScreen", {
-          redirectTo: "TaxLawScreen",
-         // redirectParams: { videoId: item.id },
-        });}
-         },
-      ]
-    );
-    return;
-  }
+ // }
+//   else{
+// Alert.alert(
+//       t('details.payment_required'),
+//       t('details.payment_message'),
+//       [
+//         { text: t('common.cancel'), style: "cancel" },
+//         { text: t('common.continue'), 
+//           onPress: () => { navigation.navigate("SubscriptionScreen", {
+//           redirectTo: "TaxLawScreen",
+//          // redirectParams: { videoId: item.id },
+//         });}
+//          },
+//       ]
+//     );
+//     return;
+//   }
  
 
   
@@ -143,34 +144,34 @@ Alert.alert(
 const onClickDownload = async (item) => {
   console.log(isSubscribe,"isSubscribe");
   
-    if (item?.is_paid === true&&isSubscribe===true) {
+    // if (item?.is_paid === true&&isSubscribe===true) {
       
     try {
       setIsDownloadLoading(true);
       const res = await authService.downloadDocument(item.id);
       if (res?.status) {
-        Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+        Alert.alert(t('common.success'), t('details.file_downloaded_successfully'));
       }
     } catch (err) {
       console.log("Download Error:", err);
     } finally {
       setIsDownloadLoading(false);
     }
-    }
-    else{
-      Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-      [
-        { text: strings.common.cancel, style: "cancel" },
-        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
-          redirectTo: "TaxLawScreen",
-         // redirectParams: { videoId: item.id },
-        });} },
-      ]
-    );
-    return;
-    }
+    // }
+    // else{
+    //   Alert.alert(
+    //   t('details.payment_required'),
+    //   t('details.payment_message'),
+    //   [
+    //     { text: t('common.cancel'), style: "cancel" },
+    //     { text: t('common.continue'), onPress: () => {navigation.navigate("SubscriptionScreen", {
+    //       redirectTo: "TaxLawScreen",
+    //      // redirectParams: { videoId: item.id },
+    //     });} },
+    //   ]
+    // );
+    // return;
+    // }
 
     
 
@@ -211,7 +212,7 @@ const onClickDownload = async (item) => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{strings.tax_law.understanding_tax}</Text>
+          <Text style={styles.headerTitle}>{t('tax_law.understanding_tax')}</Text>
           <View style={{ width: 30 }} />
         </View>
 
@@ -230,7 +231,7 @@ const onClickDownload = async (item) => {
           scrollEventThrottle={300}
         >
           <Text style={styles.countText}>
-            {data.length} {strings.tax_law.tax_law_results}
+            {data.length} {t('tax_law.tax_law_results')}
           </Text>
 
           {/* LOADER (Initial) */}
@@ -242,7 +243,7 @@ const onClickDownload = async (item) => {
           {!loading && data.length === 0 && (
             <View style={styles.noDataBox}>
               
-              <Text style={styles.noDataText}>{strings.tax_law.no_documents_found}</Text>
+              <Text style={styles.noDataText}>{t('tax_law.no_documents_found')}</Text>
             </View>
           )}
 

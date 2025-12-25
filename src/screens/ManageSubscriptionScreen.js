@@ -14,11 +14,12 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 import CustomHeader from "../components/CustomHeader";
 import { colors } from "../styles/theme";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 import { authService } from "../api/authService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ManageSubscriptionScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [currentPlan, setCurrentPlan] = useState(null);
   const [availablePlans, setAvailablePlans] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +44,7 @@ const [showSuccess,setShowSuccess]=useState(false)
       }
     } catch (error) {
       console.log("Fetch subscription error:", error);
-      Alert.alert(strings.common.error, strings.subscription.failed_to_load_data);
+      Alert.alert(t('common.error'), t('subscription.failed_to_load_data'));
     } finally {
       setLoading(false);
     }
@@ -52,12 +53,12 @@ const [showSuccess,setShowSuccess]=useState(false)
   /* ================= CANCEL SUBSCRIPTION ================= */
   const subscriptionCancelapi = async() => {
     Alert.alert(
-      strings.subscription.cancel,
-      strings.subscription.cancel_confirm,
+      t('subscription.cancel'),
+      t('subscription.cancel_confirm'),
       [
-        { text: strings.common.no },
+        { text: t('common.no') },
         {
-          text: strings.common.yes,
+          text: t('common.yes'),
           onPress: async () => {
             try {
               setCancelLoading(true);
@@ -65,14 +66,14 @@ const [showSuccess,setShowSuccess]=useState(false)
 console.log("res--->",res);
 
               if (res?.data?.status) {
-                await AsyncStorage.setItem('isSubcribe', JSON.stringify(false));
-                Alert.alert(strings.common.success, res.data.message);
+                await AsyncStorage.setItem('isSubcribe', JSON.stringify(true));
+                Alert.alert(t('common.success'), res.data.message);
 
                 fetchManageSubscription();
               }
             } catch (error) {
               console.log("Cancel subscription error:", error);
-              Alert.alert(strings.common.error, strings.subscription.failed_to_cancel_subscription);
+              Alert.alert(t('common.error'), t('subscription.failed_to_cancel_subscription'));
             } finally {
               setCancelLoading(false);
             }
@@ -89,12 +90,12 @@ console.log("res--->",res);
 console.log("res--->",res);
 
               if (res?.data?.status) {
-                Alert.alert(strings.common.success, res.data.message);
+                Alert.alert(t('common.success'), res.data.message);
                 fetchManageSubscription();
               }
             } catch (error) {
               console.log("renew subscription error:", error?.response);
-              Alert.alert(strings.common.error, error?.response?.data?.message);
+              Alert.alert(t('common.error'), error?.response?.data?.message);
             } finally {
               setCancelLoading(false);
             }
@@ -127,7 +128,7 @@ if(res?.data?.status===true){
     setShowSuccess(true)
 }else{
     setPaymentVisible(false);
-Alert.alert(strings.common.error, res?.data?.message)
+Alert.alert(t('common.error'), res?.data?.message)
 }
     // 🔗 CALL PAYMENT API HERE
     // POST api/user/subscribe
@@ -138,7 +139,7 @@ Alert.alert(strings.common.error, res?.data?.message)
   } catch (error) {
     console.log("Payment Error:", error?.response);
     setPaymentVisible(false);
-    Alert.alert(strings.common.error, error?.response?.data?.message)
+    Alert.alert(t('common.error'), error?.response?.data?.message)
   }
 };
 const fetchPlanDetail = async (planId) => {
@@ -161,7 +162,7 @@ const fetchPlanDetail = async (planId) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
-        title={strings.subscription.manage_subscription}
+        title={t('subscription.manage_subscription')}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -175,7 +176,7 @@ const fetchPlanDetail = async (planId) => {
           <View style={styles.card}>
             <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
 <Text style={styles.cardTitle}>
-              {strings.subscription.current_plan}
+              {t('subscription.current_plan')}
             </Text>
 
             <TouchableOpacity style={{padding:10}} onPress={()=>subscriptionCancelapi()}>
@@ -183,7 +184,7 @@ const fetchPlanDetail = async (planId) => {
                 <ActivityIndicator size="small" />
               ) : (
                 <Text style={styles.cancel}>
-                  {strings.subscription.cancel}
+                  {t('subscription.cancel')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -205,7 +206,7 @@ const fetchPlanDetail = async (planId) => {
 
             <TouchableOpacity onPress={()=>subscriptionRenew()} style={styles.renewBtn}>
               <Text style={styles.renewText}>
-                {strings.subscription.renew}
+                {t('subscription.renew')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -215,7 +216,7 @@ const fetchPlanDetail = async (planId) => {
         {availablePlans.length > 0 && (
           <>
             <Text style={styles.section}>
-              {strings.subscription.available_plan}
+              {t('subscription.available_plan')}
             </Text>
 
             {availablePlans.map(plan => (
@@ -253,7 +254,7 @@ const fetchPlanDetail = async (planId) => {
                 <TouchableOpacity           onPress={() => fetchPlanDetail(plan.id)}
 style={styles.purchaseBtn}>
                   <Text style={styles.purchaseText}>
-                    {strings.subscription.purchase}
+                    {t('subscription.purchase')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -271,7 +272,7 @@ style={styles.purchaseBtn}>
                 <Ionicons name="arrow-back" size={22} />
               </TouchableOpacity>
               <Text style={styles.modalTitle}>
-                {strings.subscription.proceed_payment_title}
+                {t('subscription.proceed_payment_title')}
               </Text>
               <View style={{ width: 22 }} />
             </View>
@@ -282,7 +283,7 @@ style={styles.purchaseBtn}>
               <>
                 {/* Selected Plan */}
                 <Text style={styles.sectionTitle}>
-                  {strings.subscription.selected_plan_title}
+                  {t('subscription.selected_plan_title')}
                 </Text>
       
                 <View style={styles.planRow}>
@@ -307,7 +308,7 @@ style={styles.purchaseBtn}>
                   onPress={()=>handlePayNow(planDetail?.id)}
                 >
                   <Text style={styles.payNowText}>
-                    {strings.subscription.pay_now}
+                    {t('subscription.pay_now')}
                   </Text>
                 </TouchableOpacity>
               </>
@@ -329,10 +330,10 @@ style={styles.purchaseBtn}>
       
             <Ionicons name="checkmark-circle-outline" size={60} color="#3BAFDA" />
             <Text style={[styles.planPrice,{ fontWeight:'500',paddingTop:15}]}>
-              {strings.subscription.payment_success_title}
+              {t('subscription.payment_success_title')}
             </Text>
             <Text style={[styles.planPrice,{padding:24,fontWeight:'500'}]}>
-              {strings.subscription.payment_success_title}
+              {t('subscription.payment_success_subtitle')}
             </Text>
           </View>
         </View>

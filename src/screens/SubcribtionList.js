@@ -14,7 +14,11 @@ import { authService } from "../api/authService";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from "react-i18next";
+import { BlurView } from "@react-native-community/blur";
+
 export default function SubscriptionScreen({route, navigation }) {
+  const { t } = useTranslation();
     const { redirectTo, redirectParams } = route.params || {};
 
   const [plans, setPlans] = useState([]);
@@ -23,6 +27,8 @@ const [paymentVisible, setPaymentVisible] = useState(false);
 const [planDetail, setPlanDetail] = useState(null);
 const [loadingPlan, setLoadingPlan] = useState(false);
 const [showSuccess,setShowSuccess]=useState(false)
+const [showComingSoon, setShowComingSoon] = useState(true);
+
 
   useEffect(() => {
     fetchSubscriptions();
@@ -51,7 +57,7 @@ if(res?.data?.status===true){
     setShowSuccess(true)
 }else{
     setPaymentVisible(false);
-Alert.alert("Error", res?.data?.message)
+Alert.alert(t('common.error'), res?.data?.message)
 }
     // 🔗 CALL PAYMENT API HERE
     // POST api/user/subscribe
@@ -62,7 +68,7 @@ Alert.alert("Error", res?.data?.message)
   } catch (error) {
     console.log("Payment Error:", error?.response);
     setPaymentVisible(false);
-    Alert.alert("Error", error?.response?.data?.message)
+    Alert.alert(t('common.error'), error?.response?.data?.message)
   }
 };
 const fetchPlanDetail = async (planId) => {
@@ -122,7 +128,7 @@ const fetchPlanDetail = async (planId) => {
         //     })
         //   }
         >
-          <Text style={styles.purchaseText}>Purchase</Text>
+          <Text style={styles.purchaseText}>{t('subscription.purchase')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -145,7 +151,7 @@ const closefun=async()=>{
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#FFF'}}>
         <CustomHeader
-        title={'Unlock Downloads'}
+        title={t('subscription.unlock_downloads')}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -164,7 +170,7 @@ const closefun=async()=>{
   {/* ✅ SUB TITLE (THIS WAS MISSING) */}
   <View style={styles.screenHeader1}>
   <Text style={styles.screenSubTitle}>
-    Subscribe to access unlimited PDF & Video downloads.
+    {t('subscription.subscribe_description')}
   </Text>
 </View>
 
@@ -183,7 +189,7 @@ const closefun=async()=>{
         <TouchableOpacity onPress={() => setPaymentVisible(false)}>
           <Ionicons name="arrow-back" size={22} />
         </TouchableOpacity>
-        <Text style={styles.modalTitle}>Proceed payment</Text>
+        <Text style={styles.modalTitle}>{t('subscription.proceed_payment_title')}</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -192,7 +198,7 @@ const closefun=async()=>{
       ) : (
         <>
           {/* Selected Plan */}
-          <Text style={styles.sectionTitle}>Selected Plan</Text>
+          <Text style={styles.sectionTitle}>{t('subscription.selected_plan_title')}</Text>
 
           <View style={styles.planRow}>
             <View style={styles.planLeft}>
@@ -215,7 +221,7 @@ const closefun=async()=>{
             style={styles.payNowBtn}
             onPress={()=>handlePayNow(planDetail?.id)}
           >
-            <Text style={styles.payNowText}>Pay Now →</Text>
+            <Text style={styles.payNowText}>{t('subscription.pay_now')}</Text>
           </TouchableOpacity>
         </>
       )}
@@ -237,11 +243,80 @@ const closefun=async()=>{
 
       <Ionicons name="checkmark-circle-outline" size={60} color="#3BAFDA" />
       <Text style={[styles.planPrice,{ fontWeight:'500',paddingTop:15}]}>
-        Payment Successfully Completed
+        {t('subscription.payment_success_title')}
       </Text>
       <Text style={[styles.planPrice,{padding:24,fontWeight:'500'}]}>
-        Your Plan Is Now Active
+        {t('subscription.payment_success_subtitle')}
       </Text>
+    </View>
+  </View>
+</Modal>
+<Modal visible={showComingSoon} transparent animationType="fade">
+  {/* BLUR BACKGROUND */}
+  <BlurView
+    style={StyleSheet.absoluteFill}
+    blurType="light"
+    blurAmount={10}
+    reducedTransparencyFallbackColor="white"
+  />
+
+  {/* DARK OVERLAY */}
+  <View
+    style={{
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "rgba(0,0,0,0.3)",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    {/* CONTENT */}
+    <View
+      style={{
+        width: "80%",
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        padding: 24,
+        alignItems: "center",
+      }}
+    >
+      <Ionicons name="time-outline" size={60} color="#3BAFDA" />
+
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: "700",
+          marginTop: 16,
+        }}
+      >
+        {t("common.coming_soon")}
+      </Text>
+
+      <Text
+        style={{
+          fontSize: 14,
+          color: "#6B7280",
+          textAlign: "center",
+          marginTop: 10,
+          lineHeight: 20,
+        }}
+      >
+        {t("subscription.coming_soon_description")}
+      </Text>
+
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{
+          marginTop: 20,
+          backgroundColor: "#3BAFDA",
+          paddingVertical: 12,
+          paddingHorizontal: 30,
+          borderRadius: 30,
+        }}
+      >
+        <Text style={{ color: "#fff", fontWeight: "700" }}>
+          {t("common.ok")}
+        </Text>
+      </TouchableOpacity>
     </View>
   </View>
 </Modal>

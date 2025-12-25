@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 import ImageWithLoader from './ImageWithloader';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 export default function NewsCard({ item,onPress }) {
+  const { t } = useTranslation();
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
@@ -15,7 +16,7 @@ export default function NewsCard({ item,onPress }) {
         <View style={styles.row}>
           <Text style={styles.date}>{moment(item.created_at).format('DD-MM-YYYY')}</Text>
           <TouchableOpacity>
-            <Text style={styles.read}>{strings.news.read_more}</Text>
+            <Text style={styles.read}>{t('news.read_more')}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -18,11 +18,12 @@ import Pdf from "react-native-pdf";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 import RNBlobUtil from 'react-native-blob-util';
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function TaxDetailsScreen({ route, navigation }) {
+  const { t } = useTranslation();
   const { item } = route.params;
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,12 +78,12 @@ const refreshData = async () => {
   };
 
   const onClickDownload = async () => {
-    if (item?.is_paid === true&&isSubscribe===true) {
+    // if (item?.is_paid === true&&isSubscribe===true) {
       try {
       setIsDownloadLoading(true);
       const res = await authService.downloadDocument(details.id);
       if (res?.status) {
-        Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+        Alert.alert(t('common.success'), t('details.file_downloaded_successfully'));
       }
     } catch (err) {
       console.log("Download Error:", err);
@@ -90,19 +91,19 @@ const refreshData = async () => {
       setIsDownloadLoading(false);
     }
 
-    }else{
-      Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-      [
-        { text: strings.common.cancel, style: "cancel" },
-        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
-          redirectTo: "TaxDetailsScreen",
-         // redirectParams: { videoId: item.id },
-        });} },
-      ]
-    );      return;
-    }
+    // }else{
+    //   Alert.alert(
+    //   t('details.payment_required'),
+    //   t('details.payment_message'),
+    //   [
+    //     { text: t('common.cancel'), style: "cancel" },
+    //     { text: t('common.continue'), onPress: () => {navigation.navigate("SubscriptionScreen", {
+    //       redirectTo: "TaxDetailsScreen",
+    //      // redirectParams: { videoId: item.id },
+    //     });} },
+    //   ]
+    // );      return;
+    // }
 
     
   };
@@ -128,7 +129,7 @@ const refreshData = async () => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || strings.details.no_description_available}
+${data.description || t('details.no_description_available')}
 
 📲 Check this document in M.Impot App
 `;
@@ -155,7 +156,7 @@ ${data.description || strings.details.no_description_available}
 
 const openPdfModal = async () => {
   // 🔒 Block unpaid users
-  if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
+  // if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
 setShowPdfModal(true); // Show modal first
   setPdfLoading(true);   // Start loader
 
@@ -172,26 +173,26 @@ setShowPdfModal(true); // Show modal first
     setPdfUrl(res.path()); // Set local PDF path
   } catch (err) {
     console.log('PDF Download Error:', err);
-    Alert.alert('Error', 'Failed to load PDF');
+    Alert.alert(t('common.error'), t('details.failed_to_load_pdf'));
     setShowPdfModal(false); // Close modal on error
   } finally {
     setPdfLoading(false); // Stop loader
   }
-  }
-  else{
-Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-      [
-        { text: strings.common.cancel, style: "cancel" },
-        { text: strings.common.continue, onPress: () => {navigation.navigate("SubscriptionScreen", {
-          redirectTo: "TaxDetailsScreen",
-         // redirectParams: { videoId: item.id },
-        });} },
-      ]
-    );
-    return;
-  }
+//   }
+//   else{
+// Alert.alert(
+//       t('details.payment_required'),
+//       t('details.payment_message'),
+//       [
+//         { text: t('common.cancel'), style: "cancel" },
+//         { text: t('common.continue'), onPress: () => {navigation.navigate("SubscriptionScreen", {
+//           redirectTo: "TaxDetailsScreen",
+//          // redirectParams: { videoId: item.id },
+//         });} },
+//       ]
+//     );
+//     return;
+//   }
  
 
   
@@ -216,7 +217,7 @@ Alert.alert(
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
+        <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
         <View style={{ width: 30 }} />
       </View>
 

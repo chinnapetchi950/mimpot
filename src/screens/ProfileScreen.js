@@ -10,10 +10,11 @@ import { authService } from "../api/authService";
 import { setToken, setUser } from "../store/userSlice";
 import Storage from "../utils/storage";
 import { useFocusEffect } from "@react-navigation/native";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 
 const ProfileScreen = () => {
+  const { t } = useTranslation();
   const [userdata, setuserData] = useState(null);
   const [stats, setStats] = useState(null);
 const [imageLoading, setImageLoading] = useState(true);
@@ -38,7 +39,7 @@ const [imageLoading, setImageLoading] = useState(true);
 
     } catch (e) {
       console.log("PROFILE ERROR:", e?.response?.data || e);
-      Alert.alert(strings.common.error, strings.profile.unable_to_load_profile);
+      Alert.alert(t('common.error'), t('profile.unable_to_load_profile'));
     }
   };
 
@@ -56,7 +57,7 @@ const [imageLoading, setImageLoading] = useState(true);
           setImageLoading(false)
 
       console.log("STATISTICS ERROR:", e?.response?.data || e);
-      Alert.alert(strings.common.error, strings.profile.unable_to_load_statistics);
+      Alert.alert(t('common.error'), t('profile.unable_to_load_statistics'));
     }
   };
 useFocusEffect(
@@ -70,7 +71,7 @@ useFocusEffect(
   );
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <CustomHeader title={strings.profile.profile} />
+      <CustomHeader title={t('profile.profile')} />
 
       <ScrollView style={{ flex: 1, padding: wp("5%") }}>
 
@@ -116,60 +117,91 @@ useFocusEffect(
           <>
             {[
               {
-                title: strings.profile.bookmarked,
-                subtext: ` ${stats.total_bookmarks} ${strings.profile.documents}`,
+                title: t('profile.bookmarked'),
+                subtext: ` ${stats.total_bookmarks} ${t('profile.documents')}`,
                 value: stats.total_bookmarks
                 //value:stats.total_bookmarks
               },
               {
-                title: strings.profile.document_interactions,
-                subtext: `${stats.total_viewed_this_month} ${strings.profile.documents_viewed_this_month}`,
+                title: t('profile.document_interactions'),
+                subtext: `${stats.total_viewed_this_month} ${t('profile.documents_viewed_this_month')}`,
                 value: stats.total_viewed_this_month,
               },
               {
-                title: strings.profile.video_interactions,
-                subtext: `${stats.total_viewed_videos_this_month} ${strings.profile.videos_watched}`,
+                title: t('profile.video_interactions'),
+                subtext: `${stats.total_viewed_videos_this_month} ${t('profile.videos_watched')}`,
                 value: stats.total_viewed_videos_this_month,
               },
               {
-                title: strings.profile.download_counts,
-                subtext: `${stats.total_downloaded_files} ${strings.profile.files_downloaded}`,
+                title: t('profile.download_counts'),
+                subtext: `${stats.total_downloaded_files} ${t('profile.files_downloaded')}`,
                 value: stats.total_downloaded_files,
               },
             ].map((item) => (
-              <View
-                key={item.title}
-                style={{
-                  marginTop: hp("3%"),
-                  backgroundColor: colors.card,
-                  paddingLeft: wp("3%"),
-                  borderRadius: 50,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  elevation: 3,
-                }}
-              >
-                <View style={{ flexDirection: "column", padding: hp("1.5%") }}>
-                  <Text style={{ fontSize: wp("5%") }}>{item.title}</Text>
-                  <Text style={{ fontSize: wp("3%") }}>{item.subtext}</Text>
-                </View>
+             <View
+  key={item.title}
+  style={{
+    marginTop: hp("2.5%"),
+    backgroundColor:colors.card,
+    borderRadius: 30,
+    flex:1,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: wp("4%"),
+    elevation: 3,
+  }}
+>
+  {/* LEFT TEXT */}
+  <View style={{ width:wp('70%'), paddingVertical: hp("2%"), paddingRight: wp("1%") }}>
+    <Text
+      numberOfLines={2}
+      ellipsizeMode="tail"
+      style={{
+        fontSize: wp("4.4%"),
+        fontWeight: "700",
+        color: "#000",
+      }}
+    >
+      {item.title}
+    </Text>
 
-                <View
-                  style={{
-                    backgroundColor: colors.primary,
-                    width: 100,
-                    height: 70,
-                    borderRadius: 50,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "#fff", fontSize: wp("4.6%"), fontWeight: "700" }}>
-                    {item.value}
-                  </Text>
-                </View>
-              </View>
+    <Text
+      numberOfLines={1}
+      style={{
+        fontSize: wp("3.2%"),
+        color: colors.lightText,
+        marginTop: 6,
+      }}
+    >
+      {item.subtext}
+    </Text>
+  </View>
+
+  {/* RIGHT CIRCLE */}
+  <View
+    style={{
+      backgroundColor: colors.primary,
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      justifyContent: "center",
+      alignItems: "center",
+      //marginLeft:wp('%')
+      marginRight: wp("0%"),
+    }}
+  >
+    <Text
+      style={{
+        color: "#fff",
+        fontSize: wp("4.8%"),
+        fontWeight: "700",
+      }}
+    >
+      {item.value}
+    </Text>
+  </View>
+</View>
+
             ))}
           </>
         )}

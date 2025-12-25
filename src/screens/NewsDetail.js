@@ -14,9 +14,10 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 export default function NewDetailsScreen({ route, navigation }) {
+  const { t } = useTranslation();
   const { item } = route.params; // contains { id }
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +102,7 @@ const buildShareMessage = (data) => {
 👁 Views: ${data.views_count}
 
 📝 Summary:
-${data.excerpt || strings.news.no_summary_available}
+${data.excerpt || t('news.no_summary_available')}
 
 🔗 Read full news in M.Impot App
 `;
@@ -113,7 +114,7 @@ ${data.excerpt || strings.news.no_summary_available}
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
+        <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
         <View style={{ width: 30 }} />
       </View>
 

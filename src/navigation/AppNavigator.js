@@ -30,6 +30,7 @@ import SearchResultScreen from '../screens/SearchResultScreen';
 import RatingListScreen from '../screens/RattingListScreen';
 import CommentScreen from '../screens/CommentScreen';
 import SubscriptionScreen from '../screens/SubcribtionList';
+import ForgotPasswordScreen from '../screens/Forgotpassword';
 
 
 const Stack = createNativeStackNavigator();
@@ -75,6 +76,7 @@ export default function AppNavigator() {
       <Stack.Screen name="RatingListScreen" component={RatingListScreen} />
       <Stack.Screen name="CommentScreen" component={CommentScreen} />
       <Stack.Screen name="SubscriptionScreen" component={SubscriptionScreen} />
+      <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
 
 
     </Stack.Navigator>

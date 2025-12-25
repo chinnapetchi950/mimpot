@@ -2,9 +2,10 @@ import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../styles/theme';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 export default function SearchBar({ value, onChangeText, onSearch, onFilterPress }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap}>
       {/* Search Input with Icon */}
@@ -13,7 +14,7 @@ export default function SearchBar({ value, onChangeText, onSearch, onFilterPress
           <Ionicons name="search" size={18} color="#9AA0A6" />
         </TouchableOpacity>
         <TextInput
-          placeholder={strings.search.search_placeholder}
+          placeholder={t('search.search_placeholder')}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}

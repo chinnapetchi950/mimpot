@@ -14,10 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { authService } from '../api/authService';
 import { imageUrl } from '../api/authService';
 import CustomHeader from '../components/CustomHeader';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 export default function RatingListScreen({ route,navigation }) {
+  const { t } = useTranslation();
   const { documentId } = route.params;
   const { user } = useSelector((state) => state.user);
 console.log("user=======>",user);
@@ -80,7 +81,7 @@ console.log("user=======>",user);
     const res=await authService.rattingDelete(documentId,formData)
               console.log(res,'delete res');
               if(res.status){
-                Alert.alert("Success",res.data?.message)
+                Alert.alert(t('common.success'), res.data?.message)
               setRatings(prev => prev.filter(r => r.id !== ratingId));
 
               }

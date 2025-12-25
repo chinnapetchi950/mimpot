@@ -15,8 +15,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { authService } from "../api/authService"; // <-- API FILE
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 export default function ArticleDetailsScreen({ route, navigation }) {
+  const { t } = useTranslation();
       const { categoryId } = route.params || {};
 
 //   const { item } = route.params; // item.id is coming
@@ -65,7 +66,7 @@ const buildShareMessage = (data) => {
 📅 Created On: ${data.created_at_formatted}
 
 📝 Description:
-${data.description || strings.details.no_description_available}
+${data.description || t('details.no_description_available')}
 
 📲 Check this document in M.Impot App
 `;
@@ -78,7 +79,7 @@ ${data.description || strings.details.no_description_available}
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#000" />
-        <Text style={{ marginTop: 10 }}>Loading...</Text>
+        <Text style={{ marginTop: 10 }}>{t('common.loading')}</Text>
       </View>
     );
   }
@@ -101,13 +102,13 @@ console.log(res, "reeeeeeee");
   }
 };
 const onClickDownload = async (item) => {
-  if (item?.is_paid === true) {
-    Alert.alert(
-      strings.details.payment_required,
-      strings.details.payment_message,
-    );
-    return;
-  }
+  // if (item?.is_paid === true) {
+  //   Alert.alert(
+  //     t('details.payment_required'),
+  //     t('details.payment_message'),
+  //   );
+  //   return;
+  // }
 
   // continue normal flow
   try {
@@ -117,7 +118,7 @@ const onClickDownload = async (item) => {
 console.log(res,"res====");
 
     if (res?.status) {
-      Alert.alert(strings.common.success, strings.details.file_downloaded_successfully);
+      Alert.alert(t('common.success'), t('details.file_downloaded_successfully'));
     }
   } catch (e) {
     console.log(e);
@@ -132,7 +133,7 @@ console.log(res,"res====");
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{strings.details.details_view}</Text>
+        <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
         <View style={{ width: 30 }} />
       </View>
 
@@ -149,7 +150,7 @@ console.log(res,"res====");
 
         {/* Date + Icons */}
         <View style={styles.row}>
-          <Text style={styles.date}>{moment(details?.created_at).format('DD-MM-YYYY') || strings.details.no_date}</Text>
+          <Text style={styles.date}>{moment(details?.created_at).format('DD-MM-YYYY') || t('details.no_date')}</Text>
 
           <View style={styles.iconRow}>
             <Icon onPress={()=>handleShare(details)} name="share-outline" size={24} color="#000" />

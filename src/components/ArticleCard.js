@@ -4,9 +4,10 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import moment from "moment";
 import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
 import ImageWithLoader from "./ImageWithloader";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 export default function ArticleCard({ item,onPress }) {
+  const { t } = useTranslation();
     const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
       
      console.log(`${BASE_URL}${item.image}`,"api===>");
@@ -24,7 +25,7 @@ export default function ArticleCard({ item,onPress }) {
       <View style={styles.row}>
         <Text style={styles.date}>{moment(item.created_at).format('DD-MM-YYYY')}</Text>
         <TouchableOpacity>
-          <Text style={styles.readMore}>{strings.articles.read_more}</Text>
+          <Text style={styles.readMore}>{t('articles.read_more')}</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

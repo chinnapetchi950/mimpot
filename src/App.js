@@ -23,6 +23,7 @@ import { navigationRef } from "./navigation/RootNavigator";
 import {store,persistor } from './store/store';
 import AppNavigator from './navigation/AppNavigator';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import './localization/i18n'; // Initialize i18n
 
 
 

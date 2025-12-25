@@ -142,12 +142,13 @@
 //   }
 // /> */}
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, FlatList } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { RFValue } from "react-native-responsive-fontsize";
 import { StatusBar } from "react-native";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "../localization/i18n";
 
 const CustomHeader = ({
   title,
@@ -158,20 +159,32 @@ const CustomHeader = ({
   headertextstyle,
   headerContainerStyle = {},
 }) => {
-  const [language, setLanguage] = useState("En");
+  const { t, i18n } = useTranslation();
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language || "en");
+
+  useEffect(() => {
+    setCurrentLanguage(i18n.language || "en");
+  }, [i18n.language]);
 
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
-  const selectLanguage = (lang) => {
-    setLanguage(lang);
-    onLanguageChange(lang);
+  const selectLanguage = async (langCode) => {
+    const langMap = { "En": "en", "Fr": "fr" };
+    const code = langMap[langCode] || langCode.toLowerCase();
+    await changeLanguage(code);
+    setCurrentLanguage(code);
+    onLanguageChange(code);
     setDropdownVisible(false);
   };
 
+  const getLanguageDisplay = (code) => {
+    return code === "en" || code === "En" ? "En" : "Fr";
+  };
+
   const languages = [
-    { code: "En", label: strings.language.english },
-    { code: "Fr", label: strings.language.french },
+    { code: "En", label: t("language.english") },
+    { code: "Fr", label: t("language.french") },
   ];
 
   return (
@@ -197,7 +210,7 @@ const CustomHeader = ({
                   source={require("../assets/images/flag.png")}
                   style={styles.flag}
                 />
-                <Text style={styles.langText}>{language}</Text>
+                <Text style={styles.langText}>{getLanguageDisplay(currentLanguage)}</Text>
                 <Ionicons name={dropdownVisible ? "chevron-up" : "chevron-down"} size={16} color="#555" />
               </TouchableOpacity>
 

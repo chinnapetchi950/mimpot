@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 
 export default function DividerOr(){
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <View style={styles.line} />
-      <Text style={styles.or}>{strings.common.or}</Text>
+      <Text style={styles.or}>{t('common.or')}</Text>
       <View style={styles.line} />
     </View>
   );

@@ -5,9 +5,10 @@ import { common, colors } from "../styles/theme";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { authService } from "../api/authService"; // your API service
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 const HelpCenterScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,11 +16,11 @@ const HelpCenterScreen = ({ navigation }) => {
   const handleSend = async () => {
     // 1️⃣ Validation
     if (!subject.trim()) {
-      Alert.alert(strings.help.validation_error, strings.help.please_enter_subject);
+      Alert.alert(t('help.validation_error'), t('help.please_enter_subject'));
       return;
     }
     if (!message.trim()) {
-      Alert.alert(strings.help.validation_error, strings.help.please_enter_message);
+      Alert.alert(t('help.validation_error'), t('help.please_enter_message'));
       return;
     }
 
@@ -34,11 +35,11 @@ const HelpCenterScreen = ({ navigation }) => {
         setSubject("");
         setMessage("");
         Alert.alert(
-  strings.common.success,
-  strings.help.ticket_submitted_successfully,
+  t('common.success'),
+  t('help.ticket_submitted_successfully'),
   [
     {
-      text: strings.common.ok,
+      text: t('common.ok'),
       onPress: () => navigation.navigate("IssuesScreen"), 
     }
   ]
@@ -46,11 +47,11 @@ const HelpCenterScreen = ({ navigation }) => {
        // Alert.alert("Success", "Your ticket has been submitted successfully.");
         
       } else {
-        Alert.alert(strings.common.error, res?.data?.message || strings.help.something_went_wrong);
+        Alert.alert(t('common.error'), res?.data?.message || t('help.something_went_wrong'));
       }
     } catch (e) {
       console.log("Ticket API error:", e?.response?.data || e);
-      Alert.alert(strings.common.error, e?.message || strings.help.failed_to_submit_ticket);
+      Alert.alert(t('common.error'), e?.message || t('help.failed_to_submit_ticket'));
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ const HelpCenterScreen = ({ navigation }) => {
   return (
     <View style={common.screen}>
       <AppHeader
-        title={strings.help.help_center}
+        title={t('help.help_center')}
         showBack
         onBack={() => navigation.goBack()}
         rightIcon={
@@ -70,23 +71,23 @@ const HelpCenterScreen = ({ navigation }) => {
       />
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: wp("5%"), paddingTop: hp("3%") }}>
-        <Text style={{ fontWeight: "700", fontSize: hp("2.4%") }}>{strings.help.have_question}</Text>
-        <Text style={{ color: "#999", marginTop: hp("1%") }}>{strings.help.write_query}</Text>
+        <Text style={{ fontWeight: "700", fontSize: hp("2.4%") }}>{t('help.have_question')}</Text>
+        <Text style={{ color: "#999", marginTop: hp("1%") }}>{t('help.write_query')}</Text>
 
-        <Text style={{ marginTop: hp("2%") }}>{strings.help.subject}</Text>
+        <Text style={{ marginTop: hp("2%") }}>{t('help.subject')}</Text>
         <TextInput
           value={subject}
           onChangeText={setSubject}
-          placeholder={strings.help.enter_subject}
+          placeholder={t('help.enter_subject')}
           style={{ borderWidth: 1, borderColor: "#C9C9C9", borderRadius: 10, padding: wp("3%"), marginTop: hp("1%") }}
         />
 
-        <Text style={{ marginTop: hp("2%") }}>{strings.help.message}</Text>
+        <Text style={{ marginTop: hp("2%") }}>{t('help.message')}</Text>
         <TextInput
           value={message}
           onChangeText={setMessage}
           multiline
-          placeholder={strings.help.enter_message}
+          placeholder={t('help.enter_message')}
           style={{ borderWidth: 1, textAlignVertical: "top", borderColor: "#C9C9C9", borderRadius: 10, padding: wp("3%"), height: hp("18%"), marginTop: hp("1%") }}
         />
 
@@ -108,8 +109,8 @@ const HelpCenterScreen = ({ navigation }) => {
           {loading ? <ActivityIndicator color="#fff" /> : <Ionicons name="send" color="#fff" size={hp("2.4%")} />}
         </TouchableOpacity>
 
-        <Text style={{ textAlign: "center", marginTop: hp("8%"), color: "#666" }}>{strings.help.or}</Text>
-        <Text style={{ textAlign: "center", marginTop: hp("1%"), fontWeight: "700" }}>{strings.help.connect_with_us}</Text>
+        <Text style={{ textAlign: "center", marginTop: hp("8%"), color: "#666" }}>{t('help.or')}</Text>
+        <Text style={{ textAlign: "center", marginTop: hp("1%"), fontWeight: "700" }}>{t('help.connect_with_us')}</Text>
 
         <TouchableOpacity
           style={{

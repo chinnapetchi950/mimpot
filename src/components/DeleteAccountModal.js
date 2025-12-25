@@ -1,9 +1,10 @@
 import React,{useState} from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 export default function DeleteAccountModal({ visible, onClose, onDelete }) {
+  const { t } = useTranslation();
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
@@ -15,24 +16,24 @@ export default function DeleteAccountModal({ visible, onClose, onDelete }) {
           </TouchableOpacity>
 
           <Text style={styles.title}>
-            {strings.delete_account.confirm_delete}
+            {t('delete_account.confirm_delete')}
           </Text>
 
           <View style={{ marginTop: 10 }}>
-            <Text style={styles.point}>•  {strings.delete_account.deletion_irreversible}</Text>
+            <Text style={styles.point}>•  {t('delete_account.deletion_irreversible')}</Text>
             <Text style={styles.point}>
-              •  {strings.delete_account.deletion_warning}
+              •  {t('delete_account.deletion_warning')}
             </Text>
           </View>
 
           {/* KEEP ACCOUNT */}
           <TouchableOpacity style={styles.keepBtn} onPress={onClose}>
-            <Text style={styles.keepText}>{strings.delete_account.keep_my_account}</Text>
+            <Text style={styles.keepText}>{t('delete_account.keep_my_account')}</Text>
           </TouchableOpacity>
 
           {/* DELETE ACCOUNT */}
           <TouchableOpacity onPress={onDelete}>
-            <Text style={styles.deleteText}>{strings.delete_account.delete_account}</Text>
+            <Text style={styles.deleteText}>{t('delete_account.delete_account')}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -2,22 +2,23 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { colors } from "../styles/theme";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 const LogoutModal = ({ visible, onConfirm, onCancel }) => {
+  const { t } = useTranslation();
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.backdrop}>
         <View style={styles.box}>
-          <Text style={styles.title}>{strings.logout.confirm_logout}</Text>
+          <Text style={styles.title}>{t('logout.confirm_logout')}</Text>
 
           <View style={styles.actions}>
             <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
-              <Text style={styles.confirmText}>{strings.logout.log_out}</Text>
+              <Text style={styles.confirmText}>{t('logout.log_out')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-              <Text style={styles.cancelText}>{strings.logout.cancel}</Text>
+              <Text style={styles.cancelText}>{t('logout.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

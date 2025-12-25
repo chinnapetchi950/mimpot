@@ -143,6 +143,8 @@ getmanageSubscription: () => apiClient.get('user/user_subscription/plans'),
 subscriptionRenew:async()=>{
   return await apiClient.post(`/user/user_subscription/renew`)
 },
+forgotPassword:async( data) =>{
+   return await apiClient.post('user/forgot-password', data)},
 
 
 downloadDocument: async (documentId) => {

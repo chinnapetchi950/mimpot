@@ -3,19 +3,31 @@ import { View, Text, StyleSheet, Dimensions, Image, FlatList, TouchableOpacity,S
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FeatureSlide from '../components/FeatureSlide';
 import { colors } from '../styles/theme';;
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 const { width } = Dimensions.get('window');
+ 
 
-const slides = [
-  //{ key: '1', image: require('../assets/images/hero.png'), title: 'SMART SEARCH & DOWNLOAD', text: 'Easily search and find legal texts using powerful keyword and category filters, designed for quick access.' },
-  { key: '1', image: require('../assets/images/mask2.png'), title: 'EXPLORE TAX LAWS', text: 'Browse and explore comprehensive legal documents, tax articles, and official decrees, all in one platform.',text2:'Stay informed, updated, and  tax law insights anytime.' },
-  { key: '2', image: require('../assets/images/mask1.png'), title: 'STAY UPDATED', text: 'Download documents instantly for offline reading and stay informed with latest tax law updates.',text2:'' },
-];
 
 export default function OnboardingScreen({ navigation }) {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   const ref = useRef(null);
-
+const slides = [
+  {
+    key: '1',
+    image: require('../assets/images/mask2.png'),
+    title: t('onboarding.explore_tax_laws'),
+    text: t('onboarding.explore_tax_laws_description'),
+    text2: t('onboarding.explore_tax_laws_description2'),
+  },
+  {
+    key: '2',
+    image: require('../assets/images/mask1.png'),
+    title: t('onboarding.stay_updated'),
+    text: t('onboarding.stay_updated_description'),
+    text2: '',
+  },
+];
   const onViewRef = React.useRef(({ changed }) => {
     if (changed && changed.length) setIndex(changed[0].index);
   });
@@ -51,7 +63,7 @@ export default function OnboardingScreen({ navigation }) {
           if(index === slides.length-1) navigation.replace('Welcome');
           else ref.current.scrollToIndex({index: index+1});
         }}>
-          <Text style={styles.getText}>{ index === slides.length-1 ? strings.onboarding.get_started : strings.onboarding.next_button }</Text>
+          <Text style={styles.getText}>{ index === slides.length-1 ? t('onboarding.get_started') : t('onboarding.next_button') }</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

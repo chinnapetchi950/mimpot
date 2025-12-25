@@ -5,10 +5,11 @@ import { authService } from "../api/authService"; // make sure this is correctly
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import strings from "../localization/en";
+import { useTranslation } from "react-i18next";
 
 
 export default function NewsScreen({ navigation }) {
+  const { t } = useTranslation();
   const [newsList, setNewsList] = useState([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -65,7 +66,7 @@ console.log("response",response?.data);
     <SafeAreaView style={{flex:1}}>
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 50 }}
-        title={strings.news.latest_news_updates}
+        title={t('news.latest_news_updates')}
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -96,7 +97,7 @@ console.log("response",response?.data);
         ListEmptyComponent={
           !loading && (
             <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>{strings.news.no_data_available}</Text>
+              <Text style={styles.noDataText}>{t('news.no_data_available')}</Text>
             </View>
           )
         }

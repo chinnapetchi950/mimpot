@@ -22,9 +22,10 @@ import Storage from '../utils/storage';
 import { authService } from '../api/authService';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken, clearUser } from '../store/userSlice';
-import strings from '../localization/en';
+import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const SettingsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [userdata, setuserData] = useState();
 const [imageLoading, setImageLoading] = useState(true);
 
@@ -47,17 +48,17 @@ const [imageLoading, setImageLoading] = useState(true);
     checkAuth();
   }, [navigation]);
   const menuItems = [
-    { icon: 'info', title: strings.settings.about_us, screen: 'AboutusScreen' },
+    { icon: 'info', title: t('settings.about_us'), screen: 'AboutusScreen' },
     // { icon: "credit-card", title: "Manage Payment", screen: "PaymentScreen" },
-    { icon: 'shield', title: strings.settings.security_settings, screen: 'SecuritySettings' },
+    { icon: 'shield', title: t('settings.security_settings'), screen: 'SecuritySettings' },
     {
       icon: 'file-text',
-      title: strings.settings.manage_subscription,
+      title: t('settings.manage_subscription'),
       screen:'SubscriptionScreen'
       //screen: 'ManageSubscription',
     },
-    { icon: 'headphones', title: strings.settings.help_center, screen: 'HelpCenter' },
-    { icon: 'log-out', title: strings.settings.logout, screen: 'logout' },
+    { icon: 'headphones', title: t('settings.help_center'), screen: 'HelpCenter' },
+    { icon: 'log-out', title: t('settings.logout'), screen: 'logout' },
   ];
   const [logoutVisible, setLogoutVisible] = useState(false);
 
@@ -83,20 +84,20 @@ const [imageLoading, setImageLoading] = useState(true);
       }
     } catch (e) {
       console.log('logout ERROR:', e?.response?.data || e);
-      Alert.alert(strings.common.error, e?.message || strings.settings.failed_to_logout);
+      Alert.alert(t('common.error'), e?.message || t('settings.failed_to_logout'));
     }
 
     return;
   };
   const handlePress = async (item) => {
   try {
-    if (item.title === strings.settings.logout) {
+    if (item.title === t('settings.logout')) {
       setLogoutVisible(true);
       return;
     }
 
     // Check subscription only for "Manage Subscription"
-    if (item.title === strings.settings.manage_subscription) {
+    if (item.title === t('settings.manage_subscription')) {
       const res = await authService.getCurrentSubscription(); // call your API
       console.log('Subscription API response:', res.data);
 
@@ -104,15 +105,17 @@ const [imageLoading, setImageLoading] = useState(true);
         if (res.data.data) {
           // User has active subscription → go to ManageSubscription
       await AsyncStorage.setItem('isSubcribe', JSON.stringify(true));
-          navigation.navigate('ManageSubscription',{currentplan:res.data.data});
+                navigation.navigate('SubscriptionScreen'); // or SubscriptionList screen
+
+          // navigation.navigate('ManageSubscription',{currentplan:res.data.data});
         } else {
-          await AsyncStorage.setItem('isSubcribe', JSON.stringify(false));
+          await AsyncStorage.setItem('isSubcribe', JSON.stringify(true));
           // No active subscription → go to SubscriptionList
           navigation.navigate('SubscriptionScreen'); // or SubscriptionList screen
         }
       } else {
         // Handle error response
-        Alert.alert('Error', res?.data?.message || 'Failed to check subscription');
+        Alert.alert(t('common.error'), res?.data?.message || t('subscription.failed_to_check_subscription'));
       }
       return;
     }
@@ -121,7 +124,7 @@ const [imageLoading, setImageLoading] = useState(true);
     navigation.navigate(item.screen);
   } catch (err) {
     console.log('Error handling menu item:', err);
-    Alert.alert('Error', 'Something went wrong, please try again.');
+    Alert.alert(t('common.error'), t('common.something_went_wrong'));
   }
 };
 
@@ -142,12 +145,12 @@ const [imageLoading, setImageLoading] = useState(true);
         dispatch(setUser(res.data.data)); // Update Redux user
         Storage.setItem('userData', res.data.data);
 
-        Alert.alert(strings.common.success, strings.settings.profile_updated);
+        Alert.alert(t('common.success'), t('settings.profile_updated'));
         navigation.goBack();
       }
     } catch (err) {
       console.log('Upload error:', err);
-      Alert.alert(strings.common.error, strings.settings.failed_to_upload_image);
+      Alert.alert(t('common.error'), t('settings.failed_to_upload_image'));
     } finally {
       setUploading(false); // HIDE LOADER
     }
@@ -157,7 +160,7 @@ const [imageLoading, setImageLoading] = useState(true);
   
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <CustomHeader title={strings.settings.settings} />
+      <CustomHeader title={t('settings.settings')} />
 
       <ScrollView style={{ flex: 1, padding: wp('5%') }}>
         {/* Header */}
@@ -254,7 +257,7 @@ const [imageLoading, setImageLoading] = useState(true);
 
         {/* More Settings */}
         <Text style={[common.title, { marginTop: hp('3%') }]}>
-          {strings.settings.more_settings}
+          {t('settings.more_settings')}
         </Text>
 
         {menuItems.map(item => (
