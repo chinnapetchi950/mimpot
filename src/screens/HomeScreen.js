@@ -1,4 +1,3 @@
-// 🔥 FULL UPDATED HOME SCREEN — WITH MYNTRA STYLE SEARCH SUGGESTIONS
 
 import React, { useEffect, useState ,useCallback} from 'react';
 import {
@@ -344,9 +343,6 @@ console.log(apiData,"apiData==>");
     </SafeAreaView>
   );
 }
-
-
-
 /* --------------------------------------------
     STYLES
 ----------------------------------------------*/

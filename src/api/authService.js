@@ -147,72 +147,169 @@ forgotPassword:async( data) =>{
    return await apiClient.post('user/forgot-password', data)},
 
 
+// downloadDocument: async (documentId) => {
+//   try {
+//     const token = await AsyncStorage.getItem('token');
+//     const { fs } = ReactNativeBlobUtil;
+
+//     const appFolder = 'Mimpot';
+//     const fileName = `document_${documentId}.pdf`;
+
+//     // 📂 Public Downloads path
+//     const dirPath = `/storage/emulated/0/Download/${appFolder}`;
+//     const filePath = `${dirPath}/${fileName}`;
+
+//     // ✅ Storage permission
+//     if (Platform.OS === 'android' && Platform.Version >= 23) {
+//       const granted = await PermissionsAndroid.request(
+//         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+//         {
+//           title: 'Storage Permission',
+//           message: 'App needs access to your storage to download documents.',
+//           buttonPositive: 'Allow',
+//           buttonNegative: 'Deny',
+//         }
+//       );
+//       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+//         return { status: false, error: 'Storage permission denied' };
+//       }
+//     }
+
+//     // ✅ Create folder if not exists
+//     const dirExists = await fs.exists(dirPath);
+//     if (!dirExists) {
+//       await fs.mkdir(dirPath);
+//     }
+
+//     // 🔍 CHECK IF FILE ALREADY EXISTS
+//     const fileExists = await fs.exists(filePath);
+//     if (fileExists) {
+//       return new Promise((resolve) => {
+//         Alert.alert(
+//           'File already downloaded',
+//           'Do you want to download again?',
+//           [
+//             { text: 'No', style: 'cancel', onPress: () => resolve({ status: false, alreadyDownloaded: true }) },
+//             {
+//               text: 'Yes',
+//               onPress: async () => {
+//                 try {
+//                   const res = await ReactNativeBlobUtil.config({ fileCache: true })
+//                     .fetch('GET', `${BASE_URL}/user/documents/${documentId}/download`, {
+//                       Authorization: `Bearer ${token}`,
+//                     });
+
+//                   // 🔹 Print API response
+//                   const contentType = res.respInfo.headers['Content-Type'] || res.respInfo.headers['content-type'];
+//                   if (contentType.includes('application/json')) {
+//                     const json = await res.json();
+//                     console.log('Download API Response:', json);
+//                     resolve({ status: false, message: json.message || 'Download not allowed' });
+//                     return;
+//                   }
+
+//                   // Save file
+//                   const base64Data = await res.base64();
+//                   await fs.writeFile(filePath, base64Data, 'base64');
+
+//                   resolve({ status: true, data: { path: filePath, fileName } });
+//                 } catch (e) {
+//                   resolve({ status: false, error: e });
+//                 }
+//               },
+//             },
+//           ]
+//         );
+//       });
+//     }
+
+//     // ⬇️ NORMAL DOWNLOAD (IF FILE NOT EXISTS)
+//     const res = await ReactNativeBlobUtil.config({ fileCache: true })
+//       .fetch('GET', `${BASE_URL}/user/documents/${documentId}/download`, {
+//         Authorization: `Bearer ${token}`,
+//       });
+
+//     // 🔹 Print API response
+//     const contentType = res.respInfo.headers['Content-Type'] || res.respInfo.headers['content-type'];
+//     if (contentType.includes('application/json')) {
+//       const json = await res.json();
+//       console.log('Download API Response:', json);
+//                           Alert.alert('Download Info', json.message || 'Download not allowed');
+
+//       return { status: false, message: json.message || 'Download not allowed' };
+//     }
+
+//     // Save file
+//     const base64Data = await res.base64();
+//     await fs.writeFile(filePath, base64Data, 'base64');
+
+//     return { status: true, data: { path: filePath, fileName } };
+//   } catch (error) {
+//     console.log('Download Service Error:', error);
+//     return { status: false, error };
+//   }
+// },
 downloadDocument: async (documentId) => {
   try {
-    const token = await AsyncStorage.getItem('token');
-    const { fs } = ReactNativeBlobUtil;
+    const token = await AsyncStorage.getItem("token");
+    const { fs, config } = ReactNativeBlobUtil;
 
-    const appFolder = 'Mimpot';
+    const appFolder = "Mimpot";
     const fileName = `document_${documentId}.pdf`;
 
-    // 📂 Public Downloads path
-    const dirPath = `/storage/emulated/0/Download/${appFolder}`;
+    // ✅ SAFE public download directory
+    const dirPath = `${fs.dirs.DownloadDir}/${appFolder}`;
     const filePath = `${dirPath}/${fileName}`;
 
-    // ✅ Storage permission
-    if (Platform.OS === 'android' && Platform.Version >= 23) {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Storage Permission',
-          message: 'App needs access to your storage to download documents.',
-          buttonPositive: 'Allow',
-          buttonNegative: 'Deny',
-        }
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        return { status: false, error: 'Storage permission denied' };
-      }
-    }
-
-    // ✅ Create folder if not exists
+    // ✅ Ensure folder exists
     const dirExists = await fs.exists(dirPath);
     if (!dirExists) {
       await fs.mkdir(dirPath);
     }
 
-    // 🔍 CHECK IF FILE ALREADY EXISTS
+    // 🔍 CHECK IF FILE EXISTS
     const fileExists = await fs.exists(filePath);
     if (fileExists) {
       return new Promise((resolve) => {
         Alert.alert(
-          'File already downloaded',
-          'Do you want to download again?',
+          "File already downloaded",
+          "Do you want to download again?",
           [
-            { text: 'No', style: 'cancel', onPress: () => resolve({ status: false, alreadyDownloaded: true }) },
             {
-              text: 'Yes',
+              text: "No",
+              style: "cancel",
+              onPress: () =>
+                resolve({
+                  status: false,
+                  alreadyDownloaded: true,
+                  path: filePath,
+                }),
+            },
+            {
+              text: "Yes",
               onPress: async () => {
                 try {
-                  const res = await ReactNativeBlobUtil.config({ fileCache: true })
-                    .fetch('GET', `${BASE_URL}/user/documents/${documentId}/download`, {
+                  const res = await config({
+                    addAndroidDownloads: {
+                      useDownloadManager: true,
+                      notification: true,
+                      path: filePath,
+                      title: fileName,
+                      mime: "application/pdf",
+                      mediaScannable: true,
+                    },
+                  }).fetch(
+                    "GET",
+                    `${BASE_URL}/user/documents/${documentId}/download`,
+                    {
                       Authorization: `Bearer ${token}`,
-                    });
+                    }
+                  );
 
-                  // 🔹 Print API response
-                  const contentType = res.respInfo.headers['Content-Type'] || res.respInfo.headers['content-type'];
-                  if (contentType.includes('application/json')) {
-                    const json = await res.json();
-                    console.log('Download API Response:', json);
-                    resolve({ status: false, message: json.message || 'Download not allowed' });
-                    return;
-                  }
-
-                  // Save file
-                  const base64Data = await res.base64();
-                  await fs.writeFile(filePath, base64Data, 'base64');
-
-                  resolve({ status: true, data: { path: filePath, fileName } });
+                  resolve({
+                    status: true,
+                    data: { path: res.path(), fileName },
+                  });
                 } catch (e) {
                   resolve({ status: false, error: e });
                 }
@@ -223,29 +320,30 @@ downloadDocument: async (documentId) => {
       });
     }
 
-    // ⬇️ NORMAL DOWNLOAD (IF FILE NOT EXISTS)
-    const res = await ReactNativeBlobUtil.config({ fileCache: true })
-      .fetch('GET', `${BASE_URL}/user/documents/${documentId}/download`, {
+    // ⬇️ NORMAL DOWNLOAD (FILE NOT EXISTS)
+    const res = await config({
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: filePath,
+        title: fileName,
+        mime: "application/pdf",
+        mediaScannable: true,
+      },
+    }).fetch(
+      "GET",
+      `${BASE_URL}/user/documents/${documentId}/download`,
+      {
         Authorization: `Bearer ${token}`,
-      });
+      }
+    );
 
-    // 🔹 Print API response
-    const contentType = res.respInfo.headers['Content-Type'] || res.respInfo.headers['content-type'];
-    if (contentType.includes('application/json')) {
-      const json = await res.json();
-      console.log('Download API Response:', json);
-                          Alert.alert('Download Info', json.message || 'Download not allowed');
-
-      return { status: false, message: json.message || 'Download not allowed' };
-    }
-
-    // Save file
-    const base64Data = await res.base64();
-    await fs.writeFile(filePath, base64Data, 'base64');
-
-    return { status: true, data: { path: filePath, fileName } };
+    return {
+      status: true,
+      data: { path: res.path(), fileName },
+    };
   } catch (error) {
-    console.log('Download Service Error:', error);
+    console.log("Download Service Error:", error);
     return { status: false, error };
   }
 },

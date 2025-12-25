@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Share,
-  Alert
+  Alert,
+  Modal
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -16,6 +17,14 @@ import { authService } from "../api/authService"; // <-- API FILE
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
 import { useTranslation } from "react-i18next";
+import HTMLView from 'react-native-htmlview';
+import RNBlobUtil from 'react-native-blob-util';
+import Pdf from "react-native-pdf";
+import { imageUrl } from "../api/authService";
+import { SafeAreaView } from "react-native-safe-area-context";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+
+
 export default function ArticleDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
       const { categoryId } = route.params || {};
@@ -26,6 +35,10 @@ export default function ArticleDetailsScreen({ route, navigation }) {
 const [isBookmarked, setIsBookmarked] = useState(false);
 const [bookmarkLoading, setBookmarkLoading] = useState(false);
 const [downloadLoading, setIsdownloadLoading] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+const [pdfLoading, setPdfLoading] = useState(false);
+const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchDocumentDetails = async () => {
     try {
@@ -126,8 +139,54 @@ console.log(res,"res====");
     setIsdownloadLoading(false);
   }
 };
+
+
+const openPdfModal = async () => {
+  // 🔒 Block unpaid users
+  // if ((item?.is_paid === true&&isSubscribe===true)||(item?.is_paid === true&&isSubscribe===false)) {
+setShowPdfModal(true); // Show modal first
+  setPdfLoading(true);   // Start loader
+
+  try {
+    const url = details?.file_path?.startsWith("http")
+      ? details.file_path
+      : `${imageUrl}${details.file_path}`;
+
+    const localPath = `${RNBlobUtil.fs.dirs.CacheDir}/${details.id}.pdf`;
+
+    // Download PDF to local cache
+    const res = await RNBlobUtil.config({ path: localPath }).fetch('GET', url);
+
+    setPdfUrl(res.path()); // Set local PDF path
+  } catch (err) {
+    console.log('PDF Download Error:', err);
+    Alert.alert(t('common.error'), t('details.failed_to_load_pdf'));
+    setShowPdfModal(false); // Close modal on error
+  } finally {
+    setPdfLoading(false); // Stop loader
+  }
+//   }
+//   else{
+// Alert.alert(
+//       t('details.payment_required'),
+//       t('details.payment_message'),
+//       [
+//         { text: t('common.cancel'), style: "cancel" },
+//         { text: t('common.continue'), onPress: () => {navigation.navigate("SubscriptionScreen", {
+//           redirectTo: "TaxDetailsScreen",
+//          // redirectParams: { videoId: item.id },
+//         });} },
+//       ]
+//     );
+//     return;
+//   }
+ 
+
+  
+};
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView  style={{ flex: 1, backgroundColor: "#fff" }}>
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -154,7 +213,16 @@ console.log(res,"res====");
 
           <View style={styles.iconRow}>
             <Icon onPress={()=>handleShare(details)} name="share-outline" size={24} color="#000" />
-             {details?.file_path!=null?
+               {details?.file_path && (
+                            <TouchableOpacity onPress={openPdfModal} style={styles.iconBtn}>
+                              {downloadLoading ? (
+                                <ActivityIndicator size={16} color="#000" />
+                              ) : (
+                                <FontAwesome name="file-pdf-o" size={38} color="red" />
+                              )}
+                            </TouchableOpacity>
+                          )}
+             {/* {details?.file_path!=null?
             <TouchableOpacity onPress={()=>onClickDownload(details)} style={styles.iconBtn}>
      
   {downloadLoading ? (
@@ -166,7 +234,7 @@ console.log(res,"res====");
               color="#000"
               style={{ marginHorizontal: 18 }}
             />)}
-            </TouchableOpacity>:null}
+            </TouchableOpacity>:null} */}
 
 <TouchableOpacity onPress={()=>onClickbookMark()} style={styles.iconBtn}>
       
@@ -187,11 +255,83 @@ console.log(res,"res====");
         <Text style={styles.title}>{details?.title}</Text>
 
         {/* Description */}
-        <Text style={styles.desc}>{details?.description}</Text>
+        {details?.content!=null&&
+        <HTMLView
+  value={details?.content}
+  stylesheet={htmlStyles}
+/>}
+
+        {/* <Text style={styles.desc}>{details?.description}</Text> */}
       </ScrollView>
     </View>
+         <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
+        <View style={styles.pdfModalContainer}>
+          <View style={styles.pdfHeader}>
+            <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+              <Ionicons name="close" size={26} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.pdfTitle}>PDF Preview</Text>
+            <TouchableOpacity onPress={()=>onClickDownload(details)}>
+              <Ionicons name="download-outline" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+ {pdfLoading && (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
+      </View>
+    )}
+          {!pdfLoading && pdfUrl && (
+            <Pdf
+              source={{ uri: pdfUrl, cache: true }}
+              style={styles.pdfView}
+              trustAllCerts={true}
+              onError={e => console.log("PDF Error:", e)}
+            />
+          )}
+        </View>
+      </Modal>
+    </SafeAreaView>
+    
   );
 }
+const htmlStyles = StyleSheet.create({
+  h2: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginVertical: 10,
+    color: '#000',
+  },
+  h3: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginVertical: 8,
+    color: '#000',
+  },
+  p: {
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 10,
+    color: '#444',
+  },
+  strong: {
+    fontWeight: '700',
+  },
+  ul: {
+    marginVertical: 10,
+    paddingLeft: 20,
+  },
+  li: {
+    fontSize: 15,
+    marginBottom: 6,
+    color: '#444',
+  },
+  hr: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 15,
+  },
+});
 
 const styles = StyleSheet.create({
   header: {
@@ -228,6 +368,7 @@ const styles = StyleSheet.create({
   iconRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap:15,
   },
   title: {
     fontSize: 21,
@@ -241,4 +382,28 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 15,
   },
+  pdfModalContainer: {
+  flex: 1,
+  backgroundColor: "#fff",
+},
+
+pdfHeader: {
+  height: 56,
+  paddingHorizontal: 16,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+},
+
+pdfTitle: {
+  fontSize: 16,
+  fontWeight: "600",
+},
+
+pdfView: {
+  flex: 1,
+  width: "100%",
+},  
 });

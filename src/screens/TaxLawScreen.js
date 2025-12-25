@@ -142,7 +142,7 @@ setShowPdfModal(true); // Show modal first
   
 };
 const onClickDownload = async (item) => {
-  console.log(isSubscribe,"isSubscribe");
+  // console.log(isSubscribe,"isSubscribe");
   
     // if (item?.is_paid === true&&isSubscribe===true) {
       

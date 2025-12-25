@@ -15,7 +15,7 @@ export default function NewsCard({ item,onPress }) {
         <Text numberOfLines={2} style={styles.excerpt}>{item.excerpt}</Text>
         <View style={styles.row}>
           <Text style={styles.date}>{moment(item.created_at).format('DD-MM-YYYY')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onPress}>
             <Text style={styles.read}>{t('news.read_more')}</Text>
           </TouchableOpacity>
         </View>

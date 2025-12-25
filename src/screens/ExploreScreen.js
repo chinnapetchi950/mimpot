@@ -8,6 +8,8 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
+  Modal,
+  Alert
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import moment from "moment";
@@ -15,6 +17,9 @@ import { authService } from "../api/authService";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ImageWithLoader from "../components/ImageWithloader";
+import Pdf from "react-native-pdf";
+import RNBlobUtil from "react-native-blob-util";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 export default function ExploreScreen({navigation}) {
   const { t } = useTranslation();
@@ -24,7 +29,11 @@ export default function ExploreScreen({navigation}) {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
+const [showPdfModal, setShowPdfModal] = useState(false);
+const [pdfUrl, setPdfUrl] = useState(null);
+const [pdfLoading, setPdfLoading] = useState(false);
+const [selectedItem, setSelectedItem] = useState(null);
+  const [downloadLoading, setIsDownloadLoading] = useState(false);
   const PAGE_SIZE = 10;
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
 
@@ -73,30 +82,112 @@ console.log("searchQuery",searchQuery);
       fetchDocuments(page + 1, search);
     }
   };
+const openPdfModal = async (item) => {
+  setSelectedItem(item);
+  setShowPdfModal(true);
+  setPdfLoading(true);
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={()=>navigation.navigate("TaxDetailsScreen", { item })} style={styles.card}>
-      <ImageWithLoader source={{ uri:`${BASE_URL}${item.image}`}} style={styles.cardImage} />
+  try {
+    const url = item?.file_path?.startsWith("http")
+      ? item.file_path
+      : `${BASE_URL}${item.file_path}`;
 
-      <Text numberOfLines={2} style={styles.cardTitle}>
-        {item.title || t('explore.no_title')}
+    const localPath = `${RNBlobUtil.fs.dirs.CacheDir}/${item.id}.pdf`;
+
+    const res = await RNBlobUtil.config({
+      path: localPath,
+      fileCache: true,
+    }).fetch("GET", url);
+
+    setPdfUrl(res.path());
+  } catch (err) {
+        setPdfLoading(false);
+
+    Alert.alert(
+      t("common.error"),
+      t("details.failed_to_load_pdf") || "Failed to load PDF"
+    );
+    console.log("PDF Error:", err);
+    // Alert.alert(
+    //   t("common.error"),
+    //   t("details.failed_to_load_pdf") || "Failed to load PDF"
+    // );
+    setShowPdfModal(false);
+  } finally {
+    setPdfLoading(false);
+  }
+};
+
+const renderItem = ({ item }) => (
+  <TouchableOpacity
+    activeOpacity={0.9}
+    onPress={() => navigation.navigate("TaxDetailsScreen", { item })}
+    style={styles.card}
+  >
+    {/* IMAGE */}
+    <View style={styles.imageWrapper}>
+      <ImageWithLoader
+        source={{ uri: `${BASE_URL}${item.image}` }}
+        style={styles.cardImage}
+      />
+
+      {/* PDF BADGE */}
+      
+    </View>
+
+    <Text numberOfLines={2} style={styles.cardTitle}>
+      {item.title || t("explore.no_title")}
+    </Text>
+
+    <Text numberOfLines={3} style={styles.cardDesc}>
+      {item.description || t("details.no_description_available")}
+    </Text>
+
+    <View style={styles.row}>
+      <Text style={styles.date}>
+        {moment(item.created_at).format("DD-MM-YYYY")}
       </Text>
+       <View style={styles.rightActions}>
+                {item?.file_path && (
+                  <TouchableOpacity
+                    onPress={(e) => {
+    e.stopPropagation();
+    openPdfModal(item);
+  }}
+                    style={styles.pdfBtn}
+                    hitSlop={8}
+                  >
+                    <FontAwesome
+                      name="file-pdf-o"
+                      size={20}
+                      color="#e53935"
+                    />
+                  </TouchableOpacity>
+                )}
+      
+                <TouchableOpacity  onPress={() => navigation.navigate("TaxDetailsScreen", { item })}>
+                  <Text style={styles.readMore}>
+                    {t("articles.read_more")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+{/* {item?.file_path && (
+        <TouchableOpacity
+          style={styles.pdfBadge}
+          onPress={(e) => {
+    e.stopPropagation();
+    openPdfModal(item);
+  }}
+        >
+          <FontAwesome name="file-pdf-o" size={14} color="#fff" />
+          {/* <Text style={styles.pdfBadgeText}>PDF</Text> */}
+        {/* </TouchableOpacity>
+      )}
+      <Text style={styles.read}>{t("articles.read_more")}</Text> */} 
+    </View>
+  </TouchableOpacity>
+);
 
-      <Text numberOfLines={3} style={styles.cardDesc}>
-        {item.description || t('details.no_description_available')}
-      </Text>
-
-      <View style={styles.row}>
-        <Text style={styles.date}>
-          {moment(item.created_at).format("DD-MM-YYYY")}
-        </Text>
-
-        <TouchableOpacity onPress={()=>navigation.navigate("TaxDetailsScreen", { item })}>
-          <Text style={styles.read}>{t('articles.read_more')}</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
 
   const renderEmpty = () => {
     if (loading) return null;
@@ -106,7 +197,43 @@ console.log("searchQuery",searchQuery);
       </View>
     );
   };
+const onClickDownload = async (item) => {
+  // console.log(isSubscribe,"isSubscribe");
+  
+    // if (item?.is_paid === true&&isSubscribe===true) {
+      
+    try {
+      setIsDownloadLoading(true);
+      const res = await authService.downloadDocument(item.id);
+      console.log(res);
+      
+      if (res?.status) {
+        Alert.alert(t('common.success'), t('details.file_downloaded_successfully'));
+      }
+    } catch (err) {
+      console.log("Download Error:", err);
+    } finally {
+      setIsDownloadLoading(false);
+    }
+    // }
+    // else{
+    //   Alert.alert(
+    //   t('details.payment_required'),
+    //   t('details.payment_message'),
+    //   [
+    //     { text: t('common.cancel'), style: "cancel" },
+    //     { text: t('common.continue'), onPress: () => {navigation.navigate("SubscriptionScreen", {
+    //       redirectTo: "TaxLawScreen",
+    //      // redirectParams: { videoId: item.id },
+    //     });} },
+    //   ]
+    // );
+    // return;
+    // }
 
+    
+
+  };
   return (
     <SafeAreaView style={{flex:1}}>
     <View style={styles.container}>
@@ -151,6 +278,40 @@ console.log("searchQuery",searchQuery);
         }
       />
     </View>
+               <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
+    
+   
+  <View style={styles.pdfModalContainer}>
+    <View style={styles.pdfHeader}>
+      <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+        <Ionicons name="close" size={26} />
+      </TouchableOpacity>
+
+      <Text style={styles.pdfTitle}>PDF Preview</Text>
+
+      <TouchableOpacity onPress={()=>onClickDownload(selectedItem)} >
+        <Ionicons name="download-outline" size={24} />
+      </TouchableOpacity>
+    </View>
+
+    {pdfLoading && (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
+      </View>
+    )}
+
+    {!pdfLoading && pdfUrl && (
+     <Pdf
+              source={{ uri: pdfUrl, cache: true }}
+              style={styles.pdfView}
+              trustAllCerts={true}
+              onError={e => console.log("PDF Error:", e)}
+            />
+    )}
+  </View>
+</Modal>
+
     </SafeAreaView>
   );
 }
@@ -180,7 +341,78 @@ const styles = StyleSheet.create({
   cardImage: { width: "100%", height: 110, borderRadius: 10 },
   cardTitle: { fontSize: 15, fontWeight: "700", marginTop: 6 },
   cardDesc: { fontSize: 12, color: "#555", marginVertical: 8 },
-  row: { flexDirection: "row", justifyContent: "space-between" },
+  row: {flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    //paddingHorizontal: 10,
+    gap:10,
+    paddingTop: 10,
+    paddingBottom: 10,},
   date: { fontSize: 11, color: "#999" },
   read: { color: "#2563EB", fontSize: 12, fontWeight: "600" },
+  imageWrapper: {
+  position: "relative",
+},
+
+pdfBadge: {
+  position: "absolute",
+  bottom: 8,
+  right: 8,
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  backgroundColor: "#e53935",
+  borderRadius: 14,
+  elevation: 4,
+},
+
+pdfBadgeText: {
+  color: "#fff",
+  fontSize: 11,
+  fontWeight: "700",
+  marginLeft: 4,
+},
+
+pdfModalContainer: {
+  flex: 1,
+  backgroundColor: "#fff",
+},
+
+pdfHeader: {
+  height: 56,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: 16,
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+},
+
+pdfTitle: {
+  fontSize: 16,
+  fontWeight: "600",
+},
+
+pdfView: {
+  flex: 1,
+  width: "100%",
+},
+
+center: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+},
+rightActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  pdfBtn: {
+    padding: 2,
+  },
+
+
 });
