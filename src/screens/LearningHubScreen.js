@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
+import { getLocalizedValue } from "../utils/localization";
 
 export default function LearningHubScreen({ navigation }) {
   const { t } = useTranslation();
@@ -77,31 +78,48 @@ export default function LearningHubScreen({ navigation }) {
         }
       />
       <FlatList
-      data={videos}
-      contentContainerStyle={{ paddingTop: 25 }}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item }) => (
-        <VideoCard
-          item={item}
-          onPress={(selectedItem) => {
-      console.log("Card clicked:", item);
-      navigation.navigate("DetailsScreen", { categoryId: item.id });
-    }}
-          // onPress={() => navigation.navigate("Details", { video: item })}
-        />
-      )}
+  data={videos}
+  contentContainerStyle={{ paddingTop: 25 }}
+  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+  ListEmptyComponent={
+    !loading && (
+      <View style={styles.noDataContainer}>
+        <Text style={styles.noDataText}>
+          {t('common.no_data_found')}
+        </Text>
+      </View>
+    )
+  }
+  renderItem={({ item }) => {
+    const title = getLocalizedValue(item, 'title');
+    const description = getLocalizedValue(item, 'description');
+
+    return (
+      <VideoCard
+        item={{
+          ...item,
+          title,        // ✅ localized title
+          description,  // ✅ localized description
+        }}
+        onPress={() => {
+          console.log('Card clicked:', item);
+
+          navigation.navigate('DetailsScreen', {
+            categoryId: item.id,
+            title, // ✅ pass localized title if needed in details
+          });
+        }}
+      />
+    );
+  }}
+
+      
       onEndReached={loadMore}
       onEndReachedThreshold={0.3}
       ListFooterComponent={
         loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
       }
-      ListEmptyComponent={
-    !loading && (
-      <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>{t('learning.no_data_available')}</Text>
-      </View>
-    )
-  }
+     
     />
     </SafeAreaView>
     

@@ -28,12 +28,14 @@ import { setUser, setToken } from '../store/userSlice';
 const { width } = Dimensions.get('window');
 import Tabs from '../components/Tabs';
 import { useTranslation } from 'react-i18next';
+import { getLocalizedValue } from '../utils/localization';
+import i18n from '../localization/i18n';
+import ArticleCard from '../components/ArticleCard';
 
-
-
-export default function QuickActionsScreen({route, navigation }) {
+export default function QuickActionsScreen({ route, navigation }) {
   const { t } = useTranslation();
-      const { title } = route.params; // contains { id }
+  const { title, type } = route.params;
+  const currentLang = i18n.language || 'en';
 
   const [topLawData, setTopLawData] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -41,10 +43,10 @@ export default function QuickActionsScreen({route, navigation }) {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState(''); // ✅ search text
-const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
+  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
 
   const dispatch = useDispatch();
-  
+
   const tabsData = [
     { key: 'all', label: t('quick_actions.bookmark') },
     { key: 'news', label: t('quick_actions.news_bookmark') },
@@ -63,50 +65,48 @@ const [activeTab, setActiveTab] = useState('all'); // 'all' or 'news'
     checkAuth();
   }, []); // only once
 
-const fetchquickActions = async () => {
-  try {
-    setLoading(true); // ✅ START loader
+  const fetchquickActions = async () => {
+    try {
+      setLoading(true); // ✅ START loader
 
-    let res = null;
+      let res = null;
 
-    if (title === "Bookmarked") {
-      res =
-        activeTab === 'news'
-          ? await authService.newsBookmarklist()
-          : await authService.bookmarked();
-    } else if (title === "Recently Viewed") {
-      res = await authService.recent_viewed();
-    } else {
-      res = await authService.downloads();
+      if (type === 'bookmarked') {
+        res =
+          activeTab === 'news'
+            ? await authService.newsBookmarklist()
+            : await authService.bookmarked();
+      } else if (type === 'recent') {
+        res = await authService.recent_viewed();
+      } else {
+        res = await authService.downloads();
+      }
+      console.log(res, 'bookmark');
+
+      const rawData = res?.data?.data;
+
+      const apiData = Array.isArray(rawData)
+        ? rawData
+        : Array.isArray(rawData?.data)
+        ? rawData.data
+        : [];
+
+      const videoData = apiData.filter(item => item?.type === 'video');
+      const newsData = apiData.filter(item => item?.type !== 'video');
+      console.log(videoData, newsData, 'newsData');
+
+      setNews(newsData);
+      setLearning(videoData);
+    } catch (error) {
+      console.log('fetchquickActions error', error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const rawData = res?.data?.data;
-
-    const apiData = Array.isArray(rawData)
-      ? rawData
-      : Array.isArray(rawData?.data)
-      ? rawData.data
-      : [];
-
-    const videoData = apiData.filter(item => item?.type === "video");
-    const newsData = apiData.filter(item => item?.type !== "video");
-
-    setNews(newsData);
-    setLearning(videoData);
-    
-  } catch (error) {
-    console.log("fetchquickActions error", error);
-  } finally {
-    setLoading(false); 
-  }
-};
-
-
- 
-
- useEffect(() => {
-  fetchquickActions();
-}, [activeTab]); 
+  useEffect(() => {
+    fetchquickActions();
+  }, [activeTab]);
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -127,7 +127,14 @@ const fetchquickActions = async () => {
     categories?.length === 0 &&
     learning?.length === 0 &&
     news?.length === 0;
-
+  const normalizeNewsItem = item => {
+    return {
+      ...item,
+      title: getLocalizedValue(item, 'title', currentLang),
+      description: getLocalizedValue(item, 'description', currentLang),
+      excerpt: getLocalizedValue(item, 'excerpt', currentLang),
+    };
+  };
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar
@@ -145,105 +152,191 @@ const fetchquickActions = async () => {
           <Text style={styles.headerTitle}>{title}</Text>
           <View style={{ width: 30 }} />
         </View>
-        {title === t('quick_actions.bookmarked') && (
-  <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+        {type === 'bookmarked' && (
+          <Tabs
+            tabs={tabsData}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
         )}
-        
-{/* {title === 'Bookmarked' && (
-  
-  <View style={styles.tabContainer}>
-    {['All', 'News'].map(tab => (
-      <TouchableOpacity
-        key={tab}
-        style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-        onPress={() => setActiveTab(tab)}
-      >
-        <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
-          {tab}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-)} */}
-{title === t('quick_actions.bookmarked') ? (
-  <>
-    {activeTab === 'news' ? (
-      news?.length > 0 ? (
-        <View style={styles.newsGrid}>
-          {news.map(item => (
-            <NewsCard
-              key={item.id}
-              item={item}
-              onPress={() => navigation.navigate('NewDetailsScreen', { item })}
-            />
-          ))}
-        </View>
-      ) : (
-        <Text style={styles.noData}>{t('quick_actions.no_news_found')}</Text>
-      )
-    ) : (
-      // 'All' tab
-      <>
-        {news?.length === 0 && learning?.length === 0 ? (
-          <Text style={styles.noData}>{t('quick_actions.no_data_found')}</Text>
+                {type === 'bookmarked' ? (
+          <>
+            {activeTab === 'news' ? (
+              news?.length > 0 ? (
+                <View style={styles.newsGrid}>
+                  {news.map(item => {
+                    const normalizedItem = normalizeNewsItem(item);
+
+                    return (
+                      <NewsCard
+                        key={item.id}
+                        item={normalizedItem}
+                        onPress={() =>
+                          navigation.navigate('NewDetailsScreen', {
+                            item: normalizedItem,
+                          })
+                        }
+                      />
+                    );
+                  })}
+
+                 
+                </View>
+              ) : (
+                <Text style={styles.noData}>
+                  {t('quick_actions.no_news_found')}
+                </Text>
+              )
+            ) : (
+              // 'All' tab
+              <>
+                {news?.length === 0 && learning?.length === 0 ? (
+                  <Text style={styles.noData}>
+                    {t('quick_actions.no_data_found')}
+                  </Text>
+                ) : (
+                  <>
+                    <View style={styles.newsGrid}>
+                      {news.map(item => {
+                        const normalizedItem = normalizeNewsItem(item);
+                        const title = getLocalizedValue(
+                          item,
+                          'title',
+                          currentLang,
+                        );
+                        const description = getLocalizedValue(
+                          item,
+                          'description',
+                          currentLang,
+                        );
+
+                        return (
+                          <ArticleCard
+                            item={{ ...item, title, description }}
+                            onPress={() =>
+                              navigation.navigate('ArticleDetailsScreen', {
+                                categoryId: item.id,
+                              })
+                            }
+                            onDownload={() => openPdfModal(item)}
+                          />
+                          // <NewsCard
+                          //   key={item.id}
+                          //   item={normalizedItem}
+                          //   onPress={() =>
+                          //     navigation.navigate('', {
+                          //       item: normalizedItem,
+                          //     })
+                          //   }
+                          // />
+                        );
+                      })}
+                    </View>
+                    {learning.map(l => {
+                      const title = getLocalizedValue(l, 'title');
+                      const description = getLocalizedValue(l, 'description');
+
+                      return (
+                        <LearningCard
+                          key={l.id}
+                          item={{
+                            ...l,
+                            title,
+                            description,
+                          }}
+                          onPress={() =>
+                            navigation.navigate('DetailsScreen', {
+                              categoryId: l.id,
+                            })
+                          }
+                        />
+                      );
+                    })}
+                  </>
+                )}
+              </>
+            )}
+          </>
         ) : (
           <>
-            <View style={styles.newsGrid}>
-              {news.map(item => (
-                <NewsCard
-                  key={item.id}
-                  item={item}
-                  onPress={() => navigation.navigate('NewDetailsScreen', { item })}
+          
+            {news?.length === 0 && learning?.length === 0 ? (
+              <View style={{ alignItems: 'center', marginTop: 40 }}>
+                {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
+                <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
+                  {t('quick_actions.no_data_found')}
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.newsGrid}>
+                {news.map(item => {
+
+ const title = getLocalizedValue(
+                          item,
+                          'title',
+                          currentLang,
+                        );
+                        const description = getLocalizedValue(
+                          item,
+                          'description',
+                          currentLang,
+                        );
+
+                  return (
+                    <ArticleCard
+                      key={item.id}
+                     item={{ ...item, title, description }}
+                     onPress={() =>
+                              navigation.navigate('ArticleDetailsScreen', {
+                                categoryId: item.id,
+                              })
+                            }
+                            onDownload={() => openPdfModal(item)}
+                    />
+                  );
+                })}
+                {/* {news.map(item => {
+                  const normalizedItem = normalizeNewsItem(item);
+
+                  console.log('NEWS ITEM TITLE:', normalizedItem);
+
+                  return (
+                    <NewsCard
+                      key={item.id}
+                      item={normalizedItem}
+                      onPress={() =>
+                        navigation.navigate('NewDetailsScreen', {
+                          item: normalizedItem,
+                        })
+                      }
+                    />
+                  );
+                })} */}
+              </View>
+            )}
+            {learning.map(l => {
+              const title = getLocalizedValue(l, 'title');
+              const description = getLocalizedValue(l, 'description');
+
+              return (
+                <LearningCard
+                  key={l.id}
+                  item={{
+                    ...l,
+                    title,
+                    description,
+                  }}
+                  onPress={() =>
+                    navigation.navigate('DetailsScreen', {
+                      categoryId: l.id,
+                    })
+                  }
                 />
-              ))}
-            </View>
-            {learning?.map(l => (
-              <LearningCard
-                key={l.id}
-                item={l}
-                onPress={() => navigation.navigate('DetailsScreen', { categoryId: l.id })}
-              />
-            ))}
+              );
+            })}
+           
           </>
         )}
-      </>
-    )}
-  </>
-) : (<>
-        {news?.length === 0 && learning?.length === 0? (
-          <View style={{ alignItems: 'center', marginTop: 40 }}>
-            {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
-            <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
-              {t('quick_actions.no_data_found')}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.newsGrid}>
-            {news.map(item => (
-              <NewsCard
-                onPress={() => {
-                  console.log(item),
-                    navigation.navigate('NewDetailsScreen', { item });
-                }}
-                key={item.id}
-                item={item}
-              />
-            ))}
-          </View>
-        )}
-       
-          {learning?.map(l => (
-            <LearningCard
-              onPress={selectedItem => {
-                console.log('Card clicked:', l);
-                navigation.navigate('DetailsScreen', { categoryId: l.id });
-              }}
-              key={l.id}
-              item={l}
-            />
-          ))}
-        
-</>)}
         <View style={{ height: 120 }} />
       </ScrollView>
     </SafeAreaView>
@@ -329,33 +422,32 @@ const styles = StyleSheet.create({
     marginRight: 25,
   },
   tabContainer: {
-  flexDirection: 'row',
-  marginTop: 10,
-  borderBottomWidth: 1,
-  borderColor: '#ddd',
-},
-tabButton: {
-  flex: 1,
-  paddingVertical: 10,
-  alignItems: 'center',
-},
-activeTab: {
-  borderBottomWidth: 2,
-  borderColor: '#000',
-},
-tabText: {
-  fontSize: 16,
-  color: '#888',
-},
-activeTabText: {
-  color: '#000',
-  fontWeight: '600',
-},
-noData: {
-  textAlign: 'center',
-  marginTop: 40,
-  fontSize: 14,
-  color: '#888',
-},
-
+    flexDirection: 'row',
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderColor: '#000',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#888',
+  },
+  activeTabText: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  noData: {
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 14,
+    color: '#888',
+  },
 });

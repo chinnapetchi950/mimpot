@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
-
+import { getLocalizedValue } from "../utils/localization";
 export default function CategoriesScreen({ navigation }) {
   const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
@@ -74,34 +74,48 @@ export default function CategoriesScreen({ navigation }) {
       />
     <View style={styles.container}>
       <FlatList
-        data={categories}
-        numColumns={3}
-        contentContainerStyle={{ padding: 15 }}
-        columnWrapperStyle={{ justifyContent: "space-between" }}
-        renderItem={({ item }) => (
-          <CategoryCard
-            item={item}
-            onPress={(selectedItem) => {
-    console.log("Card clicked:", item);
-    navigation.navigate("TaxRegulation", { name:item?.name,categoryId: item.id });
-  }}
-            //onPress={() => navigation.navigate("LearningHub", { category: item })}
-          />
-        )}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.3}
-        ListFooterComponent={
-          loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
-        }
-        ListEmptyComponent={
-          !loading && (
-            <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>{t('categories.no_data_available')}</Text>
-            </View>
-          )
-        }
+  data={categories}
+  numColumns={3}
+  contentContainerStyle={{ padding: 15 }}
+  columnWrapperStyle={{ justifyContent: 'space-between' }}
+  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+  onEndReached={loadMore}
+  onEndReachedThreshold={0.3}
+  ListFooterComponent={
+    loadingMore ? (
+      <ActivityIndicator style={{ marginVertical: 20 }} />
+    ) : null
+  }
+  ListEmptyComponent={
+    !loading && (
+      <View style={styles.noDataContainer}>
+        <Text style={styles.noDataText}>
+          {t('categories.no_data_available')}
+        </Text>
+      </View>
+    )
+  }
+  renderItem={({ item }) => {
+    const categoryName = getLocalizedValue(item, 'name');
+
+    return (
+      <CategoryCard
+        item={{
+          ...item,
+          name: categoryName, // ✅ localized name passed to card
+        }}
+        onPress={() => {
+          console.log('Card clicked:', item);
+
+          navigation.navigate('TaxRegulation', {
+            name: categoryName, // ✅ localized name in navigation
+            categoryId: item.id,
+          });
+        }}
       />
+    );
+  }}
+/>
     </View>
     </SafeAreaView>
   );

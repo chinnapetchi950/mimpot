@@ -35,6 +35,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import VideoCard from '../components/VideoCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLocalizedValue } from '../utils/localization';
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
@@ -193,6 +194,13 @@ console.log(apiData,"apiData==>");
         />
 
         {/* 🔍 SEARCH BAR */}
+        {/* <AnimatedSearchBar
+  value={searchText}
+  onChangeText={handleTextChange}
+onSearch={() =>
+            navigation.navigate("SearchResultScreen", { keyword: searchText })
+          }
+          /> */}
         <SearchBar
           value={searchText}
           onChangeText={handleTextChange}
@@ -237,28 +245,39 @@ console.log(apiData,"apiData==>");
         <Text style={styles.sectionTitle}>{t('home.explore_tax_laws')}</Text>
 
         {topLawData?.length === 0 ? (
-          <View style={{ alignItems: "center", marginTop: 40 }}>
-            <Text style={{ fontSize: 14, color: "#888", marginTop: 10 }}>
-              {t('common.no_data_found')}
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={topLawData}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 12 }}
-            keyExtractor={(i) => i.id}
-            renderItem={({ item }) => (
-              <TopLawCard
-                item={item}
-                onPress={() =>
-                  navigation.navigate("TaxRegulation", { name:item?.name,categoryId: item.id })
-                }
-              />
-            )}
-          />
-        )}
+  <View style={{ alignItems: "center", marginTop: 40 }}>
+    <Text style={{ fontSize: 14, color: "#888", marginTop: 10 }}>
+      {t('common.no_data_found')}
+    </Text>
+  </View>
+) : (
+  <FlatList
+    data={topLawData}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={{ paddingHorizontal: 12 }}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={({ item }) => {
+      const lawName = getLocalizedValue(item, 'name');
+
+      return (
+        <TopLawCard
+          item={{
+            ...item,
+            name: lawName, // ✅ normalized localized name
+          }}
+          onPress={() =>
+            navigation.navigate("TaxRegulation", {
+              name: lawName,
+              categoryId: item.id,
+            })
+          }
+        />
+      );
+    }}
+  />
+)}
+
 
         {/* ---- CATEGORIES ---- */}
         <View style={styles.rowHeader}>
@@ -271,16 +290,35 @@ console.log(apiData,"apiData==>");
         </View>
 
         <View style={styles.categoriesWrap}>
-          {categories?.map((cat) => (
-            <CategoryCard
-              key={cat.id}
-              item={cat}
-              onPress={() =>
-                navigation.navigate("TaxRegulation", { name:cat?.name,categoryId: cat.id })
-              }
-            />
-          ))}
-        </View>
+  {categories?.length === 0 ? (
+    <View style={{ width: '100%', alignItems: 'center', marginTop: 30 }}>
+      <Text style={{ fontSize: 14, color: '#888' }}>
+        {t('common.no_data_found')}
+      </Text>
+    </View>
+  ) : (
+    categories.map((cat) => {
+      const categoryName = getLocalizedValue(cat, 'name');
+
+      return (
+        <CategoryCard
+          key={cat.id}
+          item={{
+            ...cat,
+            name: categoryName, // ✅ localized
+          }}
+          onPress={() =>
+            navigation.navigate('TaxRegulation', {
+              name: categoryName,
+              categoryId: cat.id,
+            })
+          }
+        />
+      );
+    })
+  )}
+</View>
+
 
         {/* ---- Learning Hub ---- */}
         <View style={styles.rowHeader}>
@@ -292,28 +330,50 @@ console.log(apiData,"apiData==>");
           )}
         </View>
 
-        {learning?.map((l) => (
-          <VideoCard
-            key={l.id}
-            item={l}
-            onPress={() => navigation.navigate("DetailsScreen", { categoryId: l.id })}
-          />
-        ))}
+        {learning?.length === 0 ? (
+  <View style={{ alignItems: 'center', marginTop: 30 }}>
+    <Text style={{ fontSize: 14, color: '#888' }}>
+      {t('common.no_data_found')}
+    </Text>
+  </View>
+) : (
+  learning.map((l) => {
+    const title = getLocalizedValue(l, 'title');
+    const description = getLocalizedValue(l, 'description');
+
+    return (
+      <VideoCard
+        key={l.id}
+        item={{
+          ...l,
+          title,
+          description,
+        }}
+        onPress={() =>
+          navigation.navigate('DetailsScreen', {
+            categoryId: l.id,
+          })
+        }
+      />
+    );
+  })
+)}
+
 
         {/* ---- QUICK ACCESS ---- */}
         <Text style={[styles.sectionTitle, { marginTop: 12 }]}>{t('home.quick_access')}</Text>
         <View style={styles.quickRow}>
           <QuickAccessCard
             title={t('home.bookmarked')}
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.bookmarked') })}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.bookmarked'),type: 'bookmarked' })}
           />
           <QuickAccessCard
             title={t('home.downloaded')}
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.downloaded') })}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.downloaded'),type:'download' })}
           />
           <QuickAccessCard
             title={t('home.recently_viewed')}
-            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.recently_viewed') })}
+            onPress={() => navigation.navigate("QuickActionsScreen", { title: t('home.recently_viewed'),type:'recent' })}
           />
         </View>
 
@@ -327,17 +387,48 @@ console.log(apiData,"apiData==>");
           )}
         </View>
 
-        <View style={styles.newsGrid}>
-          {news?.map((item) => (
-            <NewsCard
-              key={item.id}
-              item={item}
-              onPress={() => navigation.navigate("NewDetailsScreen", { item })}
-            />
-          ))}
-        </View>
+       <View style={styles.newsGrid}>
+  {news?.length === 0 ? (
+    <View style={{ width: '100%', alignItems: 'center', marginTop: 30 }}>
+      <Text style={{ fontSize: 14, color: '#888' }}>
+        {t('common.no_data_found')}
+      </Text>
+    </View>
+  ) : (
+    news.map((item) => {
+      const title = getLocalizedValue(item, 'title');
+      const description = getLocalizedValue(item, 'description');
+      const excerpt = getLocalizedValue(item, 'excerpt');
+            // const created_at = getLocalizedValue(item, 'created_at');
 
-        <View style={{ height: 120 }} />
+
+      return (
+        <NewsCard
+          key={item.id}
+          item={{
+            ...item,
+            title,
+            description,
+            excerpt,
+            //created_at
+          }}
+          onPress={() =>
+            navigation.navigate('NewDetailsScreen', {
+              item: {
+                ...item,
+                title,
+                description,
+              },
+            })
+          }
+        />
+      );
+    })
+  )}
+</View>
+
+
+        <View style={{ height: 10 }} />
 
       </ScrollView>
     </SafeAreaView>
@@ -348,7 +439,7 @@ console.log(apiData,"apiData==>");
 ----------------------------------------------*/
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#FFFFFF" },
-  container: { paddingBottom: 20 },
+  container: { paddingBottom: 10 },
 
   sectionTitle: {
     fontSize: 20,

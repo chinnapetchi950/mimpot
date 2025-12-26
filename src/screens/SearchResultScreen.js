@@ -17,10 +17,13 @@ import CategoryCard from "../components/CategoryCard";
 import LearningCard from "../components/LearningCard"; // VIDEO CARD
 import NewsCard from "../components/NewsCard";
 import { useTranslation } from "react-i18next";
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 
 export default function SearchResultScreen({ route, navigation }) {
   const { t } = useTranslation();
   const keyword = route.params?.keyword || "";
+const currentLang = i18n.language || 'en';
 
   const [loading, setLoading] = useState(false);
   const [mergedList, setMergedList] = useState([]); // 🔥 unified list
@@ -75,12 +78,20 @@ export default function SearchResultScreen({ route, navigation }) {
   -------------------------------------------------------*/
   const renderItem = ({ item }) => {
     const obj = item.data;
+ const localizedTitle = getLocalizedValue(obj, 'title', currentLang);
+  const localizedname = getLocalizedValue(obj, 'name', currentLang);
 
+  const localizedDescription = getLocalizedValue(obj, 'description', currentLang);
+  const localizedExcerpt = getLocalizedValue(obj, 'excerpt', currentLang);
     switch (item.type) {
       case "taxlaw":
         return (
           <TopLawCard
-            item={obj}
+             item={{
+            ...obj,
+            name: localizedname,
+            description: localizedDescription,
+          }}
             onPress={() =>
               navigation.navigate("TaxRegulation", { categoryId: obj.id })
             }
@@ -94,8 +105,11 @@ export default function SearchResultScreen({ route, navigation }) {
 
             
           <CategoryCard
-            item={obj}
-            onPress={() =>
+ item={{
+            ...obj,
+             name: localizedname,
+            description: localizedDescription,
+          }}            onPress={() =>
               navigation.navigate("TaxRegulation", { categoryId: obj.id })
             }
           />
@@ -105,8 +119,11 @@ export default function SearchResultScreen({ route, navigation }) {
       case "video":
         return (
           <LearningCard
-            item={obj}
-            onPress={() =>
+ item={{
+            ...obj,
+            title: localizedTitle,
+            description: localizedDescription,
+          }}            onPress={() =>
               navigation.navigate("DetailsScreen", { categoryId: obj.id })
             }
           />
@@ -115,7 +132,11 @@ export default function SearchResultScreen({ route, navigation }) {
       case "news":
         return (
           <NewsCard
-            item={obj}
+             item={{
+            ...obj,
+            title: localizedTitle,
+            excerpt: localizedExcerpt, // ✅ NEWS USES EXCERPT
+          }}
             onPress={() =>
               navigation.navigate("NewDetailsScreen", { item: obj })
             }

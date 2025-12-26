@@ -21,6 +21,8 @@ import ImageWithLoader from "../components/ImageWithloader";
 import { useTranslation } from "react-i18next";
 import RNBlobUtil from 'react-native-blob-util';
 import { useFocusEffect } from "@react-navigation/native";
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 
 export default function TaxDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
@@ -34,6 +36,7 @@ export default function TaxDetailsScreen({ route, navigation }) {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
 const [pdfLoading, setPdfLoading] = useState(false); // Loader while downloading
+const currentLang = i18n.language || 'en';
 
   useEffect(() => {
     fetchDetails();
@@ -57,6 +60,8 @@ const refreshData = async () => {
   const fetchDetails = async () => {
     try {
       const response = await authService.taxlawdetail(item.id);
+      console.log("res",response);
+      
       setDetails(response?.data?.data);
     } catch (err) {
       console.log("API Error:", err);
@@ -117,22 +122,27 @@ const refreshData = async () => {
   };
 
   const buildShareMessage = data => `
-📄 *${data.title}*
+📄 *${getLocalizedValue(data, 'title', currentLang)}*
 
-🗂 Category: ${data.category?.name}
-📂 Sub Category: ${data.sub_category?.name}
+🗂 ${t('details.category')}: ${
+  getLocalizedValue(data?.category, 'name', currentLang) || '-'
+}
+📂 ${t('details.sub_category')}: ${
+  getLocalizedValue(data?.sub_category, 'name', currentLang) || '-'
+}
 
-⭐ Rating: ${data.average_rating} / 5
-📝 Total Ratings: ${data.total_ratings}
-👁 Views: ${data.total_views}
+⭐ ${t('details.rating')}: ${data.average_rating || 0} / 5
+📝 ${t('details.total_ratings')}: ${data.total_ratings || 0}
+👁 ${t('details.views')}: ${data.total_views || 0}
 
-📅 Created On: ${data.created_at_formatted}
+📅 ${t('details.created_on')}: ${data.created_at_formatted || '-'}
 
-📝 Description:
-${data.description || t('details.no_description_available')}
+📝 ${t('details.description')}:
+${getLocalizedValue(data, 'description', currentLang) || t('details.no_description_available')}
 
-📲 Check this document in M.Impot App
+📲 ${t('details.share_footer')}
 `;
+
 
   // const openPdfModal = () => {
   //   if (details?.is_paid && !isSubscribe) {
@@ -209,7 +219,10 @@ setShowPdfModal(true); // Show modal first
   }
 
   const fullImage = `${imageUrl}${details?.image}`;
-
+const title = getLocalizedValue(details, 'title', currentLang);
+const description = getLocalizedValue(details, 'description', currentLang);
+const categoryName = getLocalizedValue(details?.category, 'name', currentLang);
+const subCategoryName = getLocalizedValue(details?.sub_category, 'name', currentLang);
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -261,10 +274,10 @@ setShowPdfModal(true); // Show modal first
         </View>
 
         {/* TITLE */}
-        <Text style={styles.title}>{details?.title}</Text>
+        <Text style={styles.title}>{title}</Text>
 
         {/* DESCRIPTION */}
-        <Text style={styles.desc}>{details?.description}</Text>
+        <Text style={styles.desc}>{description}</Text>
       </ScrollView>
 
       {/* PDF MODAL */}

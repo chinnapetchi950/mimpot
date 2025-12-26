@@ -25,11 +25,14 @@ import { useTranslation } from "react-i18next";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import CommentScreen from "./CommentScreen";
 import { useFocusEffect } from "@react-navigation/native";
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 
 
 export default function DetailsScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { categoryId } = route.params || {};
+const currentLang = i18n.language || 'en';
 
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -180,23 +183,28 @@ const handleShare = async (data) => {
 };
 const buildShareMessage = (data) => {
   return `
-📄 *${data.title}*
+📄 *${getLocalizedValue(data, 'title', currentLang)}*
 
-🗂 Category: ${data.category?.name}
-📂 Sub Category: ${data.sub_category?.name}
+🗂 ${t('details.category')}: ${
+    getLocalizedValue(data?.category, 'name', currentLang) || '-'
+}
+📂 ${t('details.sub_category')}: ${
+    getLocalizedValue(data?.sub_category, 'name', currentLang) || '-'
+}
 
-⭐ Rating: ${data.average_rating} / 5
-📝 Total Ratings: ${data.total_ratings}
-👁 Views: ${data.total_views}
+⭐ ${t('details.rating')}: ${data?.average_rating || 0} / 5
+📝 ${t('details.total_ratings')}: ${data?.total_ratings || 0}
+👁 ${t('details.views')}: ${data?.total_views || 0}
 
-📅 Created On: ${data.created_at_formatted}
+📅 ${t('details.created_on')}: ${data?.created_at_formatted || '-'}
 
-📝 Description:
-${data.description || t('details.no_description_available')}
+📝 ${t('details.description')}:
+${getLocalizedValue(data, 'description', currentLang) || t('details.no_description_available')}
 
-📲 Check this document in M.Impot App
+📲 ${t('details.share_footer')}
 `;
 };
+
 
   if (loading) {
     return (
@@ -356,7 +364,10 @@ const showSubscriptionAlert = () => {
 };
   // file_url should be returned by API as the video path; adjust if different (eg. file_path)
   const videoUri = `${BASE_URL}${video?.file_url}`;
-
+const videoTitle = getLocalizedValue(video, 'title', currentLang);
+const videoDescription = getLocalizedValue(video, 'description', currentLang);
+const categoryName = getLocalizedValue(video?.category, 'name', currentLang);
+const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLang);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
@@ -372,7 +383,7 @@ const showSubscriptionAlert = () => {
 
       <View style={styles.container}>
         {/* Top Title + Rating */}
-        <Text style={styles.title}>{video?.title}</Text>
+        <Text style={styles.title}>{videoTitle}</Text>
 
         <View style={styles.topRow}>
           <Text style={styles.author}>{t('video_details.by')} M.Jmpot</Text>
@@ -414,7 +425,7 @@ const showSubscriptionAlert = () => {
         </View>
 
         <Text style={styles.description}>
-          {video?.description}
+          {videoDescription}
         </Text>
 
         {/* VIDEO + OVERLAYS */}

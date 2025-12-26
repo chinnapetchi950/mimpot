@@ -4,17 +4,27 @@ import moment from 'moment';
 import ImageWithLoader from './ImageWithloader';
 import { useTranslation } from 'react-i18next';
 
-export default function NewsCard({ item,onPress }) {
+export default function NewsCard({ item, onPress }) {
   const { t } = useTranslation();
-  const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
+  const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/';
+const imageUrl = item.image?.startsWith('http')
+  ? item.image
+  : `${BASE_URL}${item.image}`;
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <ImageWithLoader source={{ uri: `${BASE_URL}${item.image}` }} style={styles.image} />
+      <ImageWithLoader
+        source={{ uri:imageUrl }}
+        style={styles.image}
+      />
       <View style={styles.body}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text numberOfLines={2} style={styles.excerpt}>{item.excerpt}</Text>
+        <Text numberOfLines={2} style={styles.excerpt}>
+          {item.excerpt}
+        </Text>
         <View style={styles.row}>
-          <Text style={styles.date}>{moment(item.created_at).format('DD-MM-YYYY')}</Text>
+          <Text style={styles.date}>
+            {moment(item.created_at).format('DD-MM-YYYY')}
+          </Text>
           <TouchableOpacity onPress={onPress}>
             <Text style={styles.read}>{t('news.read_more')}</Text>
           </TouchableOpacity>
@@ -23,6 +33,7 @@ export default function NewsCard({ item,onPress }) {
     </TouchableOpacity>
   );
 }
+
 
 const styles = StyleSheet.create({
   card: { width: '48%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', marginBottom: 12, elevation: 2 },

@@ -21,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import RNBlobUtil from 'react-native-blob-util';
 import Pdf from "react-native-pdf";
 import { useFocusEffect } from "@react-navigation/native";
+import { getLocalizedValue } from '../utils/localization';
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const { t } = useTranslation();
@@ -248,22 +249,39 @@ const onClickDownload = async (item) => {
           )}
 
           {/* LIST ITEMS */}
-          {data.map((item, index) => (
-            <TaxCard
-              key={index}
-              item={{
-                id: item.id,
-                title: item.title,
-                image: `${imageUrl}${item.image}`,
-                is_bookmarked:item?.is_bookmarked,
-                item:item
-              }}
-              onRead={() => navigation.navigate("TaxDetailsScreen", { item })}
-              onDownload={() => openPdfModal(item)}
-                onBookmark={() => onClickBookMark(item, index)}
+           {data.map((item, index) => {
+    const title = getLocalizedValue(item, 'title');
+    const description = getLocalizedValue(item, 'description');
 
-            />
-          ))}
+    return (
+      <TaxCard
+        key={item.id ?? index}
+        item={{
+          id: item.id,
+          title, // ✅ localized title
+          description, // ✅ localized description (if TaxCard uses it)
+          image: `${imageUrl}${item.image}`,
+          is_bookmarked: item?.is_bookmarked,
+          item: {
+            ...item,
+            title,
+            description,
+          },
+        }}
+        onRead={() =>
+          navigation.navigate('TaxDetailsScreen', {
+            item: {
+              ...item,
+              title,
+              description,
+            },
+          })
+        }
+        onDownload={() => openPdfModal(item)}
+        onBookmark={() => onClickBookMark(item, index)}
+      />
+    );
+  })}
 
           {/* LOAD MORE LOADER */}
           {loadingMore && (

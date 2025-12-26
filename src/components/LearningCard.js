@@ -14,7 +14,7 @@ export default function LearningCard({ item,onPress }) {
       </TouchableOpacity>
       <View style={styles.info}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.by}>{item.author}</Text>
+        <Text style={styles.by}>{item.author??'By M.impot'}</Text>
         <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
       </View>
     </TouchableOpacity>

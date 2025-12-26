@@ -6,7 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
-
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 
 export default function NewsScreen({ navigation }) {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export default function NewsScreen({ navigation }) {
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+const currentLang = i18n.language || 'en';
 
   useEffect(() => {
     fetchNews(1);
@@ -76,32 +78,54 @@ console.log("response",response?.data);
       />
     <View style={styles.container}>
       <FlatList
-        data={newsList}
-        numColumns={3}
-        contentContainerStyle={{ padding: 15 }}
-        columnWrapperStyle={{ justifyContent: "space-between" }}
-        renderItem={({ item }) => (
-          <NewsCard
-            item={item}
-            onPress={()=>{console.log(item),
-           navigation.navigate("NewDetailsScreen", { item })}}
-            //onPress={() => navigation.navigate("LearningHub", { category: item })}
-          />
-        )}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.3}
-        ListFooterComponent={
-          loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
-        }
-        ListEmptyComponent={
-          !loading && (
-            <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>{t('news.no_data_available')}</Text>
-            </View>
-          )
-        }
+  data={newsList}
+  numColumns={2}
+  contentContainerStyle={{ padding: 15 }}
+  columnWrapperStyle={{ justifyContent: 'space-between' }}
+  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+  onEndReached={loadMore}
+  onEndReachedThreshold={0.3}
+  ListFooterComponent={
+    loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
+  }
+  ListEmptyComponent={
+    !loading && (
+      <View style={styles.noDataContainer}>
+        <Text style={styles.noDataText}>
+          {t('news.no_data_available')}
+        </Text>
+      </View>
+    )
+  }
+  renderItem={({ item }) => {
+    const title = getLocalizedValue(item, 'title',currentLang);
+    const description = getLocalizedValue(item, 'description',currentLang);
+        const excerpt = getLocalizedValue(item, 'excerpt',currentLang);
+
+
+    return (
+      <NewsCard
+        item={{
+          ...item,
+          title,        // ✅ localized title
+          description, 
+          excerpt // ✅ localized description
+        }}
+        onPress={() => {
+          console.log('News clicked:', item);
+
+          navigation.navigate('NewDetailsScreen', {
+            item: {
+              ...item,
+              title,
+              description,
+            },
+          });
+        }}
       />
+    );
+  }}
+/>
     </View>
     </SafeAreaView>
   );

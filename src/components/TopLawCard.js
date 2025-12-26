@@ -4,7 +4,7 @@ import ImageWithLoader from './ImageWithloader';
 const { width } = Dimensions.get('window');
 
 export default function TopLawCard({ item ,onPress }) {
-  //  console.log("item---->",item);
+  console.log("item---->",item);
   const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/'; // Your base URL
   
 

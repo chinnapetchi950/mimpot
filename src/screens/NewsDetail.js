@@ -15,7 +15,8 @@ import { authService, imageUrl } from "../api/authService";
 import moment from "moment";
 import ImageWithLoader from "../components/ImageWithloader";
 import { useTranslation } from "react-i18next";
-
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 export default function NewDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
   const { item } = route.params; // contains { id }
@@ -24,6 +25,7 @@ export default function NewDetailsScreen({ route, navigation }) {
 const [isBookmarked, setIsBookmarked] = useState(false);
 const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const baseURL = "http://testlink2.pillersofttechnologies.com";
+const currentLang = i18n.language || 'en';
 
   useEffect(() => {
     fetchDetails();
@@ -96,17 +98,20 @@ const handleShare = async (data) => {
 };
 const buildShareMessage = (data) => {
   return `
-📰 *${data.title}*
+📰 *${getLocalizedValue(data, 'title', currentLang)}*
 
-📅 Published On: ${data.published_date}
-👁 Views: ${data.views_count}
+📅 ${t('news.published_on')}: ${data?.published_date || '-'}
+👁 ${t('news.views')}: ${data?.views_count || 0}
 
-📝 Summary:
-${data.excerpt || t('news.no_summary_available')}
+📝 ${t('news.summary')}:
+${getLocalizedValue(data, 'excerpt', currentLang) || t('news.no_summary_available')}
 
-🔗 Read full news in M.Impot App
+📲 ${t('news.share_footer')}
 `;
 };
+
+const title = getLocalizedValue(details, 'title', currentLang);
+const excerpt = getLocalizedValue(details, 'excerpt', currentLang);
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
@@ -158,10 +163,10 @@ ${data.excerpt || t('news.no_summary_available')}
         </View>
 
         {/* TITLE */}
-        <Text style={styles.title}>{details?.title}</Text>
+        <Text style={styles.title}>{title}</Text>
 
         {/* DESCRIPTION */}
-        <Text style={styles.desc}>{details?.excerpt}</Text>
+        <Text style={styles.desc}>{excerpt}</Text>
       </ScrollView>
     </View>
   );

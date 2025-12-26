@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(18),
     fontWeight: "700",
     color: "#000",
-    marginLeft: 20,
+    //marginLeft: 20,
   },
   langBox: {
     flexDirection: "row",

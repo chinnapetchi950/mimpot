@@ -17,10 +17,13 @@ import { authService, imageUrl } from '../api/authService';
 import { useTranslation } from "react-i18next";
 import Pdf from "react-native-pdf";
 import RNBlobUtil from 'react-native-blob-util';
+import { getLocalizedValue } from "../utils/localization";
+import i18n from "../localization/i18n";
 
 export default function TaxRegulation({ navigation, route }) {
   const { t } = useTranslation();
   const { categoryId ,name} = route.params;
+const currentLang = i18n.language || 'en';
 
   // const [activeTab, setActiveTab] = useState("articles");
   const [list, setList] = useState([]);
@@ -228,90 +231,125 @@ useEffect(() => {
 {subCategories.length > 0 && (
   <View style={styles.subCategoryContainer}>
     <FlatList
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      data={[{ id: null, name: "All" }, ...subCategories]}
-      keyExtractor={(item) => item.id?.toString() ?? "all"}
-      renderItem={({ item }) => {
-        const isActive = activeSubCategory === item.id;
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  data={[{ id: null, name_en: 'All', name_fr: 'Tous' }, ...subCategories]}
+  keyExtractor={(item) => item.id?.toString() ?? 'all'}
+  renderItem={({ item }) => {
+    const isActive = activeSubCategory === item.id;
 
-        return (
-          <TouchableOpacity
-            style={[
-              styles.subCategoryChip,
-              isActive && styles.subCategoryChipActive,
-            ]}
-            onPress={() => {
-  setActiveSubCategory(item.id); // null = All
-}}
-          >
-            <Text
-              style={[
-                styles.subCategoryText,
-                isActive && styles.subCategoryTextActive,
-              ]}
-            >
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        );
-      }}
-    />
+    const label =
+      item.id === null
+        ? currentLang.startsWith('fr')
+          ? 'Tous'
+          : 'All'
+        : getLocalizedValue(item, 'name', currentLang);
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.subCategoryChip,
+          isActive && styles.subCategoryChipActive,
+        ]}
+        onPress={() => setActiveSubCategory(item.id)}
+      >
+        <Text
+          style={[
+            styles.subCategoryText,
+            isActive && styles.subCategoryTextActive,
+          ]}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  }}
+/>
+
   </View>
 )}
 
   <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "videos" ? (
-        <FlatList
-          key={"videos"}
-          data={list}
-          renderItem={({ item }) => <VideoCard  onPress={(selectedItem) => {
-    console.log("Card clicked:", item);
-    navigation.navigate("DetailsScreen", { categoryId: item.id });
-  }} item={item} />}
-          keyExtractor={(i, index) => index.toString()}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
-          }
-          ListEmptyComponent={
+       <FlatList
+  key="videos"
+  data={list}
+  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+  onEndReached={loadMore}
+  onEndReachedThreshold={0.3}
+  ListFooterComponent={
+    loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
+  }
+  ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>{t('videos.no_data_available')}</Text>
+        <Text style={styles.noDataText}>
+          {t('videos.no_data_available')}
+        </Text>
       </View>
     )
   }
-        />
+  renderItem={({ item }) => {
+    const title = getLocalizedValue(item, 'title', currentLang);
+    const description = getLocalizedValue(item, 'description', currentLang);
+
+    return (
+      <VideoCard
+        item={{ ...item, title, description }}
+        onPress={() =>
+          navigation.navigate('DetailsScreen', {
+            categoryId: item.id,
+          })
+        }
+      />
+    );
+  }}
+/>
+
       ) : (
         <FlatList
-          key={"articles"}
-          numColumns={2}
-          columnWrapperStyle={{
-            justifyContent: "space-between",
-            paddingHorizontal: 15,
-          }}
-          contentContainerStyle={{ paddingTop: 10 }}
-          data={list}
-          renderItem={({ item }) => <ArticleCard onPress={(selectedItem) => {
-    console.log("Card clicked:", item);
-    navigation.navigate("ArticleDetailsScreen", { categoryId: item.id });
-  }} item={item}   onDownload={() => openPdfModal(item)}/>} 
-          keyExtractor={(i, index) => index.toString()}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
-          }
-          ListEmptyComponent={
+  key="articles"
+  numColumns={2}
+  columnWrapperStyle={{
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+  }}
+  contentContainerStyle={{ paddingTop: 10 }}
+  data={list}
+  keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+  onEndReached={loadMore}
+  onEndReachedThreshold={0.3}
+  ListFooterComponent={
+    loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null
+  }
+  ListEmptyComponent={
     !loading && (
       <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>{t('videos.no_data_available')}</Text>
+        <Text style={styles.noDataText}>
+          {t('articles.no_data_available')}
+        </Text>
       </View>
     )
   }
-        />
+  renderItem={({ item }) => {
+    const title = getLocalizedValue(item, 'title', currentLang);
+    const description = getLocalizedValue(item, 'description', currentLang);
+
+    return (
+      <ArticleCard
+        item={{ ...item, title, description }}
+        onPress={() =>
+          navigation.navigate('ArticleDetailsScreen', {
+            categoryId: item.id,
+          })
+        }
+        onDownload={() => openPdfModal(item)}
+      />
+    );
+  }}
+/>
+
       )}
         {/* <DownloadModal visible={showDownload} onClose={() => setShowDownload(false)} /> */}
            <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
