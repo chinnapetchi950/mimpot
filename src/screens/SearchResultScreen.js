@@ -86,6 +86,8 @@ const currentLang = i18n.language || 'en';
     switch (item.type) {
       case "taxlaw":
         return (
+                      <View style={{marginTop:10}}>
+
           <TopLawCard
              item={{
             ...obj,
@@ -97,6 +99,7 @@ const currentLang = i18n.language || 'en';
             }
             style={{ width: "48%" }}
           />
+          </View>
         );
 
       case "category":
@@ -118,6 +121,8 @@ const currentLang = i18n.language || 'en';
 
       case "video":
         return (
+                      <View style={{marginTop:10}}>
+
           <LearningCard
  item={{
             ...obj,
@@ -127,10 +132,13 @@ const currentLang = i18n.language || 'en';
               navigation.navigate("DetailsScreen", { categoryId: obj.id })
             }
           />
+          </View>
         );
 
       case "news":
         return (
+                      <View style={{marginTop:10}}>
+
           <NewsCard
              item={{
             ...obj,
@@ -141,6 +149,7 @@ const currentLang = i18n.language || 'en';
               navigation.navigate("NewDetailsScreen", { item: obj })
             }
           />
+          </View>
         );
 
       default:
