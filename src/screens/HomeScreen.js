@@ -36,6 +36,7 @@ import { useTranslation } from 'react-i18next';
 import VideoCard from '../components/VideoCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocalizedValue } from '../utils/localization';
+import HomeHeader from '../components/Homeheader';
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
@@ -187,11 +188,13 @@ console.log(apiData,"apiData==>");
       <StatusBar backgroundColor={"#FFFFFF"} barStyle={'dark-content'} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
-        <CustomHeader
+        <HomeHeader userName={`${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`} />
+
+
+        {/* <CustomHeader
           title={`${t('home.hi')} ${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`}
           showLanguage={true}
-        />
+        /> */}
 
         {/* 🔍 SEARCH BAR */}
         {/* <AnimatedSearchBar

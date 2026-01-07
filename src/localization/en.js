@@ -102,11 +102,11 @@ const strings = {
   },
 
   welcome: {
-    app_title: "M.impôt",
+    app_title: "M.Impôt",
     subtitle: "Keeps you updated on law text",
     log_in: "Log In",
     create_account: "Create an account",
-    footer: "M.impôt 2025",
+    footer: "M.Impôt 2025",
   },
 
   // ============================================
@@ -303,6 +303,7 @@ const strings = {
     details_view: "Details View",
     loading: "Loading...",
     no_details_found: "No details found",
+    
   },
 
   // ============================================
@@ -347,7 +348,7 @@ const strings = {
   // ISSUES / TICKETS
   // ============================================
   issues: {
-    issue_list: "IssueList",
+    issue_list: "Ticket List",
     issue: "Issue :",
     comment: "Comment:",
     satisfied: "SATISFIED",

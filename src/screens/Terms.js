@@ -6,6 +6,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { common } from "../styles/theme";
 import { authService } from "../api/authService";
 import { useTranslation } from "react-i18next";
+import i18n from "../localization/i18n";
 
 const TermsScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -18,12 +19,28 @@ const TermsScreen = ({ navigation }) => {
        const res = await authService.terms();
        console.log("res------------------->,",res);
        
-       let data = res?.data?.data?.fields?.description?.value || "";
+        const fields = res?.data?.data?.fields || {};
+    const currentLang = i18n.language || "en";
+
+    // Build key dynamically → description_en / description_ar
+    const descriptionKey = `description_${currentLang}`;
+
+    let data =
+      fields?.[descriptionKey]?.value ||
+      fields?.description_en?.value || // fallback
+      "";
+
+    console.log(data, res?.data, "about us data");
+
+    // Remove escaped slashes if any
+    data = data.replace(/\\/g, "");
+
+    setHtml(data);
  
        // Remove escaped slashes if any
-       data = data.replace(/\\/g, "");
+      //  data = data.replace(/\\/g, "");
  
-       setHtml(data);
+      //  setHtml(data);
      } catch (err) {
       console.log("reresr",err);
       
@@ -35,10 +52,10 @@ const TermsScreen = ({ navigation }) => {
  
    useEffect(() => {
      fetchData();
-   }, []);
+   }, [i18n.language]);
 
   return (
-    <View style={common.screen}>
+    <View style={[common.screen,{ flex: 1 }]}>
 <CustomHeader
   title={t('settings.terms_and_conditions')}
 rightComponent={<TouchableOpacity></TouchableOpacity>}

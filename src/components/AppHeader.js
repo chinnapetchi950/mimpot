@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: hp("2.8%"),
     fontWeight: "700",
+    marginLeft: wp("5%"),
   },
   langBox: { flexDirection: "row", alignItems: "center" },
   flag: { width: wp("6%"), height: wp("4.2%"), resizeMode: "cover", borderRadius: 50, marginRight: wp("2%") },

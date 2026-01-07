@@ -95,7 +95,7 @@ const currentLang = i18n.language || 'en';
             description: localizedDescription,
           }}
             onPress={() =>
-              navigation.navigate("TaxRegulation", { categoryId: obj.id })
+              navigation.navigate("TaxRegulation", { categoryId: obj.id,name:localizedname })
             }
             style={{ width: "48%" }}
           />
@@ -113,7 +113,7 @@ const currentLang = i18n.language || 'en';
              name: localizedname,
             description: localizedDescription,
           }}            onPress={() =>
-              navigation.navigate("TaxRegulation", { categoryId: obj.id })
+              navigation.navigate("TaxRegulation", { categoryId: obj.id,name:localizedname })
             }
           />
           </View>

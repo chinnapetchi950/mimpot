@@ -145,7 +145,12 @@ subscriptionRenew:async()=>{
 },
 forgotPassword:async( data) =>{
    return await apiClient.post('user/forgot-password', data)},
-
+updateDocumentViewDuration: async(documentId, formData) => {
+  return await apiClient.post(
+    `user/views/duration/document/${documentId}`,
+    formData
+  );
+},
 
 // downloadDocument: async (documentId) => {
 //   try {

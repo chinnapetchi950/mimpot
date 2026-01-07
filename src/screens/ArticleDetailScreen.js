@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Share,
   Alert,
-  Modal
+  Modal,
+  BackHandler
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -25,6 +26,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { getLocalizedValue } from "../utils/localization";
 import i18n from "../localization/i18n";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 export default function ArticleDetailsScreen({ route, navigation }) {
@@ -42,7 +44,8 @@ const [downloadLoading, setIsdownloadLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
 const [pdfLoading, setPdfLoading] = useState(false);
 const [selectedItem, setSelectedItem] = useState(null);
-
+const viewStartTimeRef = useRef(null);
+const durationSentRef = useRef(false);
   const fetchDocumentDetails = async () => {
     try {
       const res = await authService.getDocumentById(categoryId); 
@@ -94,6 +97,55 @@ ${getLocalizedValue(data, 'description', currentLang) || t('details.no_descripti
 
   useEffect(() => {
     fetchDocumentDetails();
+  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      // ⏱ Start timer
+      viewStartTimeRef.current = Date.now();
+      durationSentRef.current = false;
+  
+      return () => {
+        // ⛔ Screen losing focus
+        sendViewDuration();
+      };
+    }, [])
+  );
+  const sendViewDuration = async () => {
+    try {
+      if (durationSentRef.current) return;
+      if (!viewStartTimeRef.current) return;
+  
+      const endTime = Date.now();
+      const durationSeconds = Math.floor(
+        (endTime - viewStartTimeRef.current) / 1000
+      );
+  
+      // Avoid sending 0 seconds
+      if (durationSeconds <= 0) return;
+  
+      durationSentRef.current = true;
+  
+      const formData = new FormData();
+      formData.append("_method", "PUT");
+      formData.append("duration", durationSeconds);
+  
+      const res =await authService.updateDocumentViewDuration(categoryId, formData);
+  
+      console.log("✅ View duration sent:", durationSeconds,res, "seconds");
+    } catch (error) {
+      console.log("❌ Duration API error:", error?.response || error);
+    }
+  };
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        sendViewDuration();
+        return false;
+      }
+    );
+  
+    return () => backHandler.remove();
   }, []);
 
   if (loading) {
@@ -201,7 +253,7 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() =>{sendViewDuration(),navigation.goBack()}}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('details.details_view')}</Text>

@@ -19,7 +19,7 @@ useEffect(() => {
       // User already logged in → go to Dashboard
       navigation.replace("MainTabs");
     } else {
-      // No token → go to Login after 1.6s
+      //No token → go to Login after 1.6s
       setTimeout(() => {
         navigation.replace("Onboarding");
       }, 1600);

@@ -264,6 +264,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     padding: 10,
+    paddingTop: 60,
     borderTopWidth: 1,
     borderColor: '#eee',
     alignItems: 'flex-end',

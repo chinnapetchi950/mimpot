@@ -10,7 +10,11 @@ import {
   StatusBar,
   Alert, Platform,
   Modal,
-  TextInput
+  TextInput,
+  BackHandler,
+  KeyboardAvoidingView,Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
@@ -33,7 +37,8 @@ export default function DetailsScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { categoryId } = route.params || {};
 const currentLang = i18n.language || 'en';
-
+const viewStartTimeRef = useRef(null);
+const durationSentRef = useRef(false);
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +94,55 @@ useFocusEffect(
     refreshData(); // API / AsyncStorage check
   }, [])
 );
+useFocusEffect(
+  React.useCallback(() => {
+    // ⏱ Start timer
+    viewStartTimeRef.current = Date.now();
+    durationSentRef.current = false;
+
+    return () => {
+      // ⛔ Screen losing focus
+      sendViewDuration();
+    };
+  }, [])
+);
+const sendViewDuration = async () => {
+  try {
+    if (durationSentRef.current) return;
+    if (!viewStartTimeRef.current) return;
+
+    const endTime = Date.now();
+    const durationSeconds = Math.floor(
+      (endTime - viewStartTimeRef.current) / 1000
+    );
+
+    // Avoid sending 0 seconds
+    if (durationSeconds <= 0) return;
+
+    durationSentRef.current = true;
+
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    formData.append("duration", durationSeconds);
+
+    const res =await authService.updateDocumentViewDuration(categoryId, formData);
+
+    console.log("✅ View duration sent:", durationSeconds,res, "seconds");
+  } catch (error) {
+    console.log("❌ Duration API error:", error?.response || error);
+  }
+};
+useEffect(() => {
+  const backHandler = BackHandler.addEventListener(
+    "hardwareBackPress",
+    () => {
+      sendViewDuration();
+      return false;
+    }
+  );
+
+  return () => backHandler.remove();
+}, []);
 const refreshData = async () => {
   const value = await AsyncStorage.getItem("isSubcribe");
   setIsSubscribe(JSON.parse(value));
@@ -371,7 +425,19 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
-      <CustomHeader
+       <View style={styles.header}>
+              <TouchableOpacity
+  onPress={() => {
+    sendViewDuration();   // ⏱️ send duration first
+    navigation.goBack(); // ⬅️ then go back
+  }}
+>
+  <Ionicons name="arrow-back" size={26} color="#000" />
+</TouchableOpacity>
+              <Text style={styles.headerTitle}>{t('video_details.details_view')}</Text>
+              <View style={{ width: 30 }} />
+            </View>
+      {/* <CustomHeader
         title={t('video_details.details_view')}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -379,8 +445,8 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
           </TouchableOpacity>
         }
         rightComponent={() => null}
-      />
-
+      /> */}
+<ScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
         {/* Top Title + Rating */}
         <Text style={styles.title}>{videoTitle}</Text>
@@ -565,30 +631,36 @@ onPress={() => setCommentVisible(true)}
   transparent
   onRequestClose={() => setCommentVisible(false)}
 > */}
-{commentVisible?
-  <View style={styles.commentModalOverlay}>
-    <View style={styles.commentModalContainer}>
+{commentVisible && (
+  <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+  >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
+      <View style={styles.commentModalOverlay}>
+        <View style={styles.commentModalContainer}>
+          {/* Header */}
+          <View style={styles.commentHeader}>
+            <Text style={styles.commentTitle}>Comments</Text>
+            <TouchableOpacity onPress={() => setCommentVisible(false)}>
+              <Ionicons name="close" size={24} />
+            </TouchableOpacity>
+          </View>
 
-      {/* Header */}
-      <View style={styles.commentHeader}>
-        <Text style={styles.commentTitle}>Comments</Text>
-        <TouchableOpacity 
-        // onPress={() => setCommentVisible(false)}
-        >
-          {/* <Ionicons name="close" size={24} /> */}
-        </TouchableOpacity>
+          {/* Comment Screen */}
+          <CommentScreen
+            documentId={categoryId}
+            onClose={() => setCommentVisible(false)}
+          />
+        </View>
       </View>
+    </TouchableWithoutFeedback>
+  </KeyboardAvoidingView>
+)}
 
-      {/* Comment Screen */}
-      <CommentScreen
-        documentId={categoryId}
-        onClose={() => setCommentVisible(false)}
-      />
-
-    </View>
-  </View>:null}
 {/* </Modal> */}
-
+</ScrollView>
     </SafeAreaView>
   );
 }
@@ -620,12 +692,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 2,
   },
-  topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 2,
-  },
+  // topRow: {
+  //   flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   alignItems: "center",
+  //   marginTop: 2,
+  // },
   author: {
     color: "#666",
     fontSize: 14,
@@ -722,14 +794,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
-  rightTopIcons: {
-    marginTop: 2,
-    // align them on the right row: we place them visually right under video area
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-    marginRight: 6,
-  },
+  // rightTopIcons: {
+  //   marginTop: 2,
+  //   // align them on the right row: we place them visually right under video area
+  //   flexDirection: "row",
+  //   justifyContent: "flex-end",
+  //   gap: 8,
+  //   marginRight: 6,
+  // },
   iconBtn: {
     marginLeft: 14,
   },
@@ -804,11 +876,11 @@ modalTitle: {
   marginBottom: 16,
 },
 
-starRow: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  marginBottom: 16,
-},
+// starRow: {
+//   flexDirection: 'row',
+//   justifyContent: 'center',
+//   marginBottom: 16,
+// },
 
 commentInput: {
   borderWidth: 1,
@@ -916,7 +988,22 @@ lockText: {
   marginTop: 12,
   fontSize: 16,
 },
-
+ header: {
+    paddingTop: 15,
+    paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+    paddingHorizontal: 15,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "600",
+    marginRight: 25,
+  },
 
 });
 

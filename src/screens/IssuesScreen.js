@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator,StyleSheet } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator,StyleSheet ,Linking, Alert} from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 // import { getTickets } from "../services/ticketService";
 import moment from "moment";
@@ -94,6 +94,21 @@ console.log("res?.data?.messag",res);
     console.log("Update Status Error:", e?.response.data);
   }
 };
+const dialPhone = (phoneNumber) => {
+  if (!phoneNumber) {
+    Alert.alert("Error", "Phone number not available");
+    return;
+  }
+  Linking.openURL(`tel:${phoneNumber}`);
+};
+
+const sendEmail = (email) => {
+  if (!email) {
+    Alert.alert("Error", "Email address not available");
+    return;
+  }
+  Linking.openURL(`mailto:${email}`);
+};
 
   const renderStatus = (urstatus,status) => {
     if (urstatus === "satisfied")
@@ -115,8 +130,14 @@ console.log("res?.data?.messag",res);
           gap: 15, // spacing between icons
         }}
       >
-        <Icon name="phone-call" size={22} color="#0099cc" />
-        <Icon name="mail" size={22} color="#0099cc" />
+         <TouchableOpacity onPress={() => dialPhone("1800 250 1232")}>
+    <Icon name="phone-call" size={22} color="#0099cc" />
+  </TouchableOpacity>
+
+  {/* Email */}
+  <TouchableOpacity onPress={() => sendEmail("cs@support.com")}>
+    <Icon name="mail" size={22} color="#0099cc" />
+  </TouchableOpacity>
       </View>
       </View>
     );
@@ -209,7 +230,7 @@ console.log("res?.data?.messag",res);
   return (
     <SafeAreaView style={{flex:1}}>
         <CustomHeader
-        headertextstyle={{ textAlign: "center", marginLeft: 50 }}
+        headertextstyle={{ textAlign: "center", }}
         title={t('issues.issue_list')}
         rightComponent={() => null}
         leftComponent={

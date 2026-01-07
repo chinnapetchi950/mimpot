@@ -22,6 +22,7 @@ import RNBlobUtil from 'react-native-blob-util';
 import Pdf from "react-native-pdf";
 import { useFocusEffect } from "@react-navigation/native";
 import { getLocalizedValue } from '../utils/localization';
+import CustomHeader from "../components/CustomHeader";
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const { t } = useTranslation();
@@ -209,13 +210,23 @@ const onClickDownload = async (item) => {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* HEADER */}
-        <View style={styles.header}>
+         <CustomHeader
+        headertextstyle={{ textAlign: "center", }}
+        title={t('tax_law.understanding_tax')}
+        rightComponent={() => null}
+        leftComponent={
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={26} color="#000" />
+          </TouchableOpacity>
+        }
+      />
+        {/* <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('tax_law.understanding_tax')}</Text>
           <View style={{ width: 30 }} />
-        </View>
+        </View> */}
 
         {/* MAIN CONTENT */}
         <ScrollView
@@ -337,7 +348,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 20,
     fontWeight: "600",
-    marginRight: 25,
+    marginRight: 65,
     marginTop: 10,
   },
   countText: {

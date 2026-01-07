@@ -102,11 +102,11 @@ next_button: "Suivant"
   },
 
   welcome: {
-   app_title: "M.impôt",
+   app_title: "M.Impôt",
 subtitle: "Vous tient informé des textes juridiques",
 log_in: "Se connecter",
 create_account: "Créer un compte",
-footer: "M.impôt 2025"
+footer: "M.Impôt 2025"
   },
 
   // ============================================
@@ -348,7 +348,7 @@ something_went_wrong: "Une erreur est survenue."
   // ISSUES / TICKETS
   // ============================================
   issues: {
-   issue_list: "Liste des problèmes",
+   issue_list: "Liste des billets",
 issue: "Problème :",
 comment: "Commentaire :",
 satisfied: "SATISFAIT",

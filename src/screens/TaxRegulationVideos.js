@@ -219,7 +219,7 @@ useEffect(() => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader
-        headertextstyle={{ textAlign: "center", marginLeft: 70 }}
+        headertextstyle={{ textAlign: "center", }}
         title={name}
         rightComponent={() => null}
         leftComponent={
@@ -327,7 +327,7 @@ useEffect(() => {
     !loading && (
       <View style={styles.noDataContainer}>
         <Text style={styles.noDataText}>
-          {t('articles.no_data_available')}
+          {t('videos.no_data_available')}
         </Text>
       </View>
     )

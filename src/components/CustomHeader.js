@@ -182,11 +182,25 @@ const CustomHeader = ({
     return code === "en" || code === "En" ? "En" : "Fr";
   };
 
-  const languages = [
-    { code: "En", label: t("language.english") },
-    { code: "Fr", label: t("language.french") },
-  ];
+  // const languages = [
+  //   { code: "En", label: t("language.english") },
+  //   { code: "Fr", label: t("language.french") },
+  // ];
 
+const LANGUAGES = [
+  {
+    code: "en",
+   label: t("language.english"),
+    flag: require("../assets/images/flag.png"),
+  },
+  {
+    code: "fr",
+    label: t("language.french"),
+    flag: require("../assets/images/france.png"),
+  },
+];
+ const selectedLang =
+    LANGUAGES.find((l) => l.code === currentLanguage) || LANGUAGES[0];
   return (
 <View style={[styles.container, headerContainerStyle]}>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
@@ -207,7 +221,7 @@ const CustomHeader = ({
             <View>
               <TouchableOpacity style={styles.langBox} onPress={toggleDropdown}>
                 <Image
-                  source={require("../assets/images/flag.png")}
+                  source={selectedLang.flag}
                   style={styles.flag}
                 />
                 <Text style={styles.langText}>{getLanguageDisplay(currentLanguage)}</Text>
@@ -217,12 +231,13 @@ const CustomHeader = ({
               {/* Dropdown Below Icon */}
               {dropdownVisible && (
                 <View style={styles.dropdown}>
-                  {languages.map((lang) => (
+                  {LANGUAGES.map((lang) => (
                     <TouchableOpacity
                       key={lang.code}
                       style={styles.dropdownItem}
                       onPress={() => selectLanguage(lang.code)}
                     >
+                      <Image source={lang.flag} style={styles.flag} />
                       <Text style={styles.dropdownText}>{lang.label}</Text>
                     </TouchableOpacity>
                   ))}
@@ -258,7 +273,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(18),
     fontWeight: "700",
     color: "#000",
-    //marginLeft: 20,
+    marginLeft: 30,
   },
   langBox: {
     flexDirection: "row",
@@ -286,13 +301,19 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: 8,
     paddingVertical: 5,
-    width: 120,
+    width: 102,
     zIndex: 100,
   },
-  dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+   dropdownItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 9,
   },
+  // dropdownItem: {
+  //   paddingVertical: 10,
+  //   paddingHorizontal: 15,
+    
+  // },
   dropdownText: {
     fontSize: RFValue(14),
     color: "#000",

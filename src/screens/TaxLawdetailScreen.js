@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Alert,
   Share,
   Modal,
+  BackHandler
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -37,7 +38,8 @@ export default function TaxDetailsScreen({ route, navigation }) {
   const [pdfUrl, setPdfUrl] = useState(null);
 const [pdfLoading, setPdfLoading] = useState(false); // Loader while downloading
 const currentLang = i18n.language || 'en';
-
+const viewStartTimeRef = useRef(null);
+const durationSentRef = useRef(false);
   useEffect(() => {
     fetchDetails();
     getSubscriptionStatus();
@@ -52,6 +54,55 @@ const currentLang = i18n.language || 'en';
     refreshData(); // API / AsyncStorage check
   }, [])
 );
+useFocusEffect(
+  React.useCallback(() => {
+    // ⏱ Start timer
+    viewStartTimeRef.current = Date.now();
+    durationSentRef.current = false;
+
+    return () => {
+      // ⛔ Screen losing focus
+      sendViewDuration();
+    };
+  }, [])
+);
+const sendViewDuration = async () => {
+  try {
+    if (durationSentRef.current) return;
+    if (!viewStartTimeRef.current) return;
+
+    const endTime = Date.now();
+    const durationSeconds = Math.floor(
+      (endTime - viewStartTimeRef.current) / 1000
+    );
+
+    // Avoid sending 0 seconds
+    if (durationSeconds <= 0) return;
+
+    durationSentRef.current = true;
+
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    formData.append("duration", durationSeconds);
+
+    const res =await authService.updateDocumentViewDuration(item.id, formData);
+
+    console.log("✅ View duration sent:", durationSeconds,res, "seconds");
+  } catch (error) {
+    console.log("❌ Duration API error:", error?.response || error);
+  }
+};
+useEffect(() => {
+  const backHandler = BackHandler.addEventListener(
+    "hardwareBackPress",
+    () => {
+      sendViewDuration();
+      return false;
+    }
+  );
+
+  return () => backHandler.remove();
+}, []);
 const refreshData = async () => {
   const value = await AsyncStorage.getItem("isSubcribe");
   setIsSubscribe(JSON.parse(value));
@@ -227,7 +278,7 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() =>{sendViewDuration(),navigation.goBack()}}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
