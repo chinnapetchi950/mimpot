@@ -6,7 +6,6 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { authService } from "../api/authService"; // your API service
 import { useTranslation } from "react-i18next";
-
 const HelpCenterScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [subject, setSubject] = useState("");
@@ -31,11 +30,11 @@ const HelpCenterScreen = ({ navigation }) => {
       const res = await authService.sendTicket(payload); 
       console.log(res,'res');
       
-      if (res?.data?.status) {
+      if (res?.data?.success) {
         setSubject("");
         setMessage("");
         Alert.alert(
-  t('common.success'),
+ t('common.success'),
   t('help.ticket_submitted_successfully'),
   [
     {
@@ -47,7 +46,7 @@ const HelpCenterScreen = ({ navigation }) => {
        // Alert.alert("Success", "Your ticket has been submitted successfully.");
         
       } else {
-        Alert.alert(t('common.error'), res?.data?.message || t('help.something_went_wrong'));
+        //Alert.alert(t('common.error'), res?.data?.message || t('help.something_went_wrong'));
       }
     } catch (e) {
       console.log("Ticket API error:", e?.response?.data || e);

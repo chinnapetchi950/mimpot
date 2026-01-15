@@ -143,48 +143,48 @@ const renderItem = ({ item }) => (
       {item.description || t("details.no_description_available")}
     </Text>
 
-    <View style={styles.row}>
-      <Text style={styles.date}>
-        {moment(item.created_at).format("DD-MM-YYYY")}
+   <View style={styles.row}>
+  {/* LEFT SIDE */}
+  <Text
+    style={styles.date}
+    numberOfLines={1}
+    ellipsizeMode="tail"
+  >
+    {moment(item.created_at).format("DD-MM-YYYY")}
+  </Text>
+
+  {/* RIGHT SIDE */}
+  <View style={styles.rightActions}>
+    {item?.file_path && (
+      <TouchableOpacity
+        onPress={(e) => {
+          e.stopPropagation();
+          openPdfModal(item);
+        }}
+        style={styles.pdfBtn}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <FontAwesome
+          name="file-pdf-o"
+          size={18}
+          color="#e53935"
+        />
+      </TouchableOpacity>
+    )}
+
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("TaxDetailsScreen", { item })
+      }
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Text style={styles.readMore}>
+        {t("articles.read_more")}
       </Text>
-       <View style={styles.rightActions}>
-                {item?.file_path && (
-                  <TouchableOpacity
-                    onPress={(e) => {
-    e.stopPropagation();
-    openPdfModal(item);
-  }}
-                    style={styles.pdfBtn}
-                    hitSlop={8}
-                  >
-                    <FontAwesome
-                      name="file-pdf-o"
-                      size={20}
-                      color="#e53935"
-                    />
-                  </TouchableOpacity>
-                )}
-      
-                <TouchableOpacity  onPress={() => navigation.navigate("TaxDetailsScreen", { item })}>
-                  <Text style={styles.readMore}>
-                    {t("articles.read_more")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-{/* {item?.file_path && (
-        <TouchableOpacity
-          style={styles.pdfBadge}
-          onPress={(e) => {
-    e.stopPropagation();
-    openPdfModal(item);
-  }}
-        >
-          <FontAwesome name="file-pdf-o" size={14} color="#fff" />
-          {/* <Text style={styles.pdfBadgeText}>PDF</Text> */}
-        {/* </TouchableOpacity>
-      )}
-      <Text style={styles.read}>{t("articles.read_more")}</Text> */} 
-    </View>
+    </TouchableOpacity>
+  </View>
+</View>
+
   </TouchableOpacity>
 );
 
@@ -341,15 +341,15 @@ const styles = StyleSheet.create({
   cardImage: { width: "100%", height: 110, borderRadius: 10 },
   cardTitle: { fontSize: 15, fontWeight: "700", marginTop: 6 },
   cardDesc: { fontSize: 12, color: "#555", marginVertical: 8 },
-  row: {flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    //paddingHorizontal: 10,
-    gap:10,
-    paddingTop: 10,
-    paddingBottom: 10,},
-  date: { fontSize: 11, color: "#999" },
-  read: { color: "#2563EB", fontSize: 12, fontWeight: "600" },
+  // row: {flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   alignItems: "center",
+  //   //paddingHorizontal: 10,
+  //   gap:10,
+  //   paddingTop: 10,
+  //   paddingBottom: 10,},
+  // date: { fontSize: 11, color: "#999" },
+  // read: { color: "#2563EB", fontSize: 12, fontWeight: "600" },
   imageWrapper: {
   position: "relative",
 },
@@ -404,15 +404,43 @@ center: {
   justifyContent: "center",
   alignItems: "center",
 },
+// rightActions: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 10,
+//   },
+
+//   pdfBtn: {
+//     padding: 2,
+//   },
+
+row: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: 10,
+},
+
+date: {
+  flex: 1,              // ✅ KEY FIX
+  fontSize: 11,
+  color: "#999",
+},
+
 rightActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
+  flexDirection: "row",
+  alignItems: "center",
+  flexShrink: 0,        // ✅ prevents collapse on small screens
+},
 
-  pdfBtn: {
-    padding: 2,
-  },
+pdfBtn: {
+  marginRight: 10,      // ✅ use margin instead of gap
+  padding: 4,
+},
 
+readMore: {
+  color: "#2563EB",
+  fontSize: 12,
+  fontWeight: "600",
+},
 
 });

@@ -81,7 +81,9 @@ const navigation = useNavigation();
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={styles.userName}>{userName.charAt(0).toUpperCase() + userName.slice(1)}</Text>
+          <Text   ellipsizeMode="tail"   numberOfLines={1}
+
+style={styles.userName}>{userName.charAt(0).toUpperCase() + userName.slice(1)}</Text>
         </View>
 
         {/* RIGHT : LANGUAGE + AVATAR */}
@@ -120,11 +122,11 @@ const navigation = useNavigation();
           </View>
 
           {/* Avatar */}
-          <TouchableOpacity onPress={() => {navigation.navigate('MainTabs', {
+          {/* <TouchableOpacity onPress={() => {navigation.navigate('MainTabs', {
   screen: 'Profile',
 });}} style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </View>
@@ -150,6 +152,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+    minWidth: 0
   },
   logo: {
     width: 48,
@@ -160,6 +163,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(17),
     fontWeight: "700",
     color: "#1e88e5",
+    flexShrink: 1, 
   },
   rightSection: {
     flexDirection: "row",
@@ -171,7 +175,7 @@ const styles = StyleSheet.create({
     padding: 6,
     backgroundColor: "#f3f3f3",
     borderRadius: 20,
-    marginRight: 10,
+    //marginRight: 10,
   },
   langText: {
     fontSize: RFValue(14),

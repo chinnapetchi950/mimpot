@@ -474,6 +474,13 @@ search_placeholder: "Rechercher des actualités, des articles ou des conseils...
     tax_law_results: "Résultats des lois fiscales",
     no_documents_found: "Aucun document trouvé",
   },
+  tabs: {
+    "home": "Accueil",
+    "taxLaw": "Droit fiscal",
+    "explore": "Explorer",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  }
 };
 
 export default strings;

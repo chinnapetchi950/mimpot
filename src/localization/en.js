@@ -475,6 +475,13 @@ const strings = {
     tax_law_results: "Tax Law Results",
     no_documents_found: "No Documents Found",
   },
+  tabs: {
+    "home": "Home",
+    "taxLaw": "Tax Law",
+    "explore": "Explore",
+    "profile": "Profile",
+    "settings": "Settings"
+  }
 };
 
 export default strings;

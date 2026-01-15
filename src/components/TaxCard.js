@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
 
 
   downloadBtn: {
-    marginLeft: 40,
+    marginLeft: 25,
+    marginTop:10,
     padding: 8,
   },
 

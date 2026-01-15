@@ -211,10 +211,13 @@ const [imageLoading, setImageLoading] = useState(true);
 
             <View>
               <Text
+              ellipsizeMode="tail"   numberOfLines={1}
                 style={{
                   color: '#fff',
                   fontSize: wp('4.5%'),
                   fontWeight: '700',
+                  flexShrink:1,
+                  width:'80%'
                 }}
               >
                 {[user?.user?.firstname||user?.user?.user?.firstname, user?.user?.lastname||user?.user?.user?.lastname]
