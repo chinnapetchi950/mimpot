@@ -24,6 +24,7 @@ import RNBlobUtil from 'react-native-blob-util';
 import { useFocusEffect } from "@react-navigation/native";
 import { getLocalizedValue } from "../utils/localization";
 import i18n from "../localization/i18n";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TaxDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
@@ -275,6 +276,9 @@ const description = getLocalizedValue(details, 'description', currentLang);
 const categoryName = getLocalizedValue(details?.category, 'name', currentLang);
 const subCategoryName = getLocalizedValue(details?.sub_category, 'name', currentLang);
   return (
+    <SafeAreaView style={{flex:1,backgroundColor: "#fff"}}>
+
+    
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
@@ -360,6 +364,7 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
         </View>
       </Modal>
     </View>
+    </SafeAreaView>
   );
 }
 

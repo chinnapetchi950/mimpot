@@ -17,6 +17,7 @@ import ImageWithLoader from "../components/ImageWithloader";
 import { useTranslation } from "react-i18next";
 import { getLocalizedValue } from "../utils/localization";
 import i18n from "../localization/i18n";
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function NewDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
   const { item } = route.params; // contains { id }
@@ -113,7 +114,7 @@ ${getLocalizedValue(data, 'excerpt', currentLang) || t('news.no_summary_availabl
 const title = getLocalizedValue(details, 'title', currentLang);
 const excerpt = getLocalizedValue(details, 'excerpt', currentLang);
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -168,7 +169,7 @@ const excerpt = getLocalizedValue(details, 'excerpt', currentLang);
         {/* DESCRIPTION */}
         <Text style={styles.desc}>{excerpt}</Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

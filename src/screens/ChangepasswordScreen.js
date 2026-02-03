@@ -13,6 +13,7 @@ import CustomHeader from "../components/CustomHeader";
 import { common } from "../styles/theme";
 import { authService } from "../api/authService";
 import { useTranslation } from "react-i18next";
+import { useDevice } from "../utils/useDeviceLayout";
 const ChangePasswordScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [current, setCurrent] = useState("");

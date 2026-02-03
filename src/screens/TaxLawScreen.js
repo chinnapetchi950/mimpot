@@ -23,9 +23,12 @@ import Pdf from "react-native-pdf";
 import { useFocusEffect } from "@react-navigation/native";
 import { getLocalizedValue } from '../utils/localization';
 import CustomHeader from "../components/CustomHeader";
+import { useDevice } from "../utils/useDeviceLayout";
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const { t } = useTranslation();
+    const { ui, deviceType, width, isTablet, isUnfolded } = useDevice();
+
   const [showDownload, setShowDownload] = useState(false);
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -207,17 +210,16 @@ const onClickDownload = async (item) => {
 };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1,backgroundColor: "#fff" }}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* HEADER */}
          <CustomHeader
         headertextstyle={{ textAlign: "center", }}
         title={t('tax_law.understanding_tax')}
+        showlogo={true}
         rightComponent={() => null}
         leftComponent={
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={26} color="#000" />
-          </TouchableOpacity>
+         ()=>null
         }
       />
         {/* <View style={styles.header}>
@@ -242,7 +244,11 @@ const onClickDownload = async (item) => {
           }}
           scrollEventThrottle={300}
         >
-          <Text style={styles.countText}>
+          <Text style={{
+    fontSize: ui.font.body,
+    fontWeight: "600",
+    marginBottom: ui.spacing.md,
+  }}>
             {data.length} {t('tax_law.tax_law_results')}
           </Text>
 
@@ -255,12 +261,20 @@ const onClickDownload = async (item) => {
           {!loading && data.length === 0 && (
             <View style={styles.noDataBox}>
               
-              <Text style={styles.noDataText}>{t('tax_law.no_documents_found')}</Text>
+<Text
+  style={{
+    fontSize: ui.font.body,
+    fontWeight: "600",
+    color: "#777",
+  }}
+>
+  {t("tax_law.no_documents_found")}
+</Text>
             </View>
           )}
 
           {/* LIST ITEMS */}
-           {data.map((item, index) => {
+           {/* {data.map((item, index) => {
     const title = getLocalizedValue(item, 'title');
     const description = getLocalizedValue(item, 'description');
 
@@ -292,7 +306,52 @@ const onClickDownload = async (item) => {
         onBookmark={() => onClickBookMark(item, index)}
       />
     );
+  })} */}
+  <View
+  style={{
+    //flexDirection: isTablet || isUnfolded ? "row" : "row",
+    //flexWrap: isTablet || isUnfolded ? "wrap" : "nowrap",
+    justifyContent: "space-between",
+  }}
+>
+  {data.map((item, index) => {
+    const title = getLocalizedValue(item, "title");
+    const description = getLocalizedValue(item, "description");
+
+    return (
+      <View
+        key={item.id ?? index}
+        style={{
+          width:
+            isTablet
+              ? "98%"
+              : isUnfolded
+              ? "48%"
+              : "100%",
+        }}
+      >
+        <TaxCard
+          item={{
+            id: item.id,
+            title,
+            description,
+            image: `${imageUrl}${item.image}`,
+            is_bookmarked: item?.is_bookmarked,
+            item: { ...item, title, description },
+          }}
+          onRead={() =>
+            navigation.navigate("TaxDetailsScreen", {
+              item: { ...item, title, description },
+            })
+          }
+          onDownload={() => openPdfModal(item)}
+          onBookmark={() => onClickBookMark(item, index)}
+        />
+      </View>
+    );
   })}
+</View>
+
 
           {/* LOAD MORE LOADER */}
           {loadingMore && (
@@ -303,33 +362,62 @@ const onClickDownload = async (item) => {
         <DownloadModal visible={showDownload} onClose={() => setShowDownload(false)} />
            <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
         <View style={styles.pdfModalContainer}>
-          <View style={styles.pdfHeader}>
+<View
+  style={[
+    styles.pdfHeader,
+    {
+      height: isTablet ? 72 : 56,
+      paddingHorizontal: ui.padding,
+    },
+  ]}
+>
             <TouchableOpacity onPress={() => setShowPdfModal(false)}>
               <Ionicons name="close" size={26} color="#000" />
             </TouchableOpacity>
-            <Text style={styles.pdfTitle}>PDF Preview</Text>
+<Text
+  style={{
+    fontSize: ui.font.h2,
+    fontWeight: "600",
+  }}
+>
+  PDF Preview
+</Text>
             <TouchableOpacity onPress={()=>onClickDownload(selectedItem)}>
               <Ionicons name="download-outline" size={24} color="#000" />
             </TouchableOpacity>
           </View>
  {pdfLoading && (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
+<ActivityIndicator
+  size={isTablet ? "large" : "small"}
+  style={{ marginVertical: ui.spacing.lg }}
+/>
         <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
       </View>
     )}
+    
           {!pdfLoading && pdfUrl && (
             <Pdf
-              source={{ uri: pdfUrl, cache: true }}
-              style={styles.pdfView}
-              trustAllCerts={true}
-              onError={e => console.log("PDF Error:", e)}
-            />
+  source={{ uri: pdfUrl, cache: true }}
+  style={{
+    flex: 1,
+    width: isTablet || isUnfolded ? width * 0.9 : width,
+    alignSelf: "center",
+  }}
+  trustAllCerts
+/>
+
+            // <Pdf
+            //   source={{ uri: pdfUrl, cache: true }}
+            //   style={styles.pdfView}
+            //   trustAllCerts={true}
+            //   onError={e => console.log("PDF Error:", e)}
+            // />
           )}
         </View>
       </Modal>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

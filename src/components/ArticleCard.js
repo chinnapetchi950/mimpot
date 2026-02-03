@@ -1,33 +1,95 @@
 // ArticleCard.js
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import moment from "moment";
-import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
 import ImageWithLoader from "./ImageWithloader";
 import { useTranslation } from "react-i18next";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { useDevice } from "../utils/useDeviceLayout";
 
 export default function ArticleCard({ item, onPress, onDownload }) {
   const { t } = useTranslation();
-  const BASE_URL = 'http://testlink2.pillersofttechnologies.com/storage/';
+  const { ui, deviceType, numColumns } = useDevice();
+
+  const BASE_URL = "http://testlink2.pillersofttechnologies.com/storage/";
+
+  /** dynamic card width based on grid */
+  const cardWidth =
+    deviceType === "tablet"
+      ? "23%"
+      : deviceType === "unfolded"
+      ? "31%"
+      : "48%";
 
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.card}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={onPress}
+      style={[
+        styles.card,
+        {
+          width: cardWidth,
+          borderRadius: ui.radius,
+          marginBottom: ui.spacing.md,
+        },
+      ]}
+    >
       <ImageWithLoader
         source={{ uri: `${BASE_URL}${item.image}` }}
-        style={styles.img}
+        style={{
+          width: "100%",
+          height:
+            deviceType === "tablet"
+              ? 180
+              : deviceType === "unfolded"
+              ? 150
+              : 120,
+        }}
       />
 
-      <Text numberOfLines={2} style={styles.title}>
+      <Text
+        numberOfLines={2}
+        style={[
+          styles.title,
+          {
+            fontSize: ui.font.body,
+            paddingHorizontal: ui.spacing.sm,
+            paddingTop: ui.spacing.sm,
+          },
+        ]}
+      >
         {item.title}
       </Text>
 
-      <Text numberOfLines={2} style={styles.desc}>
+      <Text
+        numberOfLines={2}
+        style={[
+          styles.desc,
+          {
+            fontSize: ui.font.small,
+            paddingHorizontal: ui.spacing.sm,
+            paddingTop: ui.spacing.xs,
+          },
+        ]}
+      >
         {item.description}
       </Text>
 
-      <View style={styles.footer}>
-        <Text style={styles.date}>
+      <View
+        style={[
+          styles.footer,
+          {
+            paddingHorizontal: ui.spacing.sm,
+            paddingVertical: ui.spacing.sm,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.date,
+            { fontSize: ui.font.xs },
+          ]}
+        >
           {moment(item.created_at).format("DD-MM-YYYY")}
         </Text>
 
@@ -35,19 +97,23 @@ export default function ArticleCard({ item, onPress, onDownload }) {
           {item?.file_path && (
             <TouchableOpacity
               onPress={onDownload}
-              style={styles.pdfBtn}
-              hitSlop={8}
+              hitSlop={10}
             >
               <FontAwesome
                 name="file-pdf-o"
-                size={20}
+                size={ui.font.h3}
                 color="#e53935"
               />
             </TouchableOpacity>
           )}
 
           <TouchableOpacity onPress={onPress}>
-            <Text style={styles.readMore}>
+            <Text
+              style={[
+                styles.readMore,
+                { fontSize: ui.font.small },
+              ]}
+            >
               {t("articles.read_more")}
             </Text>
           </TouchableOpacity>
@@ -58,33 +124,20 @@ export default function ArticleCard({ item, onPress, onDownload }) {
 }
 
 
+
 const styles = StyleSheet.create({
   card: {
-    width: "48%",
     backgroundColor: "#fff",
-    borderRadius: 14,
-    marginBottom: 16,
     elevation: 3,
     overflow: "hidden",
   },
 
-  img: {
-    width: "100%",
-    height: 120,
-  },
-
   title: {
-    paddingHorizontal: 10,
-    paddingTop: 8,
-    fontSize: 15,
     fontWeight: "700",
     color: "#000",
   },
 
   desc: {
-    paddingHorizontal: 10,
-    paddingTop: 4,
-    fontSize: 12,
     color: "#666",
   },
 
@@ -92,13 +145,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
   },
 
   date: {
-    fontSize: 11,
     color: "#777",
   },
 
@@ -108,14 +157,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  pdfBtn: {
-    padding: 2,
-  },
-
   readMore: {
-    fontSize: 13,
     fontWeight: "700",
     color: "#ff9d27",
   },
 });
+
 

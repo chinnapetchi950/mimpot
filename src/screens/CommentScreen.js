@@ -17,9 +17,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { authService } from '../api/authService';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useDevice } from '../utils/useDeviceLayout';
+
 export default function CommentScreen({ documentId, onClose }) {
   const { t } = useTranslation();
   // const { documentId } = route.params;
+  const { ui } = useDevice(); // <-- useDevice
 
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
@@ -122,99 +125,86 @@ setComments(prev =>
 
   // ✅ RENDER EACH COMMENT
   const renderItem = ({ item }) => (
-    
-  <View style={styles.commentCard}>
-        {console.log(item.user_id, user?.id,'item.user_id == user?.user?.id')}
+    <View style={[styles.commentCard, { padding: ui.spacing.sm }]}>
+      <Image
+        source={{
+          uri: item.user?.profile_image_url || 'https://ui-avatars.com/api/?name=User',
+        }}
+        style={{ width: ui.avatar, height: ui.avatar, borderRadius: ui.avatar / 2, marginRight: ui.spacing.sm }}
+      />
 
-    <Image
-      source={{
-        uri:
-          item.user?.profile_image_url ||
-          'https://ui-avatars.com/api/?name=User',
-      }}
-      style={styles.avatar}
-    />
+      <View style={{ flex: 1 }}>
+        <View style={styles.row}>
+          <Text style={{ fontSize: ui.font.body, fontWeight: '600' }}>
+            {item.user?.firstname} {item.user?.lastname}
+          </Text>
 
-    <View style={{ flex: 1 }}>
-      <View style={styles.row}>
-        <Text style={styles.userName}>
-          {item.user?.firstname} {item.user?.lastname}
+          {item.user_id == user?.id && (
+            <TouchableOpacity onPress={() => deleteComment(item.id)}>
+              <Ionicons name="trash-outline" size={ui.iconSmall} color="red" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <Text style={{ fontSize: ui.font.body, marginTop: ui.spacing.xs, color: '#333' }}>{item.comment}</Text>
+        <Text style={{ fontSize: ui.font.small, color: '#777', marginTop: ui.spacing.xs }}>
+          {new Date(item.created_at).toDateString()}
         </Text>
-
-        {/* 🗑 DELETE (ONLY OWN COMMENT) */}
-        {item.user_id == user?.id && (
-          <TouchableOpacity
-            onPress={() => deleteComment(item.id)}
-          >
-            <Ionicons name="trash-outline" size={18} color="red" />
-          </TouchableOpacity>
-        )}
       </View>
-
-      <Text style={styles.comment}>{item.comment}</Text>
-
-      <Text style={styles.date}>
-        {new Date(item.created_at).toDateString()}
-      </Text>
     </View>
-  </View>
-);
+  );
 
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* 🔹 COMMENTS LIST */}
+ return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       {loading ? (
-        <ActivityIndicator style={{ marginTop: 20 }} />
+        <ActivityIndicator style={{ marginTop: ui.spacing.md }} />
       ) : (
-          <FlatList
+        <FlatList
           data={comments}
-         keyExtractor={(item, index) =>
-  item?.id ? item.id.toString() : `comment-${index}`
-}
-
+          keyExtractor={(item, index) => (item?.id ? item.id.toString() : `comment-${index}`)}
           renderItem={renderItem}
-          contentContainerStyle={
-            comments.length === 0 && styles.center
-          }
-          ListEmptyComponent={
-            <Text style={styles.noDataText}>
-              {t('comments.no_comments_found')}
-            </Text>
-          }
+          contentContainerStyle={comments.length === 0 && { flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          ListEmptyComponent={<Text style={{ fontSize: ui.font.body, color: '#777' }}>{t('comments.no_comments_found')}</Text>}
           onEndReached={loadMore}
           onEndReachedThreshold={0.4}
-          ListFooterComponent={
-            loadingMore ? (
-              <ActivityIndicator style={{ margin: 16 }} />
-            ) : null
-          }
+          ListFooterComponent={loadingMore ? <ActivityIndicator style={{ margin: ui.spacing.md }} /> : null}
         />
       )}
 
-      {/* 🔹 COMMENT INPUT */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={80}
-      >
-        <View style={styles.inputRow}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={80}>
+        <View style={[styles.inputRow, { padding: ui.spacing.sm, paddingTop: ui.spacing.lg }]}>
           <TextInput
             value={commentText}
             onChangeText={setCommentText}
             placeholder={t('comments.write_a_comment')}
-            style={styles.input}
+            style={{
+              flex: 1,
+              maxHeight: 180,
+              height: ui.inputHeight,
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: ui.radius.lg,
+              paddingHorizontal: ui.spacing.md,
+              paddingVertical: ui.spacing.xs,
+              marginRight: ui.spacing.md,
+              fontSize: ui.font.body,
+            }}
             multiline
           />
           <TouchableOpacity
             onPress={submitComment}
             disabled={sending}
-            style={styles.sendBtn}
+            style={{
+              backgroundColor: '#007bff',
+              width: ui.avatar,
+              height: ui.avatar,
+              borderRadius: ui.avatar / 2,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
           >
-            {sending ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Ionicons name="send" size={20} color="#fff" />
-            )}
+            {sending ? <ActivityIndicator color="#fff" /> : <Ionicons name="send" size={ui.iconSmall} color="#fff" />}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -222,6 +212,7 @@ setComments(prev =>
   );
 }
 const styles = StyleSheet.create({
+   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   container: {
     flex: 1,
     backgroundColor: '#fff',

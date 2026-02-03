@@ -18,7 +18,7 @@ import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
 import CustomHeader from '../components/CustomHeader';
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+import { useDevice } from '../utils/useDeviceLayout';
 
 import { authService } from '../api/authService';
 
@@ -26,6 +26,7 @@ const {width, height} = Dimensions.get('window');
 
 export default function ForgotPasswordScreen({navigation}) {
   const {t} = useTranslation();
+  const { ui, height,deviceType,isFolded } = useDevice(); // ✅ useDevice for responsive sizing
 
   // ---------------- VALIDATION ----------------
   const ForgotSchema = Yup.object().shape({
@@ -65,24 +66,46 @@ console.log(res,'res');
 
   // ---------------- UI ----------------
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingHorizontal: ui.padding }]}>
       <CustomHeader
-        headerContainerStyle={{paddingHorizontal: 20, elevation: 0}}
- leftComponent={
+headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={26} color="#000" />
+            <Ionicons name="arrow-back" size={ui.font.h2} color="#000" />
           </TouchableOpacity>
-        }        showBack
+        }
+        showBack
         showLanguage={false}
       />
 
       {/* Top Logo Section */}
-      <View style={styles.topRounded} pointerEvents="none">
-        <View style={styles.logoCard}>
+      <View
+      
+        style={[
+          styles.topRounded,
+          {
+            width,
+           height:isFolded?height*0.38: height * 0.48,
+            borderBottomLeftRadius: ui.radius * 2,
+            borderBottomRightRadius: ui.radius * 2,
+          },
+        ]}
+        pointerEvents="none"
+      >
+        <View
+          style={[
+            styles.logoCard,
+{
+              width: isFolded?ui.image.avatar * 1:ui.image.avatar * 1,
+              height: isFolded?ui.image.avatar * 1:ui.image.avatar * 1,
+            },          ]}
+        >
           <Image
             source={require('../assets/images/logo.png')}
             resizeMode="contain"
-            style={{width: 120, height: 120}}
+            style={{
+              width: ui.image.avatar,
+              height: ui.image.avatar,
+            }}
           />
         </View>
       </View>
@@ -90,35 +113,27 @@ console.log(res,'res');
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          paddingTop: height * 0.38,
-          paddingBottom: 40,
-        }}>
-        <Text style={styles.title}>
-          {t('auth.forgot_password_screen')}
-        </Text>
+      contentContainerStyle={{
+          paddingTop:isFolded?height*0.32: height * 0.42,
+          paddingBottom: ui.spacing.xl,
+        }}
+      >
+        <Text style={[styles.title, { fontSize: ui.font.h1 }]}>{t('auth.forgot_password_screen')}</Text>
 
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { fontSize: ui.font.body, paddingHorizontal: ui.padding }]}>
           {t(
             'auth.forgot_password_desc',
-            'Enter registered email address to get your password reset information',
+            'Enter registered email address to get your password reset information'
           )}
         </Text>
 
         <Formik
-          initialValues={{email: ''}}
+          initialValues={{ email: '' }}
           validationSchema={ForgotSchema}
-          onSubmit={handleForgotPassword}>
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-            isSubmitting,
-          }) => (
-            <View style={styles.form}>
+          onSubmit={handleForgotPassword}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+            <View style={{ paddingHorizontal: ui.padding }}>
               <InputField
                 placeholder={t('auth.email_required')}
                 value={values.email}
@@ -128,24 +143,19 @@ console.log(res,'res');
               />
 
               {errors.email && touched.email && (
-                <Text style={styles.error}>{errors.email}</Text>
+                <Text style={[styles.error, { fontSize: ui.font.small }]}>{errors.email}</Text>
               )}
-<View style={{paddingTop:30}}></View>
+
+              <View style={{ paddingTop: ui.spacing.lg }} />
+
               <PrimaryButton
-                title={
-                  isSubmitting
-                    ? t('common.please_wait')
-                    : t('auth.reset_password')
-                }
+                title={isSubmitting ? t('common.please_wait') : t('auth.reset_password')}
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               />
 
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.signIn}>
-                  {t('auth.sign_in')}
-                </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={[styles.signIn, { fontSize: ui.font.body }]}>{t('auth.sign_in')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -221,3 +231,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//   },
+
+//   title: {
+//     fontWeight: '700',
+//     textAlign: 'center',
+//     marginBottom: 10,
+//   },
+
+//   subtitle: {
+//     textAlign: 'center',
+//     color: '#6B7280',
+//     marginBottom: 30,
+//   },
+
+//   error: {
+//     color: 'red',
+//     marginTop: -6,
+//     marginBottom: 12,
+//   },
+
+//   signIn: {
+//     textAlign: 'center',
+//     marginTop: 20,
+//     fontWeight: '700',
+//   },
+
+//   topRounded: {
+//     position: 'absolute',
+//     top: 10,
+//     width: '100%',
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.06,
+//     shadowRadius: 10,
+//     elevation: 3,
+//   },
+
+//   logoCard: {
+//     backgroundColor: '#f2f2f2',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+// });

@@ -217,7 +217,7 @@ useEffect(() => {
 //   );
 // }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader
         headertextstyle={{ textAlign: "center", }}
         title={name}
@@ -379,7 +379,7 @@ useEffect(() => {
           )}
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

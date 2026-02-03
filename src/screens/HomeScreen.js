@@ -37,9 +37,12 @@ import VideoCard from '../components/VideoCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocalizedValue } from '../utils/localization';
 import HomeHeader from '../components/Homeheader';
+import { useDevice } from '../utils/useDeviceLayout';
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
+  const { deviceType, ui, width } = useDevice(); // 👈 ADD
+  const styles = getStyles(ui); // 👈 pass ui
 
   const [topLawData, setTopLawData] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -187,7 +190,10 @@ console.log(apiData,"apiData==>");
     <SafeAreaView style={styles.safe}>
       <StatusBar backgroundColor={"#FFFFFF"} barStyle={'dark-content'} />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[
+    styles.container,
+    { paddingBottom: ui.spacing.xl }
+  ]} showsVerticalScrollIndicator={false}>
         <HomeHeader userName={`${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`} />
 
 
@@ -255,12 +261,15 @@ onSearch={() =>
   </View>
 ) : (
   <FlatList
-    data={topLawData}
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={{ paddingHorizontal: 12 }}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => {
+  data={topLawData}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={{
+    paddingHorizontal:15,
+    gap: 15,
+  }}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => {
       const lawName = getLocalizedValue(item, 'name');
 
       return (
@@ -277,8 +286,33 @@ onSearch={() =>
           }
         />
       );
-    }}
-  />
+    }}/>
+
+  // <FlatList
+  //   data={topLawData}
+  //   horizontal
+  //   showsHorizontalScrollIndicator={false}
+  //   contentContainerStyle={{ paddingHorizontal: 12 }}
+  //   keyExtractor={(item) => item.id.toString()}
+  //   renderItem={({ item }) => {
+  //     const lawName = getLocalizedValue(item, 'name');
+
+  //     return (
+  //       <TopLawCard
+  //         item={{
+  //           ...item,
+  //           name: lawName, // ✅ normalized localized name
+  //         }}
+  //         onPress={() =>
+  //           navigation.navigate("TaxRegulation", {
+  //             name: lawName,
+  //             categoryId: item.id,
+  //           })
+  //         }
+  //       />
+  //     );
+  //   }}
+  // />
 )}
 
 
@@ -440,17 +474,20 @@ onSearch={() =>
 /* --------------------------------------------
     STYLES
 ----------------------------------------------*/
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#FFFFFF" },
+const getStyles = (ui) =>
+  StyleSheet.create({
+ safe: { flex: 1, backgroundColor: "#FFFFFF" },
   container: { paddingBottom: 10 },
 
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    marginTop: 18,
-    paddingHorizontal: 18,
-    color: colors.text,
-  },
+ sectionTitle: {
+  fontSize: ui.font.h2,
+  fontWeight: "800",
+  marginBottom: 15,
+  marginTop:15,
+  paddingHorizontal:15,
+  color: colors.text,
+},
+
 
   rowHeader: {
     flexDirection: "row",
@@ -464,34 +501,38 @@ const styles = StyleSheet.create({
   categoriesWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: 12,
+paddingHorizontal: ui.spacing.md,
     justifyContent: "space-between",
   },
+quickRow: {
+  flexDirection: "row",
+  flexWrap: 'wrap',
+  gap: 10,
+  paddingHorizontal:20,
+  marginTop: ui.spacing.md,
+},
 
-  quickRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    marginTop: 8,
-  },
 
   newsGrid: {
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
+  paddingHorizontal: ui.spacing.md,
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: ui.spacing.md,
+  justifyContent: "space-between",
+  marginTop: ui.spacing.md,
+},
+
 
   /* ⭐ SUGGESTIONS UI */
   suggestionBox: {
-    backgroundColor: "#fff",
-    marginHorizontal: 18,
-    marginTop: 4,
-    borderRadius: 10,
-    elevation: 3,
-    paddingVertical: 5,
-  },
+  backgroundColor: "#fff",
+  marginHorizontal: ui.padding,
+  marginTop: ui.spacing.sm,
+  borderRadius: ui.radius,
+  elevation: 3,
+  paddingVertical: ui.spacing.sm,
+},
+
 
   suggestionItem: {
     flexDirection: "row",
@@ -523,4 +564,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#777",
   },
-});
+    });

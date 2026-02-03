@@ -423,7 +423,7 @@ const videoDescription = getLocalizedValue(video, 'description', currentLang);
 const categoryName = getLocalizedValue(video?.category, 'name', currentLang);
 const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLang);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
        <View style={styles.header}>
               <TouchableOpacity
@@ -661,7 +661,7 @@ onPress={() => setCommentVisible(true)}
 
 {/* </Modal> */}
 </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

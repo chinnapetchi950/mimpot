@@ -31,11 +31,13 @@ import { useTranslation } from 'react-i18next';
 import { getLocalizedValue } from '../utils/localization';
 import i18n from '../localization/i18n';
 import ArticleCard from '../components/ArticleCard';
+import { useDevice } from '../utils/useDeviceLayout';
 
 export default function QuickActionsScreen({ route, navigation }) {
   const { t } = useTranslation();
   const { title, type } = route.params;
   const currentLang = i18n.language || 'en';
+ const { ui } = useDevice();
 
   const [topLawData, setTopLawData] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -109,13 +111,9 @@ export default function QuickActionsScreen({ route, navigation }) {
   }, [activeTab]);
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <ActivityIndicator size="large" color="#000" />
-          <Text style={{ marginTop: 10 }}>{t('quick_actions.loading')}</Text>
-        </View>
+       <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={{ marginTop: ui.spacing.sm }}>{t('quick_actions.loading')}</Text>
       </SafeAreaView>
     );
   }
@@ -136,210 +134,64 @@ export default function QuickActionsScreen({ route, navigation }) {
     };
   };
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar
-        backgroundColor={'#FFFFFF'}
-        barStyle={'dark-content'}
-      ></StatusBar>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
+  <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <CustomHeader
+        title={title}
+        leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={26} color="#000" />
+            <Ionicons name="arrow-back" size={ui.font.h2} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{title}</Text>
-          <View style={{ width: 30 }} />
-        </View>
-        {type === 'bookmarked' && (
-          <Tabs
-            tabs={tabsData}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-        )}
-                {type === 'bookmarked' ? (
-          <>
-            {activeTab === 'news' ? (
-              news?.length > 0 ? (
-                <View style={styles.newsGrid}>
-                  {news.map(item => {
-                    const normalizedItem = normalizeNewsItem(item);
+        }
+        rightComponent={() => <View style={{ width: ui.spacing.lg }} />}
+      />
 
-                    return (
-                      <NewsCard
-                        key={item.id}
-                        item={normalizedItem}
-                        onPress={() =>
-                          navigation.navigate('NewDetailsScreen', {
-                            item: normalizedItem,
-                          })
-                        }
-                      />
-                    );
-                  })}
+      {type === 'bookmarked' && (
+        <Tabs tabs={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
 
-                 
-                </View>
-              ) : (
-                <Text style={styles.noData}>
-                  {t('quick_actions.no_news_found')}
-                </Text>
-              )
-            ) : (
-              // 'All' tab
-              <>
-                {news?.length === 0 && learning?.length === 0 ? (
-                  <Text style={styles.noData}>
-                    {t('quick_actions.no_data_found')}
-                  </Text>
-                ) : (
-                  <>
-                    <View style={styles.newsGrid}>
-                      {news.map(item => {
-                        const normalizedItem = normalizeNewsItem(item);
-                        const title = getLocalizedValue(
-                          item,
-                          'title',
-                          currentLang,
-                        );
-                        const description = getLocalizedValue(
-                          item,
-                          'description',
-                          currentLang,
-                        );
-
-                        return (
-                          <ArticleCard
-                            item={{ ...item, title, description }}
-                            onPress={() =>
-                              navigation.navigate('ArticleDetailsScreen', {
-                                categoryId: item.id,
-                              })
-                            }
-                            onDownload={() => openPdfModal(item)}
-                          />
-                          // <NewsCard
-                          //   key={item.id}
-                          //   item={normalizedItem}
-                          //   onPress={() =>
-                          //     navigation.navigate('', {
-                          //       item: normalizedItem,
-                          //     })
-                          //   }
-                          // />
-                        );
-                      })}
-                    </View>
-                    {learning.map(l => {
-                      const title = getLocalizedValue(l, 'title');
-                      const description = getLocalizedValue(l, 'description');
-
-                      return (
-                        <LearningCard
-                          key={l.id}
-                          item={{
-                            ...l,
-                            title,
-                            description,
-                          }}
-                          onPress={() =>
-                            navigation.navigate('DetailsScreen', {
-                              categoryId: l.id,
-                            })
-                          }
-                        />
-                      );
-                    })}
-                  </>
-                )}
-              </>
-            )}
-          </>
+      <ScrollView contentContainerStyle={{ padding: ui.spacing.md }}>
+        {isAllEmpty ? (
+          <Text style={{ textAlign: 'center', marginTop: ui.spacing.xl, fontSize: ui.font.body, color: '#888' }}>
+            {t('quick_actions.no_data_found')}
+          </Text>
         ) : (
           <>
-          
-            {news?.length === 0 && learning?.length === 0 ? (
-              <View style={{ alignItems: 'center', marginTop: 40 }}>
-                {/* <Ionicons name="information-circle-outline" size={40} color="#888" /> */}
-                <Text style={{ fontSize: 14, color: '#888', marginTop: 10 }}>
-                  {t('quick_actions.no_data_found')}
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.newsGrid}>
-                {news.map(item => {
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+              {news.map(item => {
+                const normalized = normalizeNewsItem(item);
+                return (
+                  <ArticleCard
+                    key={item.id}
+                    item={normalized}
+                    onPress={() =>
+                      navigation.navigate('ArticleDetailsScreen', { categoryId: item.id })
+                    }
+                    onDownload={() => console.log('Download', item.id)}
+                  />
+                );
+              })}
+            </View>
 
- const title = getLocalizedValue(
-                          item,
-                          'title',
-                          currentLang,
-                        );
-                        const description = getLocalizedValue(
-                          item,
-                          'description',
-                          currentLang,
-                        );
-
-                  return (
-                    <ArticleCard
-                      key={item.id}
-                     item={{ ...item, title, description }}
-                     onPress={() =>
-                              navigation.navigate('ArticleDetailsScreen', {
-                                categoryId: item.id,
-                              })
-                            }
-                            onDownload={() => openPdfModal(item)}
-                    />
-                  );
-                })}
-                {/* {news.map(item => {
-                  const normalizedItem = normalizeNewsItem(item);
-
-                  console.log('NEWS ITEM TITLE:', normalizedItem);
-
-                  return (
-                    <NewsCard
-                      key={item.id}
-                      item={normalizedItem}
-                      onPress={() =>
-                        navigation.navigate('NewDetailsScreen', {
-                          item: normalizedItem,
-                        })
-                      }
-                    />
-                  );
-                })} */}
-              </View>
-            )}
-            {learning.map(l => {
-              const title = getLocalizedValue(l, 'title');
-              const description = getLocalizedValue(l, 'description');
+            {learning.map(item => {
+              const title = getLocalizedValue(item, 'title');
+              const description = getLocalizedValue(item, 'description');
 
               return (
                 <LearningCard
-                  key={l.id}
-                  item={{
-                    ...l,
-                    title,
-                    description,
-                  }}
+                  key={item.id}
+                  item={{ ...item, title, description }}
                   onPress={() =>
-                    navigation.navigate('DetailsScreen', {
-                      categoryId: l.id,
-                    })
+                    navigation.navigate('DetailsScreen', { categoryId: item.id })
                   }
                 />
               );
             })}
-           
           </>
         )}
-        <View style={{ height: 120 }} />
+
+        <View style={{ height: ui.spacing.xl }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

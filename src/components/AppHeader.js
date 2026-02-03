@@ -1,19 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useTranslation } from "react-i18next";
+import { useDevice } from "../utils/useDeviceLayout";
 
-/**
- * Props:
- * - title (string)
- * - showBack (bool)
- * - onBack (fn)
- * - showLanguage (bool)
- * - onLanguagePress (fn)
- * - rightIcon (element) // optional custom element
- * - onRightPress (fn)
- */
 const AppHeader = ({
   title,
   showBack = false,
@@ -24,45 +14,123 @@ const AppHeader = ({
   onRightPress = () => {},
 }) => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language === 'en' ? 'En' : 'Fr';
-  
-  return (
-    <View style={styles.container}>
-      {/* status row (time on left + status icons right) */}
-      {/* <View style={styles.statusRow}>
-        <Text style={styles.time}>9:41</Text>
-        <View style={styles.iconsRow}>
-          <Ionicons name="cellular" size={hp("2.2%")} />
-          <Ionicons name="wifi" size={hp("2.2%")} style={{ marginLeft: wp("1.4%") }} />
-          <Ionicons name="battery-full" size={hp("2.6%")} style={{ marginLeft: wp("1.4%") }} />
-        </View>
-      </View> */}
+  const { ui, deviceType } = useDevice();
 
-      {/* header row */}
-      <View style={styles.headerRow}>
+  const currentLang = i18n.language === "en" ? "En" : "Fr";
+
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+         /// paddingHorizontal: ui.padding,
+          paddingTop: ui.spacing.md,
+        },
+      ]}
+    >
+      {/* HEADER ROW */}
+      <View
+        style={[
+          styles.headerRow,
+          { marginTop: ui.spacing.sm },
+        ]}
+      >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {showBack && (
-            <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={hp("3.2%")} />
+            <TouchableOpacity
+              onPress={onBack}
+              style={[
+                styles.backBtn,
+                { padding: ui.spacing.sm },
+              ]}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={ui.font.h2}
+                color="#000"
+              />
             </TouchableOpacity>
           )}
-          <Text style={styles.title}>{title}</Text>
+
+          <Text
+            style={[
+              styles.title,
+              {
+                fontSize: ui.font.h2,
+                marginLeft: showBack ? ui.spacing.sm : 0,
+              },
+            ]}
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
         </View>
 
+        {/* RIGHT SIDE */}
         {rightIcon ? (
-          <TouchableOpacity onPress={onRightPress}>{rightIcon}</TouchableOpacity>
+          <TouchableOpacity onPress={onRightPress}>
+            {rightIcon}
+          </TouchableOpacity>
         ) : (
           showLanguage && (
-            <TouchableOpacity style={styles.langBox} onPress={onLanguagePress}>
-              <Image source={require("../assets/images/flag.png")} style={styles.flag} />
-              <Text style={styles.langText}>{currentLang}</Text>
-              <Ionicons name="chevron-down" size={hp("1.8%")} color="#555" />
+            <TouchableOpacity
+              style={[
+                styles.langBox,
+                {
+                  paddingHorizontal: ui.spacing.sm,
+                  paddingVertical: ui.spacing.sm / 2,
+                  borderRadius: ui.radius,
+                },
+              ]}
+              onPress={onLanguagePress}
+            >
+              <Image
+                source={require("../assets/images/flag.png")}
+                style={{
+                  width:
+                    deviceType === "tablet"
+                      ? 36
+                      : deviceType === "unfolded"
+                      ? 32
+                      : 26,
+                  height:
+                    deviceType === "tablet"
+                      ? 24
+                      : deviceType === "unfolded"
+                      ? 22
+                      : 18,
+                  borderRadius: 50,
+                  marginRight: ui.spacing.sm,
+                }}
+              />
+
+              <Text
+                style={{
+                  fontSize: ui.font.body,
+                  marginRight: ui.spacing.sm / 2,
+                }}
+              >
+                {currentLang}
+              </Text>
+
+              <Ionicons
+                name="chevron-down"
+                size={15}
+                color="#555"
+                style={{marginLeft:20,marginRight:40}}
+              />
             </TouchableOpacity>
           )
         )}
       </View>
 
-      <View style={styles.divider} />
+      {/* DIVIDER */}
+      <View
+        style={[
+          styles.divider,
+          { marginTop: 10 },
+        ]}
+      />
     </View>
   );
 };
@@ -72,36 +140,33 @@ export default AppHeader;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
-    paddingHorizontal: wp("4%"),
-    paddingTop: hp("1.2%"),
   },
-  statusRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  time: {
-    fontSize: hp("2.2%"),
-    fontWeight: "600",
-  },
-  iconsRow: { flexDirection: "row", alignItems: "center" },
+
   headerRow: {
-    marginTop: hp("1.4%"),
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+
   backBtn: {
-    marginRight: wp("2%"),
-    padding: hp("0.6%"),
+    justifyContent: "center",
+    alignItems: "center",
   },
+
   title: {
-    fontSize: hp("2.8%"),
     fontWeight: "700",
-    marginLeft: wp("5%"),
+    color: "#000",
   },
-  langBox: { flexDirection: "row", alignItems: "center" },
-  flag: { width: wp("6%"), height: wp("4.2%"), resizeMode: "cover", borderRadius: 50, marginRight: wp("2%") },
-  langText: { marginRight: wp("1%"), fontSize: hp("2%") },
-  divider: { height: 1, backgroundColor: "#eee", marginTop: hp("1.2%") },
+
+  langBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f3f3f3",
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+  },
 });
+

@@ -1,215 +1,221 @@
-import React, { useState, useEffect,useCallback } from "react";
-import { View, Text, Image, ScrollView, Alert,ActivityIndicator } from "react-native";
-import Icon from "react-native-vector-icons/Feather";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-import { colors, common } from "../styles/theme";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CustomHeader from "../components/CustomHeader";
-import { useDispatch } from "react-redux";
-import { authService } from "../api/authService";
-import { setToken, setUser } from "../store/userSlice";
-import Storage from "../utils/storage";
+import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 
+import Icon from "react-native-vector-icons/Feather";
 
-const ProfileScreen = () => {
+import CustomHeader from "../components/CustomHeader";
+import ImageWithLoader from "../components/ImageWithloader";
+import { colors, common } from "../styles/theme";
+import { authService } from "../api/authService";
+import Storage from "../utils/storage";
+import { setToken, setUser } from "../store/userSlice";
+
+import { useDevice } from "../utils/useDeviceLayout";
+
+export default function ProfileScreen() {
   const { t } = useTranslation();
-  const [userdata, setuserData] = useState(null);
-  const [stats, setStats] = useState(null);
-const [imageLoading, setImageLoading] = useState(true);
+  const { ui } = useDevice(); // <-- responsive sizes
 
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state);
 
+  const [userdata, setUserData] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [imageLoading, setImageLoading] = useState(true);
 
-
-  // 🔥 Load Profile
+  // Load Profile
   const loadProfile = async () => {
-
     try {
       const res = await authService.getprofile();
-      console.log("PROFILE RESPONSE:", res.data);
-
       const token = await Storage.getItem("token");
+
       dispatch(setToken(token));
       dispatch(setUser(res.data?.data));
 
-      setuserData(res.data?.data);
+      setUserData(res.data?.data);
       Storage.setItem("userData", res.data?.data);
-
     } catch (e) {
+      Alert.alert(t("common.error"), t("profile.unable_to_load_profile"));
       console.log("PROFILE ERROR:", e?.response?.data || e);
-      Alert.alert(t('common.error'), t('profile.unable_to_load_profile'));
     }
   };
 
-  // 🔥 Load Statistics
+  // Load Statistics
   const loadStatistics = async () => {
-    setImageLoading(true)
+    setImageLoading(true);
     try {
       const res = await authService.getUserStatistics();
-      console.log("STATISTICS RESPONSE:", res.data);
-
       setStats(res.data?.data);
-    setImageLoading(false)
-
     } catch (e) {
-          setImageLoading(false)
-
+      Alert.alert(t("common.error"), t("profile.unable_to_load_statistics"));
       console.log("STATISTICS ERROR:", e?.response?.data || e);
-      Alert.alert(t('common.error'), t('profile.unable_to_load_statistics'));
+    } finally {
+      setImageLoading(false);
     }
   };
-useFocusEffect(
+
+  useFocusEffect(
     useCallback(() => {
-      setImageLoading(true);    // Show loader again
+      setImageLoading(true);
       loadProfile();
       loadStatistics();
-
-      return () => {};
     }, [])
   );
+
+  const statsData = stats
+    ? [
+        {
+          title: t("profile.bookmarked"),
+          subtext: `${stats.total_bookmarks} ${t("profile.documents")}`,
+          value: stats.total_bookmarks,
+        },
+        {
+          title: t("profile.document_interactions"),
+          subtext: `${stats.total_viewed_this_month} ${t(
+            "profile.documents_viewed_this_month"
+          )}`,
+          value: stats.total_viewed_this_month,
+        },
+        {
+          title: t("profile.video_interactions"),
+          subtext: `${stats.total_viewed_videos_this_month} ${t(
+            "profile.videos_watched"
+          )}`,
+          value: stats.total_viewed_videos_this_month,
+        },
+        {
+          title: t("profile.download_counts"),
+          subtext: `${stats.total_downloaded_files} ${t(
+            "profile.files_downloaded"
+          )}`,
+          value: stats.total_downloaded_files,
+        },
+      ]
+    : [];
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <CustomHeader title={t('profile.profile')} />
+    <View edges={['top']}
+style={[common.screen, { flex: 1, backgroundColor: colors.background }]}>
+      <CustomHeader showlogo={true} title={t("profile.profile")} />
 
-      <ScrollView style={{ flex: 1, padding: wp("5%") }}>
-
+      <ScrollView style={{ flex: 1, padding: ui.padding }}>
         {/* Profile Image */}
-        <View style={{ alignItems: "center", marginTop: hp("2%") }}>
+        <View style={{ alignItems: "center", marginTop: 10 }}>
           {imageLoading && (
-              <View
-                style={{
-                  position: "absolute",
-                  width: 60,
-                  height: 60,
-                  backgroundColor: "rgba(0,0,0,0.1)",
-                  borderRadius: 50,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1,
-                }}
-              >
-                <ActivityIndicator size="small" color="#000" />
-              </View>
-            )}
-          <Image
+            <View
+              style={{
+                position: "absolute",
+                width: ui.image.avatar,
+                height: ui.image.avatar,
+                backgroundColor: "rgba(0,0,0,0.1)",
+                borderRadius: ui.image.avatar/2,
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1,
+              }}
+            >
+              <ActivityIndicator size="small" color="#000" />
+            </View>
+          )}
+
+          <ImageWithLoader
             source={
               userdata?.profile_image
                 ? { uri: userdata.profile_image }
                 : require("../assets/images/placeholder.png")
             }
-            style={{ width: 100, height: 100, borderRadius: 55 }}
+            style={{
+              width: ui.image.avatar,
+              height: ui.image.avatar,
+              borderRadius: ui.image.avatar/2,
+            }}
+            resizeMode="cover"
             onLoadEnd={() => setImageLoading(false)}
           />
 
-          <Text style={{ marginTop: 10, fontSize: wp("5%"), fontWeight: "700" }}>
+          <Text
+            style={{
+              marginTop: ui.spacing.md,
+              fontSize: ui.font.h2,
+              fontWeight: "700",
+            }}
+          >
             {[userdata?.firstname, userdata?.lastname].filter(Boolean).join(" ")}
           </Text>
 
-          <Text style={{ color: colors.lightText, fontSize: wp("3.5%") }}>
+          <Text style={{ color: colors.lightText, fontSize: ui.font.body,marginBottom:10 }}>
             {userdata?.email}
           </Text>
         </View>
 
         {/* Stats Cards */}
-        {stats && (
-          <>
-            {[
+        {statsData.map((item) => (
+          <View
+            key={item.title}
+            style={[
+              styles.statCard,
               {
-                title: t('profile.bookmarked'),
-                subtext: ` ${stats.total_bookmarks} ${t('profile.documents')}`,
-                value: stats.total_bookmarks
-                //value:stats.total_bookmarks
+                borderRadius: 30,
+                paddingVertical: ui.spacing.md,
+                paddingHorizontal: ui.spacing.md,
               },
-              {
-                title: t('profile.document_interactions'),
-                subtext: `${stats.total_viewed_this_month} ${t('profile.documents_viewed_this_month')}`,
-                value: stats.total_viewed_this_month,
-              },
-              {
-                title: t('profile.video_interactions'),
-                subtext: `${stats.total_viewed_videos_this_month} ${t('profile.videos_watched')}`,
-                value: stats.total_viewed_videos_this_month,
-              },
-              {
-                title: t('profile.download_counts'),
-                subtext: `${stats.total_downloaded_files} ${t('profile.files_downloaded')}`,
-                value: stats.total_downloaded_files,
-              },
-            ].map((item) => (
-             <View
-  key={item.title}
-  style={{
-    marginTop: hp("2.5%"),
-    backgroundColor:colors.card,
-    borderRadius: 30,
-    flex:1,
+            ]}
+          >
+            {/* Left Text */}
+            <View style={{ flex: 1, paddingRight: ui.spacing.sm }}>
+              <Text
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                style={{ fontSize: ui.font.h2, fontWeight: "700", color: "#000" }}
+              >
+                {item.title}
+              </Text>
+              <Text style={{ fontSize: ui.font.body, color: colors.lightText, marginTop: 4 }}>
+                {item.subtext}
+              </Text>
+            </View>
+
+            {/* Right Circle */}
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                width: ui.image.avatar * 0.6,
+                height: ui.image.avatar * 0.6,
+                borderRadius: (ui.image.avatar * 0.6) / 2,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: ui.font.h2, fontWeight: "700" }}>
+                {item.value}
+              </Text>
+            </View>
+          </View>
+        ))}
+
+        <View style={{ height: ui.spacing.xl }} />
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  statCard: {
+    backgroundColor: colors.card,
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: wp("4%"),
+    marginTop: 16,
     elevation: 3,
-  }}
->
-  {/* LEFT TEXT */}
-  <View style={{ width:wp('70%'), paddingVertical: hp("2%"), paddingRight: wp("1%") }}>
-    <Text
-      numberOfLines={2}
-      ellipsizeMode="tail"
-      style={{
-        fontSize: wp("4.4%"),
-        fontWeight: "700",
-        color: "#000",
-      }}
-    >
-      {item.title}
-    </Text>
-
-    <Text
-      numberOfLines={1}
-      style={{
-        fontSize: wp("3.2%"),
-        color: colors.lightText,
-        marginTop: 6,
-      }}
-    >
-      {item.subtext}
-    </Text>
-  </View>
-
-  {/* RIGHT CIRCLE */}
-  <View
-    style={{
-      backgroundColor: colors.primary,
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      justifyContent: "center",
-      alignItems: "center",
-      //marginLeft:wp('%')
-      marginRight: wp("0%"),
-    }}
-  >
-    <Text
-      style={{
-        color: "#fff",
-        fontSize: wp("4.8%"),
-        fontWeight: "700",
-      }}
-    >
-      {item.value}
-    </Text>
-  </View>
-</View>
-
-            ))}
-          </>
-        )}
-
-        <View style={{ marginTop: hp("6%") }} />
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-export default ProfileScreen;
+  },
+});

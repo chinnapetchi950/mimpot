@@ -9,22 +9,69 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
+import { useDevice } from "../utils/useDeviceLayout";
 
 export default function DownloadModal({ visible, onClose }) {
   const { t } = useTranslation();
+  const { ui, width, deviceType } = useDevice();
+
+  const BOX_WIDTH =
+    deviceType === "tablet"
+      ? width * 0.5
+      : deviceType === "unfolded"
+      ? width * 0.65
+      : width * 0.8;
+
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
-        <View style={styles.box}>
+        <View
+          style={[
+            styles.box,
+            {
+              width: BOX_WIDTH,
+              borderRadius: ui.radius,
+              padding: ui.spacing.lg,
+            },
+          ]}
+        >
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-            <Ionicons name="arrow-back" size={22} color="#000" />
+            <Ionicons
+              name="arrow-back"
+              size={ui.font.h2}
+              color="#000"
+            />
           </TouchableOpacity>
 
-          <ActivityIndicator size="large" color="#1E90FF" style={{ marginTop: 10 }} />
+          <ActivityIndicator
+            size={deviceType === "tablet" ? "large" : "small"}
+            color="#1E90FF"
+            style={{ marginTop: ui.spacing.md }}
+          />
 
-          <Text style={styles.title}>{t('download.downloading')}</Text>
-          <Text style={styles.subtitle}>
-            {t('download.download_message')}
+          <Text
+            style={[
+              styles.title,
+              {
+                fontSize: ui.font.h2,
+                marginTop: ui.spacing.md,
+              },
+            ]}
+          >
+            {t("download.downloading")}
+          </Text>
+
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                fontSize: ui.font.body,
+                marginTop: ui.spacing.sm,
+                maxWidth: BOX_WIDTH * 0.85,
+              },
+            ]}
+          >
+            {t("download.download_message")}
           </Text>
         </View>
       </View>
@@ -39,25 +86,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.3)",
   },
+
   box: {
-    width: 300,
     backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 18,
     alignItems: "center",
+    elevation: 6,
   },
+
   closeBtn: {
     alignSelf: "flex-start",
   },
+
   title: {
-    marginTop: 15,
-    fontSize: 20,
     fontWeight: "600",
+    textAlign: "center",
   },
+
   subtitle: {
     textAlign: "center",
-    marginTop: 6,
     color: "#555",
-    width: 220,
   },
 });

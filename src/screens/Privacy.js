@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ActivityIndicator,TouchableOpacity } from "react-native";
+import { View, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 import CustomHeader from "../components/CustomHeader";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -7,78 +7,79 @@ import { common } from "../styles/theme";
 import { authService } from "../api/authService";
 import { useTranslation } from "react-i18next";
 import i18n from "../localization/i18n";
+import { useDevice } from "../utils/useDeviceLayout";
 
 const PrivacyScreen = ({ navigation }) => {
   const { t } = useTranslation();
- const [html, setHtml] = useState("");
-   const [loading, setLoading] = useState(true);
- 
-   const fetchData = async () => {
-     try {
-       const res = await authService.privacy();
-       console.log("res------------------->,",res);
-       
-          const fields = res?.data?.data?.fields || {};
-    const currentLang = i18n.language || "en";
+  const { ui } = useDevice();
 
-    // Build key dynamically → description_en / description_ar
-    const descriptionKey = `description_${currentLang}`;
+  const [html, setHtml] = useState("");
+  const [loading, setLoading] = useState(true);
 
-    let data =
-      fields?.[descriptionKey]?.value ||
-      fields?.description_en?.value || // fallback
-      "";
+  const fetchData = async () => {
+    try {
+      const res = await authService.privacy();
+      const fields = res?.data?.data?.fields || {};
+      const currentLang = i18n.language || "en";
 
-    console.log(data, res?.data, "about us data");
+      const descriptionKey = `description_${currentLang}`;
+      let data =
+        fields?.[descriptionKey]?.value ||
+        fields?.description_en?.value || // fallback
+        "";
 
-    // Remove escaped slashes if any
-    data = data.replace(/\\/g, "");
+      data = data.replace(/\\/g, ""); // remove escaped slashes
+      setHtml(data);
+    } catch (err) {
+      console.log("Privacy fetch error:", err);
+      setHtml("<p>Error loading content</p>");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setHtml(data);
- 
-      //  setHtml(data);
-     } catch (err) {
-      console.log("reresr",err);
-      
-       setHtml("<p>Error loading content</p>");
-     } finally {
-       setLoading(false);
-     }
-   };
- 
-   useEffect(() => {
-     fetchData();
-   }, [i18n.language]);
+  useEffect(() => {
+    fetchData();
+  }, [i18n.language]);
 
   return (
-    <View style={[common.screen,{flex:1}]}>
-<CustomHeader
-  title={t('settings.privacy_policy')}
-rightComponent={<TouchableOpacity></TouchableOpacity>}
-  leftComponent={
-    <TouchableOpacity onPress={() => navigation.goBack()}>
-      <Ionicons name="arrow-back" size={26} color="#000" />
-    </TouchableOpacity>
-   
-  }
-/>    {loading ? (
-        <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+    <View style={[common.screen, { flex: 1 }]}>
+      <CustomHeader
+        title={t("settings.privacy_policy")}
+        leftComponent={
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={26} color="#000" />
+          </TouchableOpacity>
+        }
+        rightComponent={<TouchableOpacity />} // empty placeholder
+      />
+
+      {loading ? (
+        <ActivityIndicator size="large" style={{ marginTop: ui.spacing.lg }} />
       ) : (
         <WebView
           originWhitelist={["*"]}
           javaScriptEnabled
           domStorageEnabled
-          style={{ flex: 1 }}
+          style={styles.webview}
           source={{
             html: `
               <!DOCTYPE html>
               <html>
                 <head>
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    body { 
+                      font-size: ${ui.font.body}px; 
+                      line-height: ${ui.font.body * 1.5}px; 
+                      padding: ${ui.padding}px; 
+                      color: #1D1D1D;
+                      font-family: -apple-system, Roboto, sans-serif;
+                    }
+                    img { max-width: 100%; height: auto; }
+                  </style>
                 </head>
-                <body style="font-size:16px; padding:16px; line-height:24px;">
-                  ${html}
-                </body>
+                <body>${html}</body>
               </html>
             `,
           }}
@@ -87,5 +88,9 @@ rightComponent={<TouchableOpacity></TouchableOpacity>}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  webview: { flex: 1 },
+});
 
 export default PrivacyScreen;

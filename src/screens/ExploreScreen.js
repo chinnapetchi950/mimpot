@@ -20,9 +20,13 @@ import ImageWithLoader from "../components/ImageWithloader";
 import Pdf from "react-native-pdf";
 import RNBlobUtil from "react-native-blob-util";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { useDevice } from "../utils/useDeviceLayout";
+import CustomHeader from "../components/CustomHeader";
 
 export default function ExploreScreen({navigation}) {
   const { t } = useTranslation();
+    const { ui } = useDevice(); // ✅ useDevice for responsive sizes
+
   const [search, setSearch] = useState("");
   const [documents, setDocuments] = useState([]);
   const [page, setPage] = useState(1);
@@ -119,81 +123,62 @@ const openPdfModal = async (item) => {
 };
 
 const renderItem = ({ item }) => (
-  <TouchableOpacity
-    activeOpacity={0.9}
-    onPress={() => navigation.navigate("TaxDetailsScreen", { item })}
-    style={styles.card}
-  >
-    {/* IMAGE */}
-    <View style={styles.imageWrapper}>
-      <ImageWithLoader
-        source={{ uri: `${BASE_URL}${item.image}` }}
-        style={styles.cardImage}
-      />
-
-      {/* PDF BADGE */}
-      
-    </View>
-
-    <Text numberOfLines={2} style={styles.cardTitle}>
-      {item.title || t("explore.no_title")}
-    </Text>
-
-    <Text numberOfLines={3} style={styles.cardDesc}>
-      {item.description || t("details.no_description_available")}
-    </Text>
-
-   <View style={styles.row}>
-  {/* LEFT SIDE */}
-  <Text
-    style={styles.date}
-    numberOfLines={1}
-    ellipsizeMode="tail"
-  >
-    {moment(item.created_at).format("DD-MM-YYYY")}
-  </Text>
-
-  {/* RIGHT SIDE */}
-  <View style={styles.rightActions}>
-    {item?.file_path && (
-      <TouchableOpacity
-        onPress={(e) => {
-          e.stopPropagation();
-          openPdfModal(item);
-        }}
-        style={styles.pdfBtn}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <FontAwesome
-          name="file-pdf-o"
-          size={18}
-          color="#e53935"
-        />
-      </TouchableOpacity>
-    )}
-
     <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("TaxDetailsScreen", { item })
-      }
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      activeOpacity={0.9}
+      onPress={() => navigation.navigate("TaxDetailsScreen", { item })}
+      style={[styles.card, { padding: ui.padding / 2, borderRadius:14  }]}
     >
-      <Text style={styles.readMore}>
-        {t("articles.read_more")}
-      </Text>
-    </TouchableOpacity>
-  </View>
-</View>
+      {/* IMAGE */}
+      <View style={styles.imageWrapper}>
+        <ImageWithLoader
+          source={{ uri: `${BASE_URL}${item.image}` }}
+          style={{ width: "100%", height: ui.image.hero / 2, borderRadius:20 }}
+        />
+      </View>
 
-  </TouchableOpacity>
-);
+      <Text numberOfLines={2} style={[styles.cardTitle, { fontSize: ui.font.body + 1 }]}>
+        {item.title || t("explore.no_title")}
+      </Text>
+
+      <Text numberOfLines={3} style={[styles.cardDesc, { fontSize: ui.font.body - 1 }]}>
+        {item.description || t("details.no_description_available")}
+      </Text>
+
+      <View style={styles.row}>
+        <Text style={[styles.date, { fontSize: ui.font.small }]} numberOfLines={1}>
+          {moment(item.created_at).format("DD-MM-YYYY")}
+        </Text>
+
+        <View style={styles.rightActions}>
+          {item?.file_path && (
+            <TouchableOpacity
+              onPress={(e) => { e.stopPropagation(); openPdfModal(item); }}
+              style={styles.pdfBtn}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <FontAwesome name="file-pdf-o" size={ui.font.h2} color="#e53935" />
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("TaxDetailsScreen", { item })}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={[styles.readMore, { fontSize: ui.font.body }]}>
+              {t("articles.read_more")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
 
   const renderEmpty = () => {
     if (loading) return null;
     return (
       <View style={{ marginTop: 50, alignItems: "center" }}>
-        <Text style={{ fontSize: 16, color: "#666" }}>{t('explore.no_data_available')}</Text>
+        <Text style={{ fontSize: ui.font.body, color: "#666" }}>{t('explore.no_data_available')}</Text>
       </View>
     );
   };
@@ -235,212 +220,114 @@ const onClickDownload = async (item) => {
 
   };
   return (
-    <SafeAreaView style={{flex:1}}>
-    <View style={styles.container}>
-      <Text style={styles.header}>{t('explore.explore_laws_updates')}</Text>
+    <View style={{ flex: 1 ,backgroundColor:'#FFF'}}>
+              <CustomHeader  showLanguage={false}showlogo={true} title={t('explore.explore_laws_updates')}/>
 
-      <View style={styles.searchBox}>
-         <TouchableOpacity onPress={()=>handleSearch(search)}>
-          <Ionicons name="search" size={20} />
-        </TouchableOpacity>
-        {/* <Ionicons name="search" size={20} /> */}
-        <TextInput
-          placeholder={t('explore.search_placeholder')}
-          style={styles.searchInput}
-          value={search}
-          onChangeText={setSearch}
-              onSubmitEditing={() => handleSearch(search)}
+      <View style={[styles.container, { paddingHorizontal: 16 }]}>
+        {/* <View>
 
+        </View>
+         <Image
+                              source={require("../assets/images/logo.png")}
+                              resizeMode="contain"
+                              style={{
+                                width: ui.image.avatar * 0.45,
+                                height: ui.image.avatar * 0.45,
+                              }}
+                            />
+        <Text style={[styles.header, { fontSize: ui.font.h1 }]}>{t('explore.explore_laws_updates')}</Text> */}
+
+        <View style={[styles.searchBox, { padding: ui.spacing.sm ,paddingHorizontal:15,marginTop:20}]}>
+          <TouchableOpacity onPress={() => handleSearch(search)}>
+            <Ionicons name="search" size={ui.font.body} />
+          </TouchableOpacity>
+          <TextInput
+            placeholder={t('explore.search_placeholder')}
+            style={[styles.searchInput, { fontSize: ui.font.body }]}
+            value={search}
+            onChangeText={setSearch}
+            onSubmitEditing={() => handleSearch(search)}
+          />
+          <TouchableOpacity onPress={() => { setSearch(''); handleSearch(''); }}>
+            <Ionicons name="close" size={ui.font.body} />
+          </TouchableOpacity>
+        </View>
+
+        {loading && <ActivityIndicator size="large" color="#1E90FF" />}
+
+        <FlatList
+          data={documents}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListEmptyComponent={renderEmpty}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#1E90FF" /> : null}
         />
-        <TouchableOpacity   onPress={() => {
-    setSearch('');
-    handleSearch(''); // ✅ explicitly pass empty string
-  }}>
-          <Ionicons name="close" size={20} />
-        </TouchableOpacity>
       </View>
 
-      {loading && <ActivityIndicator size="large" color="#1E90FF" />}
+      <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
+        <View style={styles.pdfModalContainer}>
+          <View style={[styles.pdfHeader, { paddingHorizontal: ui.padding }]}>
+            <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+              <Ionicons name="close" size={ui.font.h2} />
+            </TouchableOpacity>
 
-      <FlatList
-        data={documents}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between" }}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        ListEmptyComponent={renderEmpty}
-        ListFooterComponent={
-          loadingMore ? (
-            <ActivityIndicator size="small" color="#1E90FF" />
-          ) : null
-        }
-      />
+            <Text style={[styles.pdfTitle, { fontSize: ui.font.h2 }]}>PDF Preview</Text>
+
+            <TouchableOpacity onPress={() => console.log("Download PDF")}>
+              <Ionicons name="download-outline" size={ui.font.h2} />
+            </TouchableOpacity>
+          </View>
+
+          {pdfLoading && (
+            <View style={styles.center}>
+              <ActivityIndicator size="large" />
+              <Text style={{ marginTop: 10 }}>{t("details.loading_pdf") || "Loading PDF..."}</Text>
+            </View>
+          )}
+
+          {!pdfLoading && pdfUrl && (
+            <Pdf source={{ uri: pdfUrl, cache: true }} style={styles.pdfView} trustAllCerts={true} />
+          )}
+        </View>
+      </Modal>
     </View>
-               <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
-    
-   
-  <View style={styles.pdfModalContainer}>
-    <View style={styles.pdfHeader}>
-      <TouchableOpacity onPress={() => setShowPdfModal(false)}>
-        <Ionicons name="close" size={26} />
-      </TouchableOpacity>
-
-      <Text style={styles.pdfTitle}>PDF Preview</Text>
-
-      <TouchableOpacity onPress={()=>onClickDownload(selectedItem)} >
-        <Ionicons name="download-outline" size={24} />
-      </TouchableOpacity>
-    </View>
-
-    {pdfLoading && (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
-      </View>
-    )}
-
-    {!pdfLoading && pdfUrl && (
-     <Pdf
-              source={{ uri: pdfUrl, cache: true }}
-              style={styles.pdfView}
-              trustAllCerts={true}
-              onError={e => console.log("PDF Error:", e)}
-            />
-    )}
-  </View>
-</Modal>
-
-    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, backgroundColor: "#fff" },
-  header: { fontSize: 22, fontWeight: "700", marginVertical: 15 },
+  container: { flex: 1, backgroundColor: "#fff" },
+  header: { fontWeight: "700", marginVertical: 25 },
   searchBox: {
     flexDirection: "row",
     backgroundColor: "#FFF",
     borderRadius: 50,
-    padding: 10,
     alignItems: "center",
     marginBottom: 20,
     elevation: 3,
   },
-  searchInput: { flex: 1, marginLeft: 10, fontSize: 15 },
+  searchInput: { flex: 1, marginHorizontal: 10 },
   card: {
     width: "48%",
     backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 14,
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#eee",
   },
-  cardImage: { width: "100%", height: 110, borderRadius: 10 },
-  cardTitle: { fontSize: 15, fontWeight: "700", marginTop: 6 },
-  cardDesc: { fontSize: 12, color: "#555", marginVertical: 8 },
-  // row: {flexDirection: "row",
-  //   justifyContent: "space-between",
-  //   alignItems: "center",
-  //   //paddingHorizontal: 10,
-  //   gap:10,
-  //   paddingTop: 10,
-  //   paddingBottom: 10,},
-  // date: { fontSize: 11, color: "#999" },
-  // read: { color: "#2563EB", fontSize: 12, fontWeight: "600" },
-  imageWrapper: {
-  position: "relative",
-},
-
-pdfBadge: {
-  position: "absolute",
-  bottom: 8,
-  right: 8,
-  flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 8,
-  paddingVertical: 4,
-  backgroundColor: "#e53935",
-  borderRadius: 14,
-  elevation: 4,
-},
-
-pdfBadgeText: {
-  color: "#fff",
-  fontSize: 11,
-  fontWeight: "700",
-  marginLeft: 4,
-},
-
-pdfModalContainer: {
-  flex: 1,
-  backgroundColor: "#fff",
-},
-
-pdfHeader: {
-  height: 56,
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  paddingHorizontal: 16,
-  borderBottomWidth: 1,
-  borderColor: "#eee",
-},
-
-pdfTitle: {
-  fontSize: 16,
-  fontWeight: "600",
-},
-
-pdfView: {
-  flex: 1,
-  width: "100%",
-},
-
-center: {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-},
-// rightActions: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 10,
-//   },
-
-//   pdfBtn: {
-//     padding: 2,
-//   },
-
-row: {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingVertical: 10,
-},
-
-date: {
-  flex: 1,              // ✅ KEY FIX
-  fontSize: 11,
-  color: "#999",
-},
-
-rightActions: {
-  flexDirection: "row",
-  alignItems: "center",
-  flexShrink: 0,        // ✅ prevents collapse on small screens
-},
-
-pdfBtn: {
-  marginRight: 10,      // ✅ use margin instead of gap
-  padding: 4,
-},
-
-readMore: {
-  color: "#2563EB",
-  fontSize: 12,
-  fontWeight: "600",
-},
-
+  imageWrapper: { position: "relative" },
+  cardTitle: { fontWeight: "700", marginTop: 6 },
+  cardDesc: { color: "#555", marginVertical: 8 },
+  row: { flexDirection: "row", alignItems: "center", paddingVertical: 10 },
+  date: { flex: 1, color: "#999" },
+  rightActions: { flexDirection: "row", alignItems: "center", flexShrink: 0 },
+  pdfBtn: { marginRight: 10, padding: 4 },
+  readMore: { color: "#2563EB", fontWeight: "600" },
+  pdfModalContainer: { flex: 1, backgroundColor: "#fff" },
+  pdfHeader: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderColor: "#eee" },
+  pdfTitle: { fontWeight: "600" },
+  pdfView: { flex: 1, width: "100%" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
 });

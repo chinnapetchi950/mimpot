@@ -7,15 +7,24 @@ buildscript {
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
     }
+
     repositories {
+        mavenCentral()   // 🔥 FIRST
         google()
-        mavenCentral()
     }
+
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        // 🔥 PIN ANDROID GRADLE PLUGIN (CRITICAL)
+        classpath("com.android.tools.build:gradle:8.5.2")
+
+        // React Native
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-        classpath 'com.google.gms:google-services:4.4.0'
+
+        // Kotlin
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+
+        // Google services
+        classpath("com.google.gms:google-services:4.4.0")
     }
 }
 

@@ -1,20 +1,64 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
+import { useDevice } from "../utils/useDeviceLayout";
 
-export default function DividerOr(){
+export default function DividerOr() {
   const { t } = useTranslation();
+  const { ui, isTablet, isUnfolded } = useDevice();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.line} />
-      <Text style={styles.or}>{t('common.or')}</Text>
-      <View style={styles.line} />
+    <View
+      style={[
+        styles.container,
+        { marginTop: ui.spacing.lg },
+      ]}
+    >
+      <View
+        style={[
+          styles.line,
+          {
+            height: isTablet || isUnfolded ? 1.5 : 1,
+          },
+        ]}
+      />
+
+      <Text
+        style={[
+          styles.or,
+          {
+            marginHorizontal: ui.spacing.md,
+            fontSize: ui.font.body,
+          },
+        ]}
+      >
+        {t("common.or")}
+      </Text>
+
+      <View
+        style={[
+          styles.line,
+          {
+            height: isTablet || isUnfolded ? 1.5 : 1,
+          },
+        ]}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{ flexDirection:'row', alignItems:'center', marginTop:18 },
-  line:{ flex:1, height:1, backgroundColor:'#e6e6e6' },
-  or:{ marginHorizontal:12, color:'#9b9b9b' }
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  line: {
+    flex: 1,
+    backgroundColor: "#e6e6e6",
+  },
+  or: {
+    color: "#9b9b9b",
+    fontWeight: "500",
+  },
 });
+

@@ -1,63 +1,108 @@
 import React, { useEffect } from 'react';
-import { View, Image, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, Image, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const { width, height } = Dimensions.get('window');
-import Storage from '../utils/storage';
 import { useTranslation } from 'react-i18next';
+
+import Storage from '../utils/storage';
+import { useDevice } from '../utils/useDeviceLayout';
 
 export default function SplashScreen({ navigation }) {
   const { t } = useTranslation();
-  // useEffect(() => {
-  //   const t = setTimeout(() => navigation.replace('Login'), 1600);
-  //   return () => clearTimeout(t);
-  // }, [navigation]);
-useEffect(() => {
-  const checkAuth = async () => {
-    const token = await Storage.getItem("token");
+  const { width, height, ui, isTablet, isFolded } = useDevice();
 
-    if (token) {
-      // User already logged in → go to Dashboard
-      navigation.replace("MainTabs");
-    } else {
-      //No token → go to Login after 1.6s
-      setTimeout(() => {
-        navigation.replace("Onboarding");
-      }, 1600);
-    }
-  };
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await Storage.getItem('token');
 
-  checkAuth();
-}, [navigation]);
+      if (token) {
+        navigation.replace('MainTabs');
+      } else {
+        setTimeout(() => {
+          navigation.replace('Onboarding');
+        }, 1600);
+      }
+    };
+
+    checkAuth();
+  }, [navigation]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topRounded}>
-        <View style={styles.logoCard}>
-          <Image source={require('../assets/images/logo.png')} resizeMode="contain" accessible accessibilityLabel="M.impot logo" />
+      {/* TOP CURVED AREA */}
+      <View
+        style={[
+          styles.topRounded,
+          {
+            width,
+            height: isTablet ? height * 0.9 : height * 0.95,
+          },
+        ]}
+      >
+        {/* LOGO CARD */}
+        <View
+          style={[
+            styles.logoCard,
+            {
+              width: ui.image.hero,
+              height: ui.image.hero,
+              borderRadius: ui.radius,
+            },
+          ]}
+        >
+          <Image
+            source={require('../assets/images/logo.png')}
+            resizeMode="contain"
+            style={{
+              width: ui.image.hero * 0.7,
+              height: ui.image.hero * 0.7,
+            }}
+            accessible
+            accessibilityLabel="M.impot logo"
+          />
         </View>
       </View>
-      <Text style={styles.footer}>{t('welcome.footer')}</Text>
+
+      {/* FOOTER TEXT */}
+      <Text
+        style={[
+          styles.footer,
+          {
+            fontSize: ui.font.body,
+            bottom: isTablet || isFolded ? 70 : 50,
+          },
+        ]}
+      >
+        {t('welcome.footer')}
+      </Text>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
-  container:{flex:1, backgroundColor:'#fff', alignItems:'center', justifyContent:'center'},
-  topRounded:{
-    position:'absolute',
-    top:0,
-    width: width,
-    height: height*0.95,
-    backgroundColor:'#fff',
-    alignItems:'center',
-    justifyContent:'center',
-  
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoCard:{
- 
-    borderRadius: 20,
-    backgroundColor:'#f2f2f2',
-    alignItems:'center',
-    justifyContent:'center'
+
+  topRounded: {
+    position: 'absolute',
+    top: 0,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  footer:{position:'absolute', bottom:50, color:'#4aa8db', fontSize:18, fontWeight:'600'}
+
+  logoCard: {
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+  },
+
+  footer: {
+    position: 'absolute',
+    color: '#4aa8db',
+    fontWeight: '600',
+  },
 });

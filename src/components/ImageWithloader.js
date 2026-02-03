@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
-import { View, ActivityIndicator, Image, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { View, ActivityIndicator, Image, StyleSheet } from "react-native";
+import { useDevice } from "../utils/useDeviceLayout";
 
-export default function ImageWithLoader({ source, style, resizeMode = 'cover' }) {
+export default function ImageWithLoader({
+  source,
+  style,
+  resizeMode = "cover",
+}) {
   const [loading, setLoading] = useState(true);
 
   return (
@@ -14,8 +19,8 @@ export default function ImageWithLoader({ source, style, resizeMode = 'cover' })
 
       <Image
         source={source}
-        style={[StyleSheet.absoluteFillObject, style]}
         resizeMode={resizeMode}
+        style={StyleSheet.absoluteFillObject}
         onLoadEnd={() => setLoading(false)}
         onError={() => setLoading(false)}
       />
@@ -25,8 +30,11 @@ export default function ImageWithLoader({ source, style, resizeMode = 'cover' })
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f2f2f2',
+    position: 'relative',      // ✅ critical
+    width: '100%',
+    height: '100%',
     overflow: 'hidden',
+    backgroundColor: '#f2f2f2',
   },
   loader: {
     ...StyleSheet.absoluteFillObject,
@@ -34,3 +42,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+

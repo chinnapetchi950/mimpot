@@ -1,39 +1,117 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import ImageWithLoader from "./ImageWithloader";
-import { useTranslation } from "react-i18next";
-
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { useTranslation } from "react-i18next";
+import ImageWithLoader from "./ImageWithloader";
+import { useDevice } from "../utils/useDeviceLayout";
 
-export default function TaxCard({ item, onRead, onDownload ,onBookmark}) {
+export default function TaxCard({ item, onRead, onDownload, onBookmark }) {
   const { t } = useTranslation();
-  console.log(item,'image');
-  
-  return (
-    <View style={styles.card}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
+  const { ui, width, deviceType } = useDevice();
 
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.readBtn} onPress={onRead}>
-            <Text style={styles.readText}>{t('articles.read')}</Text>
-          </TouchableOpacity>
-{item?.item?.file_path && 
-          <TouchableOpacity style={styles.downloadBtn} 
-          onPress={()=>onDownload()}
+  const IMAGE_WIDTH =
+    deviceType === "tablet"
+      ? 200
+      : deviceType === "unfolded"
+      ? 170
+      : 130;
+
+  const IMAGE_HEIGHT =
+    deviceType === "tablet"
+      ? 140
+      : deviceType === "unfolded"
+      ? 120
+      : 95;
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+         padding: 14,
+    borderRadius: 14,
+        },
+      ]}
+    >
+      {/* LEFT CONTENT */}
+      <View style={{ flex: 1, paddingRight: ui.spacing.md }}>
+        <Text
+          style={[
+            styles.cardTitle,
+            {
+              fontSize: ui.font.body,
+              maxWidth: width * 0.55,
+            },
+          ]}
+          numberOfLines={2}
+        >
+          {item.title}
+        </Text>
+
+        <View style={[styles.row, { marginTop: ui.spacing.md }]}>
+          <TouchableOpacity
+            style={[
+              styles.readBtn,
+              {
+                height: ui.button.height - 12,
+                paddingHorizontal: ui.spacing.lg,
+                borderRadius: 10,
+              },
+            ]}
+            onPress={onRead}
           >
-            <FontAwesome name="file-pdf-o" size={38} color="red" />
+            <Text
+              style={[
+                styles.readText,
+                { fontSize: ui.button.fontSize },
+              ]}
+            >
+              {t("articles.read")}
+            </Text>
           </TouchableOpacity>
-}
+
+          {item?.item?.file_path && (
+            <TouchableOpacity
+              style={[styles.downloadBtn, { marginLeft: deviceType === "tablet"?45: 25 }]}
+              onPress={onDownload}
+            >
+              <FontAwesome
+                name="file-pdf-o"
+                size={ui.font.h2}
+                color="red"
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
+      {/* IMAGE + BOOKMARK */}
       <View style={{ position: "relative" }}>
-        <ImageWithLoader source={{uri:item.image}} style={styles.image} />
+        <ImageWithLoader
+          source={{ uri: item.image }}
+          style={{
+            width: IMAGE_WIDTH,
+            height: IMAGE_HEIGHT,
+            borderRadius: 8,
+          }}
+        />
 
-        <TouchableOpacity onPress={()=>onBookmark()} style={styles.bookmarkWrap}>
-          <Ionicons name={item?.is_bookmarked ? "bookmark" : "bookmark-outline"} size={20} color="#fff" />
+        <TouchableOpacity
+          onPress={onBookmark}
+          style={[
+            styles.bookmarkWrap,
+            {
+              padding: ui.spacing.sm,
+              borderRadius:20,
+            },
+          ]}
+        >
+          <Ionicons
+            name={item?.is_bookmarked ? "bookmark" : "bookmark-outline"}
+            size={ deviceType === "tablet"?34:24}
+            color="#fff"
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -44,68 +122,47 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     flexDirection: "row",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: "#eee",
+    marginBottom: 20,
   },
+
   cardTitle: {
-    width: 170,
-    fontSize: 16,
     fontWeight: "600",
-    lineHeight: 20,
+    lineHeight: 22,
+    color: "#000",
   },
-  image: {
-    width: 130,
-    height: 95,
-    borderRadius: 10,
-    marginLeft: 6,
-  },
-  readBtn: {
-    marginTop: 12,
-    paddingVertical: 8,
-    backgroundColor: "#1E90FF",
-    borderRadius: 8,
-    width: 95,
-    alignItems: "center",
-  },
-  readText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  rightIcons: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginLeft: 8,
-    paddingVertical: 4,
-  },
-    row: {
+
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
   },
 
+  readBtn: {
+    backgroundColor: "#1E90FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
+  readText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
 
   downloadBtn: {
-    marginLeft: 25,
-    marginTop:10,
-    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
-
 
   bookmarkWrap: {
     position: "absolute",
     bottom: 6,
-    right: -2,
+    right: 6,
     backgroundColor: "#4CAF50",
-    padding: 6,
-    borderRadius: 20,
     elevation: 5,
   },
 });
+
 // arrow-collapse-down
 
 

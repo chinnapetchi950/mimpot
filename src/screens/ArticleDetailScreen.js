@@ -249,7 +249,7 @@ const content = getLocalizedValue(details, 'content', currentLang);
 const categoryName = getLocalizedValue(details?.category, 'name', currentLang);
 const subCategoryName = getLocalizedValue(details?.sub_category, 'name', currentLang);
   return (
-    <SafeAreaView  style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View  style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
       <View style={styles.header}>
@@ -355,7 +355,7 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
           )}
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
     
   );
 }

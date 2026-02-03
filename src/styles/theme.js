@@ -45,7 +45,7 @@ export const common = StyleSheet.create({
     marginTop: hp("1.5%"),
   },
   title: {
-    fontSize: wp("4.5%"),
+    fontSize: wp("4%"),
     fontWeight: "700",
   },
 });

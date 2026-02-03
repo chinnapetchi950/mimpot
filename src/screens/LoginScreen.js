@@ -24,12 +24,14 @@ import CustomHeader from '../components/CustomHeader';
 import {authService} from '../api/authService';
 import {setToken, setUser} from '../store/userSlice';
 import Storage from '../utils/storage';
+import {useDevice} from '../utils/useDeviceLayout';
 
-const {width, height} = Dimensions.get('window');
+// const {width, height} = Dimensions.get('window');
 
 export default function LoginScreen({navigation}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
+  const {width, height, ui,isFolded, deviceType} = useDevice();
 
   const [rememberMe, setRememberMe] = useState(false);
   const [initialEmail, setInitialEmail] = useState('');
@@ -85,11 +87,16 @@ export default function LoginScreen({navigation}) {
       Alert.alert(t('common.success'), t('auth.logged_in_successfully'));
       navigation.replace('MainTabs');
     } catch (e) {
-      Alert.alert(
-        t('auth.login_failed'),
-        e?.response?.data?.message || t('common.something_went_wrong'),
-      );
-    } finally {
+  console.log("AXIOS FULL ERROR", e);
+  console.log("message:", e.message);
+  console.log("response:", e.response);
+  console.log("request:", e.request);
+
+  Alert.alert(
+    t('auth.login_failed'),
+    e?.response?.data?.message || e.message || t('common.something_went_wrong'),
+  );
+}finally {
       setSubmitting(false);
     }
   };
@@ -109,6 +116,8 @@ export default function LoginScreen({navigation}) {
 
       handleGoogleLogin({idToken});
     } catch (error) {
+      console.log("err",error);
+      
       if (error.code !== statusCodes.SIGN_IN_CANCELLED) {
         Alert.alert(
           t('common.error'),
@@ -146,19 +155,39 @@ export default function LoginScreen({navigation}) {
 
   // ---------------- UI ----------------
   return (
-    <SafeAreaView style={styles.container}>
+     <SafeAreaView style={styles.container}>
       <CustomHeader
-        headerContainerStyle={{paddingHorizontal: 20, elevation: 0}}
+        headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}
         showLanguage
       />
 
-      {/* Background Design */}
-      <View style={styles.topRounded} pointerEvents="none">
-        <View style={styles.logoCard}>
+      {/* TOP CURVE */}
+      <View
+        style={[
+          styles.topRounded,
+          {
+            width,
+           height:isFolded?height*0.38: height * 0.48,
+            borderBottomLeftRadius: ui.radius * 2,
+            borderBottomRightRadius: ui.radius * 2,
+          },
+        ]}
+        pointerEvents="none">
+        <View
+          style={[
+            styles.logoCard,
+            {
+              width: isFolded?ui.image.avatar * 1:ui.image.avatar * 1,
+              height: isFolded?ui.image.avatar * 1:ui.image.avatar * 1,
+            },
+          ]}>
           <Image
             source={require('../assets/images/logo.png')}
             resizeMode="contain"
-            style={{width: 120, height: 120}}
+            style={{
+              width: ui.image.avatar,
+              height: ui.image.avatar,
+            }}
           />
         </View>
       </View>
@@ -167,10 +196,12 @@ export default function LoginScreen({navigation}) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
-          paddingTop: height * 0.30,
-          paddingBottom: 60,
+          paddingTop:isFolded?height*0.32: height * 0.42,
+          paddingBottom: ui.spacing.xl,
         }}>
-        <Text style={styles.title}>{t('auth.log_in')}</Text>
+        <Text style={[styles.title, {fontSize: ui.font.h1}]}>
+          {t('auth.log_in')}
+        </Text>
 
         <Formik
           initialValues={{email: initialEmail, password: initialPassword}}
@@ -186,7 +217,7 @@ export default function LoginScreen({navigation}) {
             touched,
             isSubmitting,
           }) => (
-            <View style={styles.form}>
+            <View style={[styles.form, {padding: ui.padding}]}>
               <InputField
                 placeholder={t('auth.email_required')}
                 value={values.email}
@@ -213,7 +244,7 @@ export default function LoginScreen({navigation}) {
                 <Text style={styles.error}>{errors.password}</Text>
               )}
 
-              <View style={styles.row}>
+              <View style={[styles.row, {marginVertical: ui.spacing.sm}]}>
                 <TouchableOpacity
                   style={styles.checkboxRow}
                   onPress={() => setRememberMe(!rememberMe)}>
@@ -226,13 +257,16 @@ export default function LoginScreen({navigation}) {
                       <Feather name="check" size={16} color="#fff" />
                     )}
                   </View>
-                  <Text style={styles.smallText}>
+                  <Text style={[styles.smallText, {fontSize: 14}]}>
                     {t('auth.remember_me')}
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=>navigation.navigate("ForgotPasswordScreen")}>
-                  <Text style={styles.smallText}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('ForgotPasswordScreen')
+                  }>
+                  <Text style={[styles.smallText, {fontSize: 14}]}>
                     {t('auth.forgot_password')}
                   </Text>
                 </TouchableOpacity>
@@ -244,29 +278,38 @@ export default function LoginScreen({navigation}) {
                     ? t('common.please_wait')
                     : t('auth.log_in')
                 }
+                height={ui.button.height}
+                fontSize={ui.button.fontSize}
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               />
 
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.signup}>{t('auth.sign_up')}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                <Text
+                  style={[
+                    styles.signup,
+                    {fontSize: ui.font.body},
+                  ]}>
+                  {t('auth.sign_up')}
+                </Text>
               </TouchableOpacity>
 
-              <View style={styles.divider}>
+              <View style={[styles.divider, {marginVertical: ui.spacing.xl}]}>
                 <View style={styles.line} />
                 <Text style={styles.or}>{t('common.or')}</Text>
                 <View style={styles.line} />
               </View>
 
-              <TouchableOpacity
-                style={styles.google}
-                onPress={GoogleSignUp}>
+              <TouchableOpacity style={styles.google} onPress={GoogleSignUp}>
                 <Image
                   source={require('../assets/images/google.png')}
                   style={styles.googleIcon}
                 />
-                <Text style={styles.googleText}>
+                <Text
+                  style={[
+                    styles.googleText,
+                    {fontSize: ui.font.body},
+                  ]}>
                   {t('auth.continue_with_google')}
                 </Text>
               </TouchableOpacity>
@@ -281,15 +324,25 @@ export default function LoginScreen({navigation}) {
 // ---------------- STYLES ----------------
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
-  title: {fontSize: 28, fontWeight: '700', textAlign: 'center'},
-  form: {padding: 20},
-  error: {color: 'red', fontSize: 13, marginTop: -6, marginBottom: 10},
+
+  title: {
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+
+  form: {},
+
+  error: {
+    color: 'red',
+    fontSize: 13,
+    marginTop: -6,
+    marginBottom: 10,
+  },
 
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 15,
   },
 
   checkboxRow: {flexDirection: 'row', alignItems: 'center'},
@@ -306,11 +359,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#1D9BF0',
     borderColor: '#1D9BF0',
   },
-  smallText: {marginLeft: 8, fontSize: 16, color: '#1D1D1D'},
+
+  smallText: {marginLeft: 8, color: '#1D1D1D'},
 
   signup: {
     textAlign: 'center',
-    fontSize: 18,
     fontWeight: '700',
     marginTop: 20,
   },
@@ -318,7 +371,6 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 30,
   },
   line: {flex: 1, height: 1, backgroundColor: '#E5E7EB'},
   or: {marginHorizontal: 10, color: '#9CA3AF'},
@@ -332,12 +384,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   googleIcon: {width: 24, height: 24, marginRight: 8},
-  googleText: {fontSize: 18},
+  googleText: {fontWeight: '500'},
 
-topRounded: { position: "absolute", top: 10, width, height: height * 0.35, backgroundColor: "#fff", borderBottomLeftRadius: 72, borderBottomRightRadius: 72, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3, },
+  topRounded: {
+    position: 'absolute',
+    top: 10,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+  },
+
   logoCard: {
-    width: 180,
-    height: 180,
     borderRadius: 20,
     backgroundColor: '#f2f2f2',
     alignItems: 'center',
