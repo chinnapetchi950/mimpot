@@ -22,6 +22,7 @@ import RNBlobUtil from "react-native-blob-util";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useDevice } from "../utils/useDeviceLayout";
 import CustomHeader from "../components/CustomHeader";
+import HomeHeader from "../components/Homeheader";
 
 export default function ExploreScreen({navigation}) {
   const { t } = useTranslation();
@@ -144,7 +145,7 @@ const renderItem = ({ item }) => (
         {item.description || t("details.no_description_available")}
       </Text>
 
-      <View style={styles.row}>
+      {/* <View style={styles.row}>
         <Text style={[styles.date, { fontSize: ui.font.small }]} numberOfLines={1}>
           {moment(item.created_at).format("DD-MM-YYYY")}
         </Text>
@@ -169,7 +170,44 @@ const renderItem = ({ item }) => (
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
+      <View style={styles.bottomRow}>
+  
+  {/* ✅ Date */}
+  <Text style={styles.dateText} numberOfLines={1}>
+    {moment(item.created_at).format("DD-MM-YYYY")}
+  </Text>
+
+  {/* ✅ Actions */}
+  <View style={styles.rightActions}>
+    {item?.file_path && (
+      <TouchableOpacity
+        onPress={(e) => {
+          e.stopPropagation();
+          openPdfModal(item);
+        }}
+        style={styles.pdfBtn}
+      >
+        <FontAwesome
+          name="file-pdf-o"
+          size={ui.font.h2}
+          color="#e53935"
+        />
+      </TouchableOpacity>
+    )}
+
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("TaxDetailsScreen", { item })
+      }
+    >
+      <Text style={[styles.readMore, { fontSize: ui.font.body }]}>
+        {t("articles.read_more")}
+      </Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
     </TouchableOpacity>
   );
 
@@ -221,7 +259,8 @@ const onClickDownload = async (item) => {
   };
   return (
     <View style={{ flex: 1 ,backgroundColor:'#FFF'}}>
-              <CustomHeader  showLanguage={false}showlogo={true} title={t('explore.explore_laws_updates')}/>
+              {/* <CustomHeader  showLanguage={false}showlogo={true} title={t('explore.explore_laws_updates')}/> */}
+              <HomeHeader title={t('explore.explore_laws_updates')}/>
 
       <View style={[styles.container, { paddingHorizontal: 16 }]}>
         {/* <View>
@@ -243,14 +282,15 @@ const onClickDownload = async (item) => {
           </TouchableOpacity>
           <TextInput
             placeholder={t('explore.search_placeholder')}
-            style={[styles.searchInput, { fontSize: ui.font.body }]}
+              placeholderTextColor="#888"
+            style={[styles.searchInput, { fontSize: ui.font.body,color:'#000' }]}
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={() => handleSearch(search)}
           />
-          <TouchableOpacity onPress={() => { setSearch(''); handleSearch(''); }}>
-            <Ionicons name="close" size={ui.font.body} />
-          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={() => { setSearch(''); handleSearch(''); }}>
+            {/* <Ionicons name="close" size={ui.font.body} /> 
+          </TouchableOpacity> */}
         </View>
 
         {loading && <ActivityIndicator size="large" color="#1E90FF" />}
@@ -308,6 +348,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     elevation: 3,
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
   searchInput: { flex: 1, marginHorizontal: 10 },
   card: {
@@ -316,18 +362,54 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#eee",
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
   imageWrapper: { position: "relative" },
   cardTitle: { fontWeight: "700", marginTop: 6 },
   cardDesc: { color: "#555", marginVertical: 8 },
   row: { flexDirection: "row", alignItems: "center", paddingVertical: 10 },
   date: { flex: 1, color: "#999" },
-  rightActions: { flexDirection: "row", alignItems: "center", flexShrink: 0 },
-  pdfBtn: { marginRight: 10, padding: 4 },
-  readMore: { color: "#2563EB", fontWeight: "600" },
+  //rightActions: { flexDirection: "row", alignItems: "center", flexShrink: 0 },
+  //pdfBtn: { marginRight: 10, padding: 4 },
+ // readMore: { color: "#2563EB", fontWeight: "600" },
   pdfModalContainer: { flex: 1, backgroundColor: "#fff" },
   pdfHeader: { height: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderColor: "#eee" },
   pdfTitle: { fontWeight: "600" },
   pdfView: { flex: 1, width: "100%" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  bottomRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginTop: 8,
+},
+
+dateText: {
+  flex: 1,              // ✅ take remaining space
+  fontSize: 12,
+  color: "#888",
+  marginRight: 10,
+},
+
+rightActions: {
+  flexDirection: "row",
+  alignItems: "center",
+  flexShrink: 0,        // ✅ prevent pushing date down
+},
+
+pdfBtn: {
+  marginRight: 8,
+  padding: 4,
+},
+
+readMore: {
+  color: "#2563EB",
+  fontWeight: "600",
+},
+
 });

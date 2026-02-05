@@ -62,6 +62,12 @@ const createStyles = (width, ui) =>
       alignItems: 'center',
       elevation: 2,
       marginBottom: ui.spacing.md,
+        shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
     },
 
     icon: {

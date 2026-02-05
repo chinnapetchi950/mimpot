@@ -24,6 +24,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { getLocalizedValue } from '../utils/localization';
 import CustomHeader from "../components/CustomHeader";
 import { useDevice } from "../utils/useDeviceLayout";
+import HomeHeader from "../components/Homeheader";
 
 export default function UnderstandingTaxScreen({ navigation }) {
   const { t } = useTranslation();
@@ -213,7 +214,8 @@ const onClickDownload = async (item) => {
     <View style={{ flex: 1,backgroundColor: "#fff" }}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* HEADER */}
-         <CustomHeader
+        <HomeHeader title={t('tax_law.understanding_tax')}/>
+         {/* <CustomHeader
         headertextstyle={{ textAlign: "center", }}
         title={t('tax_law.understanding_tax')}
         showlogo={true}
@@ -221,7 +223,7 @@ const onClickDownload = async (item) => {
         leftComponent={
          ()=>null
         }
-      />
+      /> */}
         {/* <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />

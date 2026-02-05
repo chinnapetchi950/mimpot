@@ -218,8 +218,8 @@ const LANGUAGES = [
                       source={require("../assets/images/logo.png")}
                       resizeMode="contain"
                       style={{
-                        width: ui.image.avatar * 0.45,
-                        height: ui.image.avatar * 0.45,
+                        width: ui.image.avatar * 0.48,
+                        height: ui.image.avatar * 0.48,
                       }}
                     />
 }
@@ -272,7 +272,7 @@ export default CustomHeader;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 10,
     backgroundColor: "#fff",
     elevation: 5,
     zIndex: 10,
@@ -284,6 +284,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
     position: "relative",
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
   title: {
     fontSize: RFValue(18),

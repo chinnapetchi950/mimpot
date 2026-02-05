@@ -22,6 +22,7 @@ import Storage from "../utils/storage";
 import { setToken, setUser } from "../store/userSlice";
 
 import { useDevice } from "../utils/useDeviceLayout";
+import HomeHeader from "../components/Homeheader";
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -107,8 +108,8 @@ export default function ProfileScreen() {
   return (
     <View edges={['top']}
 style={[common.screen, { flex: 1, backgroundColor: colors.background }]}>
-      <CustomHeader showlogo={true} title={t("profile.profile")} />
-
+      {/* <CustomHeader showlogo={true} title={t("profile.profile")} /> */}
+ <HomeHeader title={t('profile.profile')}/>
       <ScrollView style={{ flex: 1, padding: ui.padding }}>
         {/* Profile Image */}
         <View style={{ alignItems: "center", marginTop: 10 }}>
@@ -216,6 +217,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 16,
-    elevation: 3,
-  },
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,  },
 });

@@ -29,8 +29,8 @@ export default function ArticleCard({ item, onPress, onDownload }) {
         styles.card,
         {
           width: cardWidth,
-          borderRadius: ui.radius,
-          marginBottom: ui.spacing.md,
+          borderRadius: 12,
+          marginBottom: 15,
         },
       ]}
     >
@@ -68,7 +68,7 @@ export default function ArticleCard({ item, onPress, onDownload }) {
           {
             fontSize: ui.font.small,
             paddingHorizontal: ui.spacing.sm,
-            paddingTop: ui.spacing.xs,
+            paddingTop: ui.spacing.xl,
           },
         ]}
       >
@@ -101,7 +101,7 @@ export default function ArticleCard({ item, onPress, onDownload }) {
             >
               <FontAwesome
                 name="file-pdf-o"
-                size={ui.font.h3}
+                size={20}
                 color="#e53935"
               />
             </TouchableOpacity>
@@ -130,6 +130,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 3,
     overflow: "hidden",
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
 
   title: {
@@ -161,6 +167,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#ff9d27",
   },
+  shadowBox: {
+  flex: 1,
+
+  backgroundColor: "transparent",
+
+  // ✅ Figma Soft Shadow
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14, // Android Shadow
+},
 });
 
 

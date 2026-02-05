@@ -171,6 +171,8 @@ export default function IssuesScreen({ navigation }) {
       <CustomHeader
         headertextstyle={{ textAlign: "center", fontSize: ui.font.h2 }}
         title={t('issues.issue_list')}
+                showLanguage={false}
+
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

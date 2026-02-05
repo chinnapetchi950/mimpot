@@ -68,7 +68,7 @@ const AppHeader = ({
 
         {/* RIGHT SIDE */}
         {rightIcon ? (
-          <TouchableOpacity onPress={onRightPress}>
+          <TouchableOpacity  onPress={onRightPress}>
             {rightIcon}
           </TouchableOpacity>
         ) : (
@@ -77,7 +77,7 @@ const AppHeader = ({
               style={[
                 styles.langBox,
                 {
-                  paddingHorizontal: ui.spacing.sm,
+                  paddingHorizontal:12,
                   paddingVertical: ui.spacing.sm / 2,
                   borderRadius: ui.radius,
                 },

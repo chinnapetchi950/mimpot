@@ -103,6 +103,8 @@ const ChangePasswordScreen = ({ navigation }) => {
     <View style={common.screen}>
       <CustomHeader
         title={t('change_password.change_password')}
+                showLanguage={false}
+
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />

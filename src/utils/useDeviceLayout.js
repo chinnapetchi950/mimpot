@@ -128,8 +128,8 @@ export function useDevice() {
         deviceType === 'tablet'
           ? 160
           : deviceType === 'unfolded'
-          ? 140
-          : 120,
+          ? 120
+          : 80,
     },
 
     /* layout */

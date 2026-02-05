@@ -17,6 +17,7 @@ import ImageWithLoader from "../components/ImageWithloader";
 import { authService } from "../api/authService";
 import { setUser } from "../store/userSlice";
 import { useDevice } from "../utils/useDeviceLayout";
+import { colors } from "../styles/theme";
 
 const Field = ({ placeholder, value, onChange, secure, isEmail, ui }) => (
   <TextInput
@@ -28,7 +29,7 @@ const Field = ({ placeholder, value, onChange, secure, isEmail, ui }) => (
     style={{
       borderWidth: 1,
       borderColor: "#00000036",
-      borderRadius: ui.radius,
+      borderRadius: 12,
       backgroundColor: isEmail ? "#EEEEEE" : "#FFFFFF",
       padding: ui.padding,
       marginTop: ui.spacing.sm,
@@ -122,9 +123,10 @@ export default function EditProfileScreen({ navigation }) {
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader
         title={t("edit_profile.my_profile")}
+        showLanguage={false}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={ui.icon} color="#000" />
+            <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
         }
       />
@@ -143,9 +145,9 @@ export default function EditProfileScreen({ navigation }) {
               image ? { uri: image?.uri } : require("../assets/images/placeholder.png")
             }
             style={{
-              width: ui.image.avatar,
-              height: ui.image.avatar,
-              borderRadius: ui.radius,
+              width: ui.image.avatar*1.4,
+              height: ui.image.avatar*1.4,
+              borderRadius:  ui.image.avatar*1.4/2,
             }}
           />
 
@@ -153,7 +155,7 @@ export default function EditProfileScreen({ navigation }) {
             onPress={openImagePicker}
             style={{
               position: "absolute",
-              right: ui.image.avatar * 0.25,
+              right: 125,
               bottom: ui.spacing.sm,
               backgroundColor: "#fff",
               padding: ui.padding * 0.5,

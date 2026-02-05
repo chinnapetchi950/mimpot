@@ -51,6 +51,7 @@ const AboutusScreen = ({ navigation }) => {
     <View style={[common.screen, { flex: 1, }]}>
       <CustomHeader
         title={t("settings.about_us")}
+        showLanguage={false}
         leftComponent={
           <Ionicons
             name="arrow-back"

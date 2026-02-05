@@ -136,6 +136,7 @@ export default function QuickActionsScreen({ route, navigation }) {
   return (
   <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <CustomHeader
+      
         title={title}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

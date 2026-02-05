@@ -300,7 +300,8 @@ import {
   Alert,
   ActivityIndicator,
   StyleSheet,
-  StatusBar
+  StatusBar,
+  Image
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {
@@ -321,6 +322,9 @@ import { useDevice } from '../utils/useDeviceLayout';
 import Storage from '../utils/storage';
 import { authService } from '../api/authService';
 import { setUser, setToken, clearUser } from '../store/userSlice';
+import { height } from 'deprecated-react-native-prop-types/DeprecatedImagePropType';
+import HomeHeader from '../components/Homeheader';
+import LanguageModal from '../components/LanguageModal';
 
 export default function SettingsScreen({ navigation }) {
   const { t } = useTranslation();
@@ -328,6 +332,7 @@ export default function SettingsScreen({ navigation }) {
 
   const [userdata, setuserData] = useState();
 const [imageLoading, setImageLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { user, token } = useSelector(state => state);
   const data = useSelector(state => state);
@@ -348,17 +353,19 @@ const [imageLoading, setImageLoading] = useState(true);
     checkAuth();
   }, [navigation]);
   const menuItems = [
-    { icon: 'info', title: t('settings.about_us'), screen: 'AboutusScreen' },
+    { icon: require('../assets/images/information.png'), title: t('settings.about_us'), screen: 'AboutusScreen' },
     // { icon: "credit-card", title: "Manage Payment", screen: "PaymentScreen" },
-    { icon: 'shield', title: t('settings.security_settings'), screen: 'SecuritySettings' },
+    { icon:  require('../assets/images/shield111.png'), title: t('settings.security_settings'), screen: 'SecuritySettings' },
     {
-      icon: 'file-text',
+      icon: require('../assets/images/file.png'),
       title: t('settings.manage_subscription'),
       screen:'SubscriptionScreen'
       //screen: 'ManageSubscription',
     },
-    { icon: 'headphones', title: t('settings.help_center'), screen: 'HelpCenter' },
-    { icon: 'log-out', title: t('settings.logout'), screen: 'logout' },
+    { icon: require('../assets/images/support.png'), title: t('settings.help_center'), screen: 'HelpCenter' },
+    { icon: require('../assets/images/language.png'), title: t('settings.language'), screen: 'language' },
+
+    { icon: require('../assets/images/logout.png') ,title: t('settings.logout'), screen: 'logout' },
   ];
   const [logoutVisible, setLogoutVisible] = useState(false);
 
@@ -394,6 +401,9 @@ const [imageLoading, setImageLoading] = useState(true);
     if (item.title === t('settings.logout')) {
       setLogoutVisible(true);
       return;
+    } 
+    if(item.title === t('settings.language')){
+        setModalVisible(true)
     }
 
     // Check subscription only for "Manage Subscription"
@@ -432,10 +442,17 @@ const [imageLoading, setImageLoading] = useState(true);
     <View style={[common.screen, { flex: 1, backgroundColor: colors.background }]}>
             <StatusBar backgroundColor={"#FFFFFF"} barStyle={'dark-content'} />
       
-      <CustomHeader showlogo={true} title={t('settings.settings')} />
-
-      <ScrollView style={{ flex: 1, padding: ui.padding ,paddingBottom:20}}>
-        {/* Profile Card */}
+      {/* <CustomHeader showlogo={true} title={t('settings.settings')} /> */}
+ <HomeHeader title={t('settings.settings')}/>
+<ScrollView
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={{
+    padding: ui.padding,
+    paddingBottom: 60,
+    flexGrow: 1,
+  }}
+>       
+        <>
         <View style={[styles.profileCard, { padding:20, borderRadius: 15 }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ImageWithLoader
@@ -452,8 +469,8 @@ const [imageLoading, setImageLoading] = useState(true);
                 {[userdata?.firstname, userdata?.lastname].filter(Boolean).join(' ')}
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: ui.spacing.sm }}>
-                <Icon name="map-pin" size={ui.font.body} color="#fff" />
-                <Text style={[styles.profileEmail, { fontSize: ui.font.body, marginLeft: ui.spacing.sm }]}>
+                {/* <Icon name="map-pin" size={ui.font.body} color="#fff" /> */}
+                <Text style={[styles.profileEmail, { fontSize: ui.font.body, }]}>
                   {userdata?.email}
                 </Text>
               </View>
@@ -470,7 +487,7 @@ const [imageLoading, setImageLoading] = useState(true);
         </View>
 
         {/* More Settings */}
-        <Text style={[common.title, { marginTop: ui.spacing.md }]}>{t('settings.more_settings')}</Text>
+        <Text style={[common.title, {fontSize:20, marginTop: 30 }]}>{t('settings.more_settings')}</Text>
 
         {menuItems.map(item => (
           <TouchableOpacity
@@ -479,18 +496,24 @@ const [imageLoading, setImageLoading] = useState(true);
             style={[common.card,{paddingHorizontal: wp("2%"),paddingTop:deviceType==='tablet'?20:10}, common.rowBetween, ]}
           >
             <View style={common.rowStart}>
-              <Icon name={item.icon} size={deviceType==='tablet'?40:24} color={colors.primary} />
-              <Text style={{ marginLeft:deviceType==='tablet'? 40:10, fontSize:deviceType==='tablet'? wp('3.5%'):wp('2.5%') }}>{item.title}</Text>
+              <Image source={item.icon} style={{width:deviceType==='tablet'?40:36,height:deviceType==='tablet'?40:36}} />
+              <Text style={{ marginLeft:deviceType==='tablet'? 40:20, fontSize:deviceType==='tablet'? 24:20 }}>{item.title}</Text>
             </View>
             <Icon name="chevron-right" size={deviceType==='tablet'?40:24} color="#999" />
           </TouchableOpacity>
         ))}
+        </>
       </ScrollView>
 
       <LogoutModal
         visible={logoutVisible}
         onConfirm={onLogoutConfirm}
         onCancel={() => setLogoutVisible(false)}
+      />
+       {/* ✅ Only This */}
+      <LanguageModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
       />
     </View>
   );
@@ -499,8 +522,14 @@ const [imageLoading, setImageLoading] = useState(true);
 const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: colors.primary,
-    marginTop: 20,
+    marginTop: 10,
     position: 'relative',
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
   profileName: {
     color: '#fff',

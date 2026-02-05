@@ -15,6 +15,7 @@ export default function SearchBar({ value, onChangeText, onSearch, onFilterPress
         </TouchableOpacity>
         <TextInput
           placeholder={t('search.search_placeholder')}
+            placeholderTextColor="#888"
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
@@ -46,9 +47,14 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2,
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
-  input: { marginLeft: 8, fontSize: 15, color: colors.text, flex: 1,paddingTop: 10 },
+  input: { marginLeft: 8, fontSize: 15, color: '#000', flex: 1,paddingTop: 10 },
   filter: { marginLeft: 12, backgroundColor: '#fff', padding: 10, borderRadius: 10, elevation: 2 },
 });
 

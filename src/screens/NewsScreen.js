@@ -69,6 +69,8 @@ console.log("response",response?.data);
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 50 }}
         title={t('news.latest_news_updates')}
+                showLanguage={false}
+
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

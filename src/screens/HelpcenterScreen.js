@@ -60,7 +60,7 @@ const HelpCenterScreen = ({ navigation }) => {
   };
  const dynamicStyles = {
     inputHeight: deviceType === "tablet" ? hp("18%") : hp("15%"),
-    sendBtnBottom: deviceType === "folded" && !device.isFolded ? hp("28%") : hp("40%"),
+    sendBtnBottom: deviceType === "folded" && !device.isFolded ? hp("28%") : hp("42%"),
     fontSizeTitle: deviceType === "tablet" ? hp("2.8%") : hp("2.4%"),
     fontSizeLabel: deviceType === "tablet" ? hp("2.2%") : hp("2%"),
     fontSizeText: deviceType === "tablet" ? hp("2%") : hp("1.8%"),
@@ -72,8 +72,8 @@ const HelpCenterScreen = ({ navigation }) => {
         showBack
         onBack={() => navigation.goBack()}
         rightIcon={
-          <TouchableOpacity onPress={() => navigation.navigate("IssuesScreen")}>
-            <Ionicons name="mail" size={hp("2.6%")} color={colors.primary} />
+          <TouchableOpacity style={{marginRight:10}} onPress={() => navigation.navigate("IssuesScreen")}>
+            <Ionicons name="mail" size={26} color={colors.primary} />
           </TouchableOpacity>
         }
       />

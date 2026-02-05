@@ -34,6 +34,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     marginHorizontal: 5,
+      shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
   },
   activeTab: {
     backgroundColor: "#ff9d27",

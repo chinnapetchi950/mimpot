@@ -102,11 +102,12 @@ next_button: "Suivant"
   },
 
   welcome: {
-   app_title: "M.Impôt",
+   app_title: "M.Impôts",
 subtitle: "Vous tient informé des textes juridiques",
 log_in: "Se connecter",
 create_account: "Créer un compte",
 footer: "M.Impôt 2025"
+
   },
 
   // ============================================
@@ -166,7 +167,9 @@ terms_and_conditions: "Conditions générales",
 privacy_policy: "Politique de confidentialité",
 profile_updated: "Profil mis à jour",
 failed_to_upload_image: "Échec du téléchargement de l’image",
-failed_to_logout: "Échec de la déconnexion"
+failed_to_logout: "Échec de la déconnexion",
+    language:'langue'
+
   },
 
   // ============================================
@@ -461,6 +464,8 @@ failed_to_submit_rating: "Échec de l’envoi de l’évaluation"
   // ============================================
   explore: {
  explore_laws_updates: "Explorer les lois et les mises à jour juridiques",
+         explore_laws_updates: "Explorer",
+
 no_title: "Aucun titre",
 no_data_available: "Aucune donnée disponible",
 search_placeholder: "Rechercher des actualités, des articles ou des conseils..."
@@ -470,7 +475,7 @@ search_placeholder: "Rechercher des actualités, des articles ou des conseils...
   // TAX LAW SCREEN
   // ============================================
   tax_law: {
-    understanding_tax: "Comprendre la fiscalité",
+    understanding_tax: "Droit fiscal",
     tax_law_results: "Résultats des lois fiscales",
     no_documents_found: "Aucun document trouvé",
   },

@@ -65,6 +65,8 @@ export default function CategoriesScreen({ navigation }) {
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 30 }}
         title={t('categories.explore_legal_categories')}
+                showLanguage={false}
+
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

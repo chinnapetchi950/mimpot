@@ -25,6 +25,7 @@ import {authService} from '../api/authService';
 import {setToken, setUser} from '../store/userSlice';
 import Storage from '../utils/storage';
 import {useDevice} from '../utils/useDeviceLayout';
+import LanguageModal from '../components/LanguageModal';
 
 // const {width, height} = Dimensions.get('window');
 
@@ -37,7 +38,7 @@ export default function LoginScreen({navigation}) {
   const [initialEmail, setInitialEmail] = useState('');
   const [initialPassword, setInitialPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
+const [modalVisible,setModalVisible]=useState(false)
   // ---------------- VALIDATION ----------------
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
@@ -156,23 +157,40 @@ export default function LoginScreen({navigation}) {
   // ---------------- UI ----------------
   return (
      <SafeAreaView style={styles.container}>
-      <CustomHeader
-        headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}
-        showLanguage
-      />
-
+  
+<TouchableOpacity
+    style={styles.langBtn}
+    onPress={() => setModalVisible(true)}
+    activeOpacity={0.7}
+  >
+    <Image
+      source={require("../assets/images/language.png")}
+      style={{ width: 28, height: 28 }}
+    />
+  </TouchableOpacity>
       {/* TOP CURVE */}
       <View
         style={[
           styles.topRounded,
           {
             width,
-           height:isFolded?height*0.38: height * 0.48,
+           height:isFolded?height*0.38: height * 0.45,
             borderBottomLeftRadius: ui.radius * 2,
             borderBottomRightRadius: ui.radius * 2,
           },
         ]}
-        pointerEvents="none">
+         pointerEvents="box-none"
+>
+               {/* <TouchableOpacity
+          style={styles.langBtn}
+          pointerEvents="auto"
+          onPress={() => setModalVisible(true)}
+        >
+          <Image
+            source={require("../assets/images/language.png")}
+            style={{ width: 28, height: 28 }}
+          />
+        </TouchableOpacity> */}
         <View
           style={[
             styles.logoCard,
@@ -196,7 +214,7 @@ export default function LoginScreen({navigation}) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
-          paddingTop:isFolded?height*0.32: height * 0.42,
+          paddingTop:isFolded?height*0.32: height * 0.52,
           paddingBottom: ui.spacing.xl,
         }}>
         <Text style={[styles.title, {fontSize: ui.font.h1}]}>
@@ -317,6 +335,10 @@ export default function LoginScreen({navigation}) {
           )}
         </Formik>
       </ScrollView>
+       <LanguageModal
+              visible={modalVisible}
+              onClose={() => setModalVisible(false)}
+            />
     </SafeAreaView>
   );
 }
@@ -324,7 +346,17 @@ export default function LoginScreen({navigation}) {
 // ---------------- STYLES ----------------
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#fff'},
+ langBtn: {
+  position: "absolute",
+  top: 20,
+  right: 20,
+  backgroundColor: "rgba(255,255,255,0.25)",
+  padding: 10,
+  borderRadius: 50,
 
+  zIndex: 999,
+  elevation: 10,
+},
   title: {
     fontWeight: '700',
     textAlign: 'center',

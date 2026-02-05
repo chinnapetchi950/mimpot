@@ -11,6 +11,7 @@ export default function CategoryCard({ item, onPress }) {
   const styles = createStyles(width, deviceType, ui);
 
   return (
+    
     <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.card}>
       <View style={styles.iconWrap}>
         <ImageWithLoader
@@ -39,31 +40,52 @@ const createStyles = (width, deviceType, ui) => {
       backgroundColor: '#fff',
         borderRadius: 12,
     // padding: 14,
-      padding: ui.spacing.sm,
+    flexDirection:'column',
+    justifyContent:'space-between',
+      padding: ui.spacing.md,
       marginBottom: spacing,
       alignItems: 'center',
-      elevation: 2,
+        shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
     },
     iconWrap: {
       width: deviceType === 'tablet' ? 56 : deviceType === 'unfolded' ? 50 : 44,
       height: deviceType === 'tablet' ? 56 : deviceType === 'unfolded' ? 50 : 44,
       borderRadius: 12,
-      backgroundColor: '#F3F8FF',
+      //backgroundColor: '#F3F8FF',
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: ui.spacing.sm,
     },
     icon: {
-      width: deviceType === 'tablet' ? 34 : deviceType === 'unfolded' ? 30 : 28,
-      height: deviceType === 'tablet' ? 34 : deviceType === 'unfolded' ? 30 : 28,
+      width: deviceType === 'tablet' ? 54 : deviceType === 'unfolded' ? 50 : 48,
+      height: deviceType === 'tablet' ? 54 : deviceType === 'unfolded' ? 50 : 48,
       resizeMode: 'contain',
     },
     title: {
       fontSize: deviceType === 'tablet' ? 15 : deviceType === 'unfolded' ? 14 : 13,
       fontWeight: '600',
       color: colors.text,
+      justifyContent:'flex-end',
       textAlign: 'center',
     },
+    shadowBox: {
+  flex: 1,
+
+  backgroundColor: "transparent",
+
+  // ✅ Figma Soft Shadow
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14, // Android Shadow
+},
   });
 };
 

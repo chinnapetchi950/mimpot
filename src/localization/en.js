@@ -102,11 +102,12 @@ const strings = {
   },
 
   welcome: {
-    app_title: "M.Impôt",
+    app_title: "M.Impôts",
     subtitle: "Keeps you updated on law text",
     log_in: "Log In",
     create_account: "Create an account",
     footer: "M.Impôt 2025",
+    
   },
 
   // ============================================
@@ -167,6 +168,7 @@ const strings = {
     profile_updated: "Profile updated",
     failed_to_upload_image: "Failed to upload image",
     failed_to_logout: "Failed to logout",
+    language:'Language'
   },
 
   // ============================================
@@ -461,7 +463,9 @@ const strings = {
   // EXPLORE
   // ============================================
   explore: {
-    explore_laws_updates: "Explore Laws & Legal Updates",
+    // explore_laws_updates: "Explore Laws & Legal Updates",
+        explore_laws_updates: "Explore",
+
     no_title: "No Title",
     no_data_available: "No data available",
     search_placeholder: "Search news, articles, or advice...",
@@ -471,7 +475,7 @@ const strings = {
   // TAX LAW SCREEN
   // ============================================
   tax_law: {
-    understanding_tax: "UnderStanding Tax",
+    understanding_tax: "Tax Law",
     tax_law_results: "Tax Law Results",
     no_documents_found: "No Documents Found",
   },

@@ -72,8 +72,12 @@ const createStyles = (width, deviceType, ui) =>
       borderRadius: 12,
       overflow: 'hidden',
       marginBottom: ui.spacing.md,
-      elevation: 2,
-    },
+  shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,    },
 
     image: {
       width: '100%',

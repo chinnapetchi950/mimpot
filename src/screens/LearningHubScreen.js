@@ -70,6 +70,8 @@ export default function LearningHubScreen({ navigation }) {
         <CustomHeader
         headertextstyle={{ textAlign: "center", marginLeft: 50 }}
         title={t('learning.your_legal_learning_hub')}
+                showLanguage={false}
+
         rightComponent={() => null}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>

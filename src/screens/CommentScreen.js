@@ -173,18 +173,19 @@ setComments(prev =>
       )}
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={80}>
-        <View style={[styles.inputRow, { padding: ui.spacing.sm, paddingTop: ui.spacing.lg }]}>
+        <View style={[styles.inputRow, { padding: ui.spacing.sm, paddingTop: ui.spacing.lg,justifyContent:"space-between",alignItems:'center' }]}>
           <TextInput
             value={commentText}
             onChangeText={setCommentText}
             placeholder={t('comments.write_a_comment')}
             style={{
-              flex: 1,
+              width:'80%',
               maxHeight: 180,
               height: ui.inputHeight,
+              borderRadius:22,
               borderWidth: 1,
               borderColor: '#ccc',
-              borderRadius: ui.radius.lg,
+              // borderRadius: ui.radius.lg,
               paddingHorizontal: ui.spacing.md,
               paddingVertical: ui.spacing.xs,
               marginRight: ui.spacing.md,
@@ -197,11 +198,20 @@ setComments(prev =>
             disabled={sending}
             style={{
               backgroundColor: '#007bff',
-              width: ui.avatar,
-              height: ui.avatar,
-              borderRadius: ui.avatar / 2,
+              // width: ui.avatar,
+              // height: ui.avatar,
+              // borderRadius: ui.avatar / 2,
               justifyContent: 'center',
               alignItems: 'center',
+               position: "absolute",
+                  right: 18,
+                
+                  width: 48,
+                  bottom:5,
+                  height: 48,
+                  borderRadius:48/2,
+              
+                  elevation: 6,
             }}
           >
             {sending ? <ActivityIndicator color="#fff" /> : <Ionicons name="send" size={ui.iconSmall} color="#fff" />}
@@ -276,7 +286,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     width: 42,
     height: 42,
-    borderRadius: 21,
+    borderRadius: 42/2,
     justifyContent: 'center',
     alignItems: 'center',
   },

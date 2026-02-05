@@ -58,6 +58,12 @@ const createStyles = (deviceType, ui) =>
       marginRight: ui.spacing.md,
       overflow: 'hidden',
       backgroundColor: '#eee',
+        shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
     },
 
     image: {

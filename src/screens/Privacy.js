@@ -46,6 +46,8 @@ const PrivacyScreen = ({ navigation }) => {
     <View style={[common.screen, { flex: 1 }]}>
       <CustomHeader
         title={t("settings.privacy_policy")}
+                showLanguage={false}
+
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />

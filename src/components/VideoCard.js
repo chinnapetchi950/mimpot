@@ -78,6 +78,12 @@ const createStyles = (deviceType, ui) =>
     card: {
       marginBottom: ui.spacing.lg,
       paddingHorizontal: ui.spacing.md,
+        shadowColor: "#000",
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  shadowOffset: { width: 0, height: 6 },
+
+  elevation: 14,
     },
 
     thumbnail: {
@@ -88,7 +94,7 @@ const createStyles = (deviceType, ui) =>
           : deviceType === "unfolded"
           ? 240
           : 200,
-      borderRadius: 12,
+      borderRadius: 10,
     },
 
     playBtn: {

@@ -194,14 +194,11 @@ console.log(apiData,"apiData==>");
     styles.container,
     { paddingBottom: ui.spacing.xl }
   ]} showsVerticalScrollIndicator={false}>
-        <HomeHeader userName={`${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`} />
+        {/* <HomeHeader 
+        userName={`${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`} /> */}
 
 
-        {/* <CustomHeader
-          title={`${t('home.hi')} ${[user?.user?.firstname||user?.firstname, user?.user?.lastname||user?.lastname].filter(Boolean).join(" ")}`}
-          showLanguage={true}
-        /> */}
-
+        <HomeHeader title={t('welcome.app_title')}/>
         {/* 🔍 SEARCH BAR */}
         {/* <AnimatedSearchBar
   value={searchText}
@@ -508,7 +505,7 @@ quickRow: {
   flexDirection: "row",
   flexWrap: 'wrap',
   gap: 10,
-  paddingHorizontal:20,
+  paddingHorizontal:12,
   marginTop: ui.spacing.md,
 },
 
