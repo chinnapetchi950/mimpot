@@ -171,16 +171,9 @@ const renderItem = ({ item }) => (
           </TouchableOpacity>
         </View>
       </View> */}
-      <View style={styles.bottomRow}>
-  
-  {/* ✅ Date */}
-  <Text style={styles.dateText} numberOfLines={1}>
-    {moment(item.created_at).format("DD-MM-YYYY")}
-  </Text>
-
-  {/* ✅ Actions */}
-  <View style={styles.rightActions}>
-    {item?.file_path && (
+      <View style={[styles.rightActions,{justifyContent:'flex-end'}]}>
+      
+       {item?.file_path && (
       <TouchableOpacity
         onPress={(e) => {
           e.stopPropagation();
@@ -195,6 +188,17 @@ const renderItem = ({ item }) => (
         />
       </TouchableOpacity>
     )}
+                </View>
+      <View style={styles.bottomRow}>
+  
+  {/* ✅ Date */}
+  <Text style={styles.dateText} numberOfLines={1}>
+    {moment(item.created_at).format("DD-MM-YYYY")}
+  </Text>
+
+  {/* ✅ Actions */}
+  <View style={styles.rightActions}>
+    
 
     <TouchableOpacity
       onPress={() =>

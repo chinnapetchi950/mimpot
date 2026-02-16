@@ -32,7 +32,7 @@ import LanguageModal from '../components/LanguageModal';
 export default function LoginScreen({navigation}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
-  const {width, height, ui,isFolded, deviceType} = useDevice();
+  const {width, height, ui,isFolded, deviceType,isPhone} = useDevice();
 
   const [rememberMe, setRememberMe] = useState(false);
   const [initialEmail, setInitialEmail] = useState('');
@@ -153,12 +153,22 @@ const [modalVisible,setModalVisible]=useState(false)
       );
     }
   };
+const headerHeight = isFolded ? height * 0.30 :isPhone &&isFolded?0.30: height * 0.45;
 
   // ---------------- UI ----------------
   return (
      <SafeAreaView style={styles.container}>
   
-<TouchableOpacity
+
+     <ScrollView
+  showsVerticalScrollIndicator={false}
+  keyboardShouldPersistTaps="handled"
+  contentContainerStyle={{
+    paddingTop:isFolded?height*0.33: height * 0.48, // ✅ PERFECT
+    paddingBottom: ui.spacing.xl,
+  }}
+>
+  <TouchableOpacity
     style={styles.langBtn}
     onPress={() => setModalVisible(true)}
     activeOpacity={0.7}
@@ -170,15 +180,15 @@ const [modalVisible,setModalVisible]=useState(false)
   </TouchableOpacity>
       {/* TOP CURVE */}
       <View
-        style={[
-          styles.topRounded,
-          {
-            width,
-           height:isFolded?height*0.38: height * 0.45,
-            borderBottomLeftRadius: ui.radius * 2,
-            borderBottomRightRadius: ui.radius * 2,
-          },
-        ]}
+       style={[
+    styles.topRounded,
+    {
+      width,
+      height: headerHeight,
+      borderBottomLeftRadius: ui.radius * 2,
+      borderBottomRightRadius: ui.radius * 2,
+    },
+  ]}
          pointerEvents="box-none"
 >
                {/* <TouchableOpacity
@@ -210,13 +220,7 @@ const [modalVisible,setModalVisible]=useState(false)
         </View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          paddingTop:isFolded?height*0.32: height * 0.52,
-          paddingBottom: ui.spacing.xl,
-        }}>
+   
         <Text style={[styles.title, {fontSize: ui.font.h1}]}>
           {t('auth.log_in')}
         </Text>
@@ -334,7 +338,8 @@ const [modalVisible,setModalVisible]=useState(false)
             </View>
           )}
         </Formik>
-      </ScrollView>
+              </ScrollView>
+
        <LanguageModal
               visible={modalVisible}
               onClose={() => setModalVisible(false)}
@@ -432,5 +437,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     alignItems: 'center',
     justifyContent: 'center',
+    bottom: -40
   },
 });

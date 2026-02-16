@@ -108,10 +108,10 @@ export function useDevice() {
     button: {
       height:
         deviceType === 'tablet'
-          ? 64
+          ? 62
           : deviceType === 'unfolded'
-          ? 58
-          : 54,
+          ? 50
+          : 50,
       fontSize: deviceType === 'tablet' ? 18 : 16,
       radius: deviceType === 'tablet' ? 18 : 14,
     },

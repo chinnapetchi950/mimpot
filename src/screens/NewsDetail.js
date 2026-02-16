@@ -7,7 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Share
+  Share,
+  TextInput
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -25,6 +26,11 @@ export default function NewDetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
 const [isBookmarked, setIsBookmarked] = useState(false);
 const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  // ✅ Search states
+const [showSearchBar, setShowSearchBar] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
+const [searchResult, setSearchResult] = useState(null);
+
   const baseURL = "http://testlink2.pillersofttechnologies.com";
 const currentLang = i18n.language || 'en';
 
@@ -47,6 +53,26 @@ console.log(result, 'result');
       setLoading(false);
     }
   };
+  const handleSearch = () => {
+  if (!searchQuery.trim()) {
+    setSearchResult(null);
+    return;
+  }
+
+  const query = searchQuery.toLowerCase();
+
+  // Combine all searchable text
+  const allText = `
+    ${title}
+    ${excerpt}
+  `.toLowerCase();
+
+  if (allText.includes(query)) {
+    setSearchResult(true);
+  } else {
+    setSearchResult(false);
+  }
+};
 
   if (loading) {
     return (
@@ -115,14 +141,50 @@ const title = getLocalizedValue(details, 'title', currentLang);
 const excerpt = getLocalizedValue(details, 'excerpt', currentLang);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <View style={styles.header}>
+        {/* Back */}
+        <TouchableOpacity
+          onPress={() => {
+            // sendViewDuration();
+            navigation.goBack();
+          }}
+        >
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
-        <View style={{ width: 30 }} />
+      
+        {/* Title */}
+        <Text style={styles.headerTitle}>
+          {t("details.details_view")}
+        </Text>
+      
+        {/* 🔍 Search Icon */}
+        <TouchableOpacity
+          onPress={() => setShowSearchBar(!showSearchBar)}
+        >
+          <Ionicons name="search-outline" size={24} color="#000" />
+        </TouchableOpacity>
       </View>
+      {showSearchBar && (
+        <View style={styles.searchContainer}>
+          <TextInput
+            placeholder="Search in title, description..."
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              setSearchResult(null);
+            }}
+            style={styles.searchInput}
+          />
+      
+          <TouchableOpacity
+            style={styles.searchBtn}
+            onPress={handleSearch}
+          >
+            <Ionicons name="search" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
+     
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* IMAGE */}
@@ -164,10 +226,30 @@ const excerpt = getLocalizedValue(details, 'excerpt', currentLang);
         </View>
 
         {/* TITLE */}
-        <Text style={styles.title}>{title}</Text>
-
-        {/* DESCRIPTION */}
-        <Text style={styles.desc}>{excerpt}</Text>
+        <Text style={styles.title}>
+          {title.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+            part.toLowerCase() === searchQuery.toLowerCase() ? (
+              <Text key={i} style={{ backgroundColor: "yellow" }}>
+                {part}
+              </Text>
+            ) : (
+              part
+            )
+          )}
+        </Text>
+<Text style={styles.desc}>
+  {excerpt.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+    part.toLowerCase() === searchQuery.toLowerCase() ? (
+      <Text key={i} style={{ backgroundColor: "yellow" }}>
+        {part}
+      </Text>
+    ) : (
+      part
+    )
+  )}
+</Text>
+        {/* ✅ DESCRIPTION WITH HIGHLIGHT */}
+        {/* <Text style={styles.desc}>{highlightText(excerpt)}</Text> */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -225,4 +307,39 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 15,
   },
+  searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginHorizontal: 15,
+  marginTop: 10,
+  backgroundColor: "#f2f2f2",
+  borderRadius: 10,
+  paddingHorizontal: 10,
+},
+
+searchInput: {
+  flex: 1,
+  height: 45,
+  fontSize: 14,
+},
+
+searchBtn: {
+  backgroundColor: "#000",
+  padding: 10,
+  borderRadius: 8,
+},
+
+foundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "green",
+  fontWeight: "600",
+},
+
+notFoundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "red",
+  fontWeight: "600",
+},
 });

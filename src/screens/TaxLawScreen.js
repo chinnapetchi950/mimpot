@@ -313,6 +313,7 @@ const onClickDownload = async (item) => {
   style={{
     //flexDirection: isTablet || isUnfolded ? "row" : "row",
     //flexWrap: isTablet || isUnfolded ? "wrap" : "nowrap",
+     paddingBottom:100,
     justifyContent: "space-between",
   }}
 >
@@ -324,6 +325,7 @@ const onClickDownload = async (item) => {
       <View
         key={item.id ?? index}
         style={{
+         
           width:
             isTablet
               ? "98%"

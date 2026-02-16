@@ -160,6 +160,7 @@ const CustomHeader = ({
   headertextstyle,
   headerContainerStyle = {},
     showlogo = false,
+    headerRowstyle={}
 
 }) => {
   const { t, i18n } = useTranslation();
@@ -209,7 +210,7 @@ const LANGUAGES = [
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
       {/* Header Row */}
-      <View style={[styles.headerRow]}>
+      <View style={[styles.headerRow,headerRowstyle]}>
         {/* Left Custom Component */}
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {leftComponent}

@@ -207,6 +207,8 @@ onSearch={() =>
             navigation.navigate("SearchResultScreen", { keyword: searchText })
           }
           /> */}
+          {console.log(searchText)}
+          
         <SearchBar
           value={searchText}
           onChangeText={handleTextChange}

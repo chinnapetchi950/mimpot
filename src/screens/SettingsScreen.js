@@ -464,16 +464,17 @@ const [imageLoading, setImageLoading] = useState(true);
               style={{ width: ui.image.avatar, height: ui.image.avatar, borderRadius: ui.image.avatar/2 }}
               resizeMode="cover"
             />
-            <View style={{ flexShrink: 1, marginLeft: ui.spacing.md }}>
-              <Text style={[styles.profileName, { fontSize: ui.font.h2 }]} numberOfLines={1} ellipsizeMode="tail">
+            <View style={{ flex: 1, marginLeft: ui.spacing.md }}>
+              <Text style={[styles.profileName, {maxWidth: "90%", fontSize: ui.font.h2 }]} numberOfLines={1} ellipsizeMode="tail">
                 {[userdata?.firstname, userdata?.lastname].filter(Boolean).join(' ')}
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: ui.spacing.sm }}>
+              
+              {/* <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: ui.spacing.sm }}> */}
                 {/* <Icon name="map-pin" size={ui.font.body} color="#fff" /> */}
-                <Text style={[styles.profileEmail, { fontSize: ui.font.body, }]}>
+                <Text  style={[styles.profileEmail, { fontSize: ui.font.body, marginTop: ui.spacing.sm}]}>
                   {userdata?.email}
                 </Text>
-              </View>
+              {/* </View> */}
             </View>
           </View>
 

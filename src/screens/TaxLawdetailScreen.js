@@ -9,7 +9,8 @@ import {
   Alert,
   Share,
   Modal,
-  BackHandler
+  BackHandler,
+  TextInput
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -41,6 +42,9 @@ const [pdfLoading, setPdfLoading] = useState(false); // Loader while downloading
 const currentLang = i18n.language || 'en';
 const viewStartTimeRef = useRef(null);
 const durationSentRef = useRef(false);
+const [showSearchBar, setShowSearchBar] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
+const [searchResult, setSearchResult] = useState(null);
   useEffect(() => {
     fetchDetails();
     getSubscriptionStatus();
@@ -260,6 +264,26 @@ setShowPdfModal(true); // Show modal first
   
 };
 
+  const handleSearch = () => {
+  if (!searchQuery.trim()) {
+    setSearchResult(null);
+    return;
+  }
+
+  const query = searchQuery.toLowerCase();
+
+  // Combine all searchable text
+  const allText = `
+    ${title}
+    ${description}
+  `.toLowerCase();
+
+  if (allText.includes(query)) {
+    setSearchResult(true);
+  } else {
+    setSearchResult(false);
+  }
+};
 
 
   if (loading) {
@@ -281,13 +305,56 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
     
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
-      <View style={styles.header}>
+        <View style={styles.header}>
+              {/* Back */}
+              <TouchableOpacity
+                onPress={() => {
+                  sendViewDuration();
+                  navigation.goBack();
+                }}
+              >
+                <Ionicons name="arrow-back" size={26} color="#000" />
+              </TouchableOpacity>
+            
+              {/* Title */}
+              <Text style={styles.headerTitle}>
+                {t("details.details_view")}
+              </Text>
+            
+              {/* 🔍 Search Icon */}
+              <TouchableOpacity
+                onPress={() => setShowSearchBar(!showSearchBar)}
+              >
+                <Ionicons name="search-outline" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+            {showSearchBar && (
+              <View style={styles.searchContainer}>
+                <TextInput
+                  placeholder="Search in title, description..."
+                  value={searchQuery}
+                  onChangeText={(text) => {
+                    setSearchQuery(text);
+                    setSearchResult(null);
+                  }}
+                  style={styles.searchInput}
+                />
+            
+                <TouchableOpacity
+                  style={styles.searchBtn}
+                  onPress={handleSearch}
+                >
+                  <Ionicons name="search" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
+      {/* <View style={styles.header}>
         <TouchableOpacity onPress={() =>{sendViewDuration(),navigation.goBack()}}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
         <View style={{ width: 30 }} />
-      </View>
+      </View> */}
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* IMAGE */}
@@ -329,10 +396,32 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
         </View>
 
         {/* TITLE */}
-        <Text style={styles.title}>{title}</Text>
+        {/* <Text style={styles.title}>{title}</Text> */}
+         <Text style={styles.title}>
+                  {title.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+                    part.toLowerCase() === searchQuery.toLowerCase() ? (
+                      <Text key={i} style={{ backgroundColor: "yellow" }}>
+                        {part}
+                      </Text>
+                    ) : (
+                      part
+                    )
+                  )}
+                </Text>
+                 <Text style={styles.title}>
+                          {description.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+                            part.toLowerCase() === searchQuery.toLowerCase() ? (
+                              <Text key={i} style={{ backgroundColor: "yellow" }}>
+                                {part}
+                              </Text>
+                            ) : (
+                              part
+                            )
+                          )}
+                        </Text>
 
         {/* DESCRIPTION */}
-        <Text style={styles.desc}>{description}</Text>
+        {/* <Text style={styles.desc}>{description}</Text> */}
       </ScrollView>
 
       {/* PDF MODAL */}
@@ -451,5 +540,39 @@ pdfView: {
   flex: 1,
   width: "100%",
 },
+searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginHorizontal: 15,
+  marginTop: 10,
+  backgroundColor: "#f2f2f2",
+  borderRadius: 10,
+  paddingHorizontal: 10,
+},
 
+searchInput: {
+  flex: 1,
+  height: 45,
+  fontSize: 14,
+},
+
+searchBtn: {
+  backgroundColor: "#000",
+  padding: 10,
+  borderRadius: 8,
+},
+
+foundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "green",
+  fontWeight: "600",
+},
+
+notFoundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "red",
+  fontWeight: "600",
+},
 });

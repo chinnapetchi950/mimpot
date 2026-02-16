@@ -19,27 +19,39 @@ import { useTranslation } from "react-i18next";
 import { getLocalizedValue } from "../utils/localization";
 import i18n from "../localization/i18n";
 import { useDevice } from "../utils/useDeviceLayout"; // ✅ responsive
+import ArticleCard from "../components/ArticleCard";
 
 export default function SearchResultScreen({ route, navigation }) {
   const { t } = useTranslation();
   const { ui } = useDevice();
 
   const keyword = route.params?.keyword || "";
+  console.log("keyword is:",route.params?.keyword, keyword);
+
   const currentLang = i18n.language || "en";
 
   const [loading, setLoading] = useState(false);
   const [mergedList, setMergedList] = useState([]);
 
   const fetchResults = async () => {
+      console.log("fetchResults called ✅");
+
     setLoading(true);
     try {
       const res = await authService.home_search(keyword);
       const api = res.data?.data;
+console.log('api',res,api);
 
       const finalList = [];
       api?.explore_tax_laws?.forEach((i) => finalList.push({ type: "taxlaw", data: i }));
       api?.legal_categories?.forEach((i) => finalList.push({ type: "category", data: i }));
-      api?.learning_hub?.forEach((i) => finalList.push({ type: "video", data: i }));
+api?.learning_hub?.forEach((i) => {
+  if (i.type === "article") {
+    finalList.push({ type: "article", data: i });
+  } else {
+    finalList.push({ type: "video", data: i });
+  }
+});
       api?.news?.forEach((i) => finalList.push({ type: "news", data: i }));
 
       setMergedList(finalList);
@@ -50,8 +62,12 @@ export default function SearchResultScreen({ route, navigation }) {
     }
   };
 
-  useEffect(() => {
-    if (keyword.trim() !== "") fetchResults();
+useEffect(() => {
+  console.log("keyboard",keyword);
+  
+    if (keyword.trim() !== "") {
+      fetchResults();
+    }
   }, [keyword]);
 
   const renderItem = ({ item }) => {
@@ -94,6 +110,21 @@ export default function SearchResultScreen({ route, navigation }) {
             />
           </View>
         );
+case "article":
+  return (
+    <View style={{ marginTop: ui.spacing.sm }}>
+      <ArticleCard
+        item={{
+          ...obj,
+          title: localizedTitle,
+          description: localizedDescription,
+        }}
+        onPress={() =>
+          navigation.navigate("ArticleDetailsScreen", { id: obj.id })
+        }
+      />
+    </View>
+  );
 
       case "video":
         return (
@@ -146,7 +177,7 @@ export default function SearchResultScreen({ route, navigation }) {
       {/* HEADER */}
       <View style={[styles.header, { padding: ui.spacing.md, gap: ui.spacing.sm }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={ui.iconMedium} color="#000" />
+          <Icon name="arrow-left" size={26} color="#000" />
         </TouchableOpacity>
 
         <Text style={{ fontSize: ui.font.h4, fontWeight: "700" }}>

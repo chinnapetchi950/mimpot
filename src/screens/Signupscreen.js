@@ -14,7 +14,9 @@ import DividerOr from '../components/DividerOr';
 import { authService } from '../api/authService';
 import { useTranslation } from 'react-i18next';
 import { useDevice } from '../utils/useDeviceLayout';
-
+import Feather from 'react-native-vector-icons/Feather';
+import {GoogleSignin, statusCodes} from '@react-native-google-signin/google-signin';
+import Storage from '../utils/storage';
 const { width, height } = Dimensions.get('window');
 
 export default function SignupScreen({navigation}) {
@@ -86,6 +88,56 @@ Alert.alert(
       setLoading(false);
     }
   };
+ const GoogleSignUp = async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      await GoogleSignin.signOut();
+
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo?.data?.idToken;
+
+      if (!idToken) throw new Error('No ID token');
+
+      handleGoogleLogin({idToken});
+    } catch (error) {
+      console.log("err",error);
+      
+      if (error.code !== statusCodes.SIGN_IN_CANCELLED) {
+        Alert.alert(
+          t('common.error'),
+          t('common.something_went_wrong'),
+        );
+      }
+    }
+  };
+
+  const handleGoogleLogin = async tokens => {
+    try {
+      const formData = new FormData();
+      formData.append('access_token', tokens.idToken);
+
+      const res = await authService.googleLogin(formData);
+
+      const token = res?.data?.token;
+      const userData = res?.data?.user;
+
+      await Storage.setItem('token', token);
+      await Storage.setItem('userData', userData);
+
+      dispatch(setUser(userData));
+      dispatch(setToken(token));
+
+      Alert.alert(t('common.success'), t('auth.logged_in_with_google'));
+      navigation.replace('MainTabs');
+    } catch (error) {
+      Alert.alert(
+        t('auth.google_login_failed'),
+        t('common.something_went_wrong'),
+      );
+    }
+  };
 
  return (
     <View style={[styles.container]}>
@@ -102,10 +154,10 @@ Alert.alert(
             style={[styles.logo, { width: ui.image.avatar, height: ui.image.avatar }]}
           />
           <Text style={[styles.heroTitle, { fontSize: ui.font.h1 }]}>
-            Access Share
+           {t('signup.access_share')}
           </Text>
           <Text style={[styles.heroSubtitle, { fontSize: ui.font.body }]}>
-            Learn tax laws easily
+            {t('signup.learn_tax_laws_easily')}
           </Text>
         </View>
       </ImageBackground>
@@ -118,72 +170,126 @@ Alert.alert(
         <View style={styles.cardWrapper}>
   <View style={[styles.card, { paddingHorizontal: ui.padding }]}>
  <Text style={[styles.title, { fontSize: ui.font.h2 }]}>
-            Sign Up
+           {t('auth.sign_up')}
           </Text>
 
           <Formik
             initialValues={{
-              email: '',
-              password: '',
-              password_confirmation: '',
-              firstname: '',
-              lastname: '',
-              id_number: '',
+              email: "",
+              password: "",
+              firstname: "",
+              lastname: "",
+              id_number: "",
+              password_confirmation:''
             }}
             validationSchema={SignupSchema}
             onSubmit={handleRegister}
           >
-            {({ handleSubmit, handleChange, values }) => (
+            {({
+              handleSubmit,
+              handleChange,
+              values,
+              touched,
+              errors
+            }) => (
               <>
-                <InputField
-                  placeholder="Email*"
-                  value={values.email}
-                  onChangeText={handleChange('email')}
-                />
 
+                {/* EMAIL */}
                 <InputField
-                  placeholder="Password*"
+                  placeholder={t('auth.email_required')}
+                  value={values.email}
+                  onChangeText={handleChange("email")}
+                />
+                {touched.email && errors.email && (
+                  <Text style={styles.errorText}>{errors.email}</Text>
+                )}
+
+                {/* PASSWORD */}
+                <InputField
+                  placeholder={t('auth.password_required')}
                   secureTextEntry
                   value={values.password}
-                  onChangeText={handleChange('password')}
+                  onChangeText={handleChange("password")}
                 />
-
+                {touched.password && errors.password && (
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                )}
                 <InputField
-                  placeholder="Name*"
+                  placeholder={t('auth.confirm_password_required')}
+                  secureTextEntry
+                  value={values.password_confirmation}
+                  onChangeText={handleChange("password_confirmation")}
+                />
+                {touched.password_confirmation && errors.password_confirmation && (
+                  <Text style={styles.errorText}>{errors.password_confirmation}</Text>
+                )}
+
+                {/* NAME */}
+                <InputField
+                  placeholder={t('auth.name_required')}
                   value={values.firstname}
-                  onChangeText={handleChange('firstname')}
+                  onChangeText={handleChange("firstname")}
                 />
+                {touched.firstname && errors.firstname && (
+                  <Text style={styles.errorText}>{errors.firstname}</Text>
+                )}
 
+                {/* LAST NAME */}
                 <InputField
-                  placeholder="Last Name*"
+                  placeholder={t('auth.last_name_required')}
                   value={values.lastname}
-                  onChangeText={handleChange('lastname')}
+                  onChangeText={handleChange("lastname")}
                 />
+                {touched.lastname && errors.lastname && (
+                  <Text style={styles.errorText}>{errors.lastname}</Text>
+                )}
 
+                {/* ID NUMBER */}
                 <InputField
-                  placeholder="ID Number*"
+                  placeholder={t('auth.id_number')}
                   value={values.id_number}
-                  onChangeText={handleChange('id_number')}
+                  onChangeText={handleChange("id_number")}
                 />
+                {touched.id_number && errors.id_number && (
+                  <Text style={styles.errorText}>{errors.id_number}</Text>
+                )}
 
                 {/* TERMS */}
                 <View style={styles.termsRow}>
-                  <TouchableOpacity
-                    onPress={() => setAgree(!agree)}
-                    style={styles.checkbox}
-                  >
-                    {agree && <View style={styles.checkboxTick} />}
-                  </TouchableOpacity>
+  <TouchableOpacity
+    style={styles.checkboxRow}
+    onPress={() => setAgree(!agree)}
+  >
+    {/* Checkbox Box */}
+    <View
+      style={[
+        styles.checkbox,
+        agree && styles.checkboxChecked,
+      ]}
+    >
+      {agree && (
+        <Feather name="check" size={16} color="#fff" />
+      )}
+    </View>
 
-                  <Text style={styles.termsText}>
-                    By signing up, you agree to our{' '}
-                    <Text style={styles.link}>Terms & Conditions</Text> and{' '}
-                    <Text style={styles.link}>Privacy Policy</Text>.
-                  </Text>
-                </View>
+    {/* Terms Text */}
+    <Text style={styles.termsText}>
+      {t('auth.terms_agreement')}{" "}
+      <Text style={styles.link}>
+        {t('auth.terms_and_conditions')}
+      </Text>{" "}
+      {t('common.and')}{" "}
+      <Text style={styles.link}>
+        {t('auth.privacy_policy')}
+      </Text>.
+    </Text>
+  </TouchableOpacity>
+</View>
 
+
+                {/* SIGN UP BUTTON */}
                 <PrimaryButton
-                  title="Sign Up"
+                  title={loading ? t('common.please_wait') : t('auth.sign_up')}
                   height={ui.button.height}
                   fontSize={ui.button.text}
                   onPress={handleSubmit}
@@ -198,33 +304,29 @@ Alert.alert(
                   />
                 )}
 
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Login')}
-                  style={styles.loginLink}
-                >
-                  <Text style={styles.loginText}>Log in</Text>
+                {/* LOGIN LINK */}
+                <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.loginLink}>
+                  <Text style={styles.loginText}>{t('auth.login')}</Text>
                 </TouchableOpacity>
 
                 <DividerOr />
 
-                <TouchableOpacity style={styles.googleBtn}>
+                <TouchableOpacity onPress={GoogleSignUp} style={styles.googleBtn}>
                   <Image
                     source={require('../assets/images/google.png')}
                     style={styles.googleIcon}
                   />
-                  <Text style={styles.googleText}>
-                    Continue with google
-                  </Text>
+                  <Text style={styles.googleText}>{t('auth.continue_with_google_lower')}</Text>
                 </TouchableOpacity>
               </>
             )}
           </Formik>
-            </View>
-
          
         </View>
+        </View>
       </ScrollView>
-    </View>
+      </View>
+   
   );
 }
 
@@ -287,21 +389,55 @@ logo: { resizeMode: 'contain', marginBottom: 8 },
     alignItems: 'flex-start',
     marginVertical: 12,
   },
+checkboxRow: {
+  flexDirection: "row",
+  alignItems: "flex-start",
+  marginTop: 10,
+},
 
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    marginTop: 2,
-  },
+checkbox: {
+  width: 22,
+  height: 22,
+  borderWidth: 1,
+  borderColor: "#cfcfcf",
+  borderRadius: 4,
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: 3,
+},
 
-  checkboxTick: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    borderRadius: 2,
-  },
+checkboxChecked: {
+  backgroundColor: colors.primary,
+  borderColor: colors.primary,
+},
+
+termsText: {
+  flex: 1,
+  marginLeft: 12,
+  color: "#333",
+  lineHeight: 20,
+  fontSize: 14,
+},
+
+link: {
+  color: colors.primary,
+  fontWeight: "600",
+},
+
+  // checkbox: {
+  //   width: 22,
+  //   height: 22,
+  //   borderWidth: 1,
+  //   borderColor: '#ccc',
+  //   borderRadius: 4,
+  //   marginTop: 2,
+  // },
+
+  // checkboxTick: {
+  //   flex: 1,
+  //   backgroundColor: colors.primary,
+  //   borderRadius: 2,
+  // },
 
   termsText: {
     flex: 1,
@@ -327,36 +463,16 @@ logo: { resizeMode: 'contain', marginBottom: 8 },
 
   googleIcon: { width: 22, height: 22, marginRight: 10 },
   googleText: { fontSize: 16 },
+      errorText: {
+    color: "red",
+    fontSize: 13,
+    marginTop: -4,
+    marginBottom: 8
+  },
 });
 
 
 
 
 
-// const styles = StyleSheet.create({
-//   container:{flex:1, backgroundColor:'rgba(0, 0, 0, 0.4)'},
-//   headerImage:{ width: width, height: height*0.26,justifyContent:'flex-end' },
-//   headerOverlay:{ alignItems:'center', paddingBottom:'10%' },
-//   logoWrap:{ position:'absolute', top: StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 30, alignItems:'center', width:80, height:80, borderRadius:20, backgroundColor:'#fff', justifyContent:'center', shadowColor:'#000', shadowOpacity:0.06, shadowRadius:8, elevation:4 },
-//   logoSmall:{ width:64, height:64, resizeMode:'contain' },
-//   headerTitle:{ color:'#fff', fontSize:34, fontWeight:'700', marginTop:10, textAlign:'center' },
-//   headerSubtitle:{ color:'#fff', fontSize:18, marginTop:4, textAlign:'center', fontWeight:'700' },
 
-//   scrollContent:{ paddingBottom:40, alignItems:'center',borderTopLeftRadius:36, borderTopRightRadius:36,backgroundColor:"#fff" },
-//   whiteCard:{ width: '100%', backgroundColor:'#fff', borderTopLeftRadius:36, borderTopRightRadius:36, paddingTop:24, paddingHorizontal:18, paddingBottom:30, shadowColor:'#000', shadowOpacity:0.05, shadowRadius:8, },
-
-//   pageTitle:{ fontSize:32, fontWeight:'700', textAlign:'center', marginBottom:12 },
-
-//   termRow:{ flexDirection:'row', alignItems:'flex-start', marginTop:8 },
-//   checkbox:{ width:22, height:22, borderWidth:1, borderColor:'#cfcfcf', borderRadius:4, marginTop:4 },
-//   checkboxTick:{ flex:1, backgroundColor: colors.primary, borderRadius:2 },
-//   termText:{ flex:1, marginLeft:12, color:'#333', lineHeight:20 },
-//   link:{ color: colors.primary },
-
-//   loginLink:{ marginTop:10, alignItems:'center' },
-//   loginText:{ color:'#111', fontSize:16 },
-
-//   googleButton:{ marginTop:12, flexDirection:'row', alignItems:'center', justifyContent:'center', borderWidth:1, borderColor:'#000', borderRadius:30, paddingVertical:12, paddingHorizontal:18 },
-//   googleIcon:{ width:22, height:22, marginRight:10, resizeMode:'contain' },
-//   googleText:{ fontSize:16 }
-// });

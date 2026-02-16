@@ -74,7 +74,21 @@ export default function ArticleCard({ item, onPress, onDownload }) {
       >
         {item.description}
       </Text>
+              <View style={[styles.rightActions,{justifyContent:'flex-end',marginRight:10}]}>
 
+  {item?.file_path && (
+            <TouchableOpacity
+              onPress={onDownload}
+              hitSlop={10}
+            >
+              <FontAwesome
+                name="file-pdf-o"
+                size={20}
+                color="#e53935"
+              />
+            </TouchableOpacity>
+          )}
+          </View>
       <View
         style={[
           styles.footer,
@@ -94,18 +108,7 @@ export default function ArticleCard({ item, onPress, onDownload }) {
         </Text>
 
         <View style={styles.rightActions}>
-          {item?.file_path && (
-            <TouchableOpacity
-              onPress={onDownload}
-              hitSlop={10}
-            >
-              <FontAwesome
-                name="file-pdf-o"
-                size={20}
-                color="#e53935"
-              />
-            </TouchableOpacity>
-          )}
+        
 
           <TouchableOpacity onPress={onPress}>
             <Text

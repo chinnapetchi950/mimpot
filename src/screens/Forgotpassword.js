@@ -22,11 +22,12 @@ import { useDevice } from '../utils/useDeviceLayout';
 
 import { authService } from '../api/authService';
 
-const {width, height} = Dimensions.get('window');
+// const {width, height} = Dimensions.get('window');
 
 export default function ForgotPasswordScreen({navigation}) {
   const {t} = useTranslation();
-  const { ui, height,deviceType,isFolded } = useDevice(); // ✅ useDevice for responsive sizing
+  const { width,ui, height,deviceType,isFolded,isPhone,isTablet } = useDevice(); // ✅ useDevice for responsive sizing
+  const styles = createStyles(width,ui, height,deviceType,isFolded,isPhone,isTablet);
 
   // ---------------- VALIDATION ----------------
   const ForgotSchema = Yup.object().shape({
@@ -63,12 +64,13 @@ console.log(res,'res');
       setSubmitting(false);
     }
   };
+const headerHeight = isFolded ||isPhone ? height * 0.35 : height * 0.45;
 
   // ---------------- UI ----------------
   return (
     <SafeAreaView style={[styles.container, { paddingHorizontal: ui.padding }]}>
-      <CustomHeader
-headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        leftComponent={
+<CustomHeader
+headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0,paddingTop:0}}        leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={ui.font.h2} color="#000" />
           </TouchableOpacity>
@@ -76,7 +78,8 @@ headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        left
         showBack
         showLanguage={false}
       />
-
+ 
+         
       {/* Top Logo Section */}
       <View
       
@@ -84,7 +87,7 @@ headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        left
           styles.topRounded,
           {
             width,
-           height:isFolded?height*0.38: height * 0.48,
+           height:headerHeight,
             borderBottomLeftRadius: ui.radius * 2,
             borderBottomRightRadius: ui.radius * 2,
           },
@@ -110,11 +113,12 @@ headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        left
         </View>
       </View>
 
-      <ScrollView
+         
+ <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
-          paddingTop:isFolded?height*0.32: height * 0.42,
+           paddingTop:isFolded?height*0.35: isPhone?height * 0.35:0.35,
           paddingBottom: ui.spacing.xl,
         }}
       >
@@ -166,8 +170,8 @@ headerContainerStyle={{paddingHorizontal: ui.padding, elevation: 0}}        left
 }
 
 // ---------------- STYLES ----------------
-const styles = StyleSheet.create({
-  container: {
+const createStyles = (width,ui, height,deviceType,isFolded) =>
+  StyleSheet.create({  container: {
     flex: 1,
     backgroundColor: '#fff',
   },
@@ -188,7 +192,7 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
 
   error: {

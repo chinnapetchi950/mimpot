@@ -10,7 +10,8 @@ import {
   Share,
   Alert,
   Modal,
-  BackHandler
+  BackHandler,
+  TextInput
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -27,10 +28,13 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { getLocalizedValue } from "../utils/localization";
 import i18n from "../localization/i18n";
 import { useFocusEffect } from "@react-navigation/native";
+import { WebView } from "react-native-webview";
 
 
 export default function ArticleDetailsScreen({ route, navigation }) {
   const { t } = useTranslation();
+    const webViewRef = useRef(null); 
+
       const { categoryId } = route.params || {};
 const currentLang = i18n.language || 'en';
 
@@ -44,6 +48,17 @@ const [downloadLoading, setIsdownloadLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
 const [pdfLoading, setPdfLoading] = useState(false);
 const [selectedItem, setSelectedItem] = useState(null);
+
+const [showSearch, setShowSearch] = useState(false);
+const [searchText, setSearchText] = useState("");
+const [pdfPage, setPdfPage] = useState(1);
+
+const [webLoading, setWebLoading] = useState(true);
+  // ✅ Search states
+const [showSearchBar, setShowSearchBar] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
+const [searchResult, setSearchResult] = useState(null);
+
 const viewStartTimeRef = useRef(null);
 const durationSentRef = useRef(false);
   const fetchDocumentDetails = async () => {
@@ -147,7 +162,26 @@ ${getLocalizedValue(data, 'description', currentLang) || t('details.no_descripti
   
     return () => backHandler.remove();
   }, []);
+ const handleSearch = () => {
+  if (!searchQuery.trim()) {
+    setSearchResult(null);
+    return;
+  }
 
+  const query = searchQuery.toLowerCase();
+
+  // Combine all searchable text
+  const allText = `
+    ${title}
+    ${content}
+  `.toLowerCase();
+
+  if (allText.includes(query)) {
+    setSearchResult(true);
+  } else {
+    setSearchResult(false);
+  }
+};
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -199,6 +233,25 @@ console.log(res,"res====");
     setIsdownloadLoading(false);
   }
 };
+// const openPdfModal = async () => {
+//   setShowPdfModal(true);
+//   setPdfLoading(true);
+
+//   try {
+//     const pdfOnlineUrl =
+//       details?.file_path?.startsWith("http")
+//         ? details.file_path
+//         : `${imageUrl}${details.file_path}`;
+
+//     setPdfUrl(pdfOnlineUrl); // ✅ Direct URL
+//   } catch (err) {
+//     Alert.alert("Error", "Failed to load PDF");
+//   } finally {
+//     setPdfLoading(false);
+//   }
+// };
+
+
 
 
 const openPdfModal = async () => {
@@ -216,6 +269,7 @@ setShowPdfModal(true); // Show modal first
 
     // Download PDF to local cache
     const res = await RNBlobUtil.config({ path: localPath }).fetch('GET', url);
+console.log(res.path());
 
     setPdfUrl(res.path()); // Set local PDF path
   } catch (err) {
@@ -244,6 +298,16 @@ setShowPdfModal(true); // Show modal first
 
   
 };
+
+const highlightHTML = (html, query) => {
+  if (!query) return html;
+
+  const regex = new RegExp(`(${query})`, "gi");
+
+  return html.replace(regex, `<mark>$1</mark>`);
+};
+
+
 const title = getLocalizedValue(details, 'title', currentLang);
 const content = getLocalizedValue(details, 'content', currentLang);
 const categoryName = getLocalizedValue(details?.category, 'name', currentLang);
@@ -252,14 +316,39 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
     <View  style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() =>{sendViewDuration(),navigation.goBack()}}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('details.details_view')}</Text>
-        <View style={{ width: 30 }} />
-      </View>
+  <TouchableOpacity
+           onPress={() => setShowSearchBar(!showSearchBar)}
+         >
+           <Ionicons name="search-outline" size={24} color="#000" />
+         </TouchableOpacity>
+                 </View>
 
+            {showSearchBar && (
+              <View style={styles.searchContainer}>
+                <TextInput
+                  placeholder="Search in title, description..."
+                  value={searchQuery}
+                  onChangeText={(text) => {
+                    setSearchQuery(text);
+                    setSearchResult(null);
+                  }}
+                  style={styles.searchInput}
+                />
+            
+                <TouchableOpacity
+                  style={styles.searchBtn}
+                  onPress={handleSearch}
+                >
+                  <Ionicons name="search" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            )}
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* Image */}
         <ImageWithLoader
@@ -316,43 +405,255 @@ const subCategoryName = getLocalizedValue(details?.sub_category, 'name', current
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>{title}</Text>
+         <Text style={styles.title}>
+                  {title.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+                    part.toLowerCase() === searchQuery.toLowerCase() ? (
+                      <Text key={i} style={{ backgroundColor: "yellow" }}>
+                        {part}
+                      </Text>
+                    ) : (
+                      part
+                    )
+                  )}
+                </Text>
 
         {/* Description */}
-        {content!=null&&
+        {content != null && (
+  <HTMLView
+    value={highlightHTML(content, searchQuery)}
+    stylesheet={htmlStyles}
+  />
+)}
+
+        {/* {content!=null&&
         <HTMLView
   value={content}
   stylesheet={htmlStyles}
-/>}
+/>} */}
 
         {/* <Text style={styles.desc}>{details?.description}</Text> */}
       </ScrollView>
     </View>
          <Modal visible={showPdfModal} animationType="slide" onRequestClose={() => setShowPdfModal(false)}>
         <View style={styles.pdfModalContainer}>
-          <View style={styles.pdfHeader}>
-            <TouchableOpacity onPress={() => setShowPdfModal(false)}>
-              <Ionicons name="close" size={26} color="#000" />
-            </TouchableOpacity>
-            <Text style={styles.pdfTitle}>PDF Preview</Text>
-            <TouchableOpacity onPress={()=>onClickDownload(details)}>
-              <Ionicons name="download-outline" size={24} color="#000" />
-            </TouchableOpacity>
-          </View>
- {pdfLoading && (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
-        <Text style={{ marginTop: 10 }}>Loading PDF...</Text>
-      </View>
-    )}
-          {!pdfLoading && pdfUrl && (
-            <Pdf
-              source={{ uri: pdfUrl, cache: true }}
-              style={styles.pdfView}
-              trustAllCerts={true}
-              onError={e => console.log("PDF Error:", e)}
-            />
-          )}
+          {/* ✅ PDF Header */}
+<View style={styles.pdfHeader}>
+  {/* Close */}
+  <TouchableOpacity onPress={() => setShowPdfModal(false)}>
+    <Ionicons name="close" size={26} color="#000" />
+  </TouchableOpacity>
+
+  {/* Title */}
+  <Text style={styles.pdfTitle}>PDF Preview</Text>
+
+  {/* Right Icons */}
+  <View style={styles.pdfHeaderIcons}>
+    {/* 🔍 Search */}
+    <TouchableOpacity
+      onPress={() => {
+        setShowSearch(true);
+      }}
+    >
+      <Ionicons name="search-outline" size={22} color="#000" />
+    </TouchableOpacity>
+
+    {/* ⬇ Download */}
+    <TouchableOpacity onPress={() => onClickDownload(details)}>
+      <Ionicons name="download-outline" size={22} color="#000" />
+    </TouchableOpacity>
+  </View>
+</View>
+
+{/* ✅ Search Bar */}
+{showSearch && (
+  <View style={styles.searchBar}>
+
+    {/* Input */}
+    <TextInput
+      placeholder="Search in PDF..."
+      value={searchText}
+      onChangeText={setSearchText}
+      style={styles.searchInput}
+      autoFocus={true}
+      returnKeyType="search"
+      onSubmitEditing={() => {
+        if (!searchText.trim()) {
+          Alert.alert("Enter text to search");
+          return;
+        }
+
+        // ✅ Send Search Text to PDF.js WebView
+        // webViewRef.current.injectJavaScript(`
+        //   PDFViewerApplication.findController.executeCommand("find", {
+        //     query: "${searchText}",
+        //     phraseSearch: true,
+        //     highlightAll: true,
+        //     findPrevious: false
+        //   });
+        // `);
+        webViewRef.current.injectJavaScript(`
+  PDFViewerApplication.findController.executeCommand("find", {
+    query: "${searchText}",
+    highlightAll: true
+  });
+`);
+
+      }}
+    />
+
+    {/* ❌ Clear Button */}
+    <TouchableOpacity
+      onPress={() => {
+        setSearchText("");
+        setShowSearch(false);
+
+        // ✅ Clear Highlights
+        webViewRef.current.injectJavaScript(`
+          PDFViewerApplication.findController.executeCommand("find", {
+            query: "",
+            highlightAll: false
+          });
+        `);
+      }}
+      style={styles.clearBtn}
+    >
+      <Ionicons name="close-circle" size={22} color="gray" />
+    </TouchableOpacity>
+
+    {/* 🔍 Go Button */}
+    <TouchableOpacity
+      style={styles.searchBtn}
+      onPress={() => {
+        if (!searchText.trim()) {
+          Alert.alert("Enter text to search");
+          return;
+        }
+
+        // ✅ Search Forward (Next Match)
+        webViewRef.current.injectJavaScript(`
+          PDFViewerApplication.findController.executeCommand("findagain", {
+            query: "${searchText}",
+            phraseSearch: true,
+            highlightAll: true,
+            findPrevious: false
+          });
+        `);
+      }}
+    >
+      <Text style={{ color: "#fff", fontWeight: "600" }}>
+        Go
+      </Text>
+    </TouchableOpacity>
+
+  </View>
+)}
+<View style={styles.navButtons}>
+
+  {/* ⬅ Previous */}
+  <TouchableOpacity
+    onPress={() => {
+      webViewRef.current.injectJavaScript(`
+        PDFViewerApplication.findController.executeCommand("findagain", {
+          query: "${searchText}",
+          findPrevious: true
+        });
+      `);
+    }}
+  >
+    <Ionicons name="chevron-back" size={22} />
+  </TouchableOpacity>
+
+  {/* ➡ Next */}
+  <TouchableOpacity
+    onPress={() => {
+      webViewRef.current.injectJavaScript(`
+        PDFViewerApplication.findController.executeCommand("findagain", {
+          query: "${searchText}",
+          findPrevious: false
+        });
+      `);
+    }}
+  >
+    <Ionicons name="chevron-forward" size={22} />
+  </TouchableOpacity>
+
+</View>
+
+
+
+ {/* ✅ WebView Loader Overlay */}
+{webLoading && (
+  <View style={styles.webLoader}>
+    <ActivityIndicator size="large" color="#000" />
+    <Text style={{ marginTop: 10 }}>Rendering PDF...</Text>
+  </View>
+)}
+{console.log( `file:///android_asset/pdfjs/viewer.html?file=${encodeURIComponent(
+      "file://" + pdfUrl
+    )}`,"pdfUrl")}
+{/* ✅ PDF WebView */}
+{!pdfLoading && pdfUrl && (
+ <WebView
+  ref={webViewRef}
+  originWhitelist={["*"]}
+  javaScriptEnabled={true}
+  domStorageEnabled={true}
+  allowFileAccess={true}
+  allowUniversalAccessFromFileURLs={true}
+  mixedContentMode="always"
+
+  onLoadStart={() => setWebLoading(true)}
+  onLoadEnd={() => setWebLoading(false)}
+  source={{
+    uri: `file:///android_asset/pdfjs/viewer.html?file=${encodeURIComponent(
+      "file://" + pdfUrl
+    )}`,
+  }}
+// source={{uri:'http://testlink2.pillersofttechnologies.com/storage/documents/files/45HMA7K7TbBYCGhDoV8Z9WhYZGh7QZX8hSeDbPYY.pdf'}}
+    //  source={{
+    //   uri: `file:///android_asset/pdfjs/web/viewer.html?file=${encodeURIComponent(
+    //     'http://testlink2.pillersofttechnologies.com/storage/documents/files/45HMA7K7TbBYCGhDoV8Z9WhYZGh7QZX8hSeDbPYY.pdf'
+    //   )}`,
+    // }}
+
+  style={{ flex: 1 }}
+/>
+
+
+/* <WebView
+  ref={webViewRef}
+  originWhitelist={["*"]}
+  javaScriptEnabled={true}
+  domStorageEnabled={true}
+  allowFileAccess={true}
+  allowUniversalAccessFromFileURLs={true}
+ 
+  source={{
+    uri: `file:///android_asset/pdfjs/web/viewer.html?file=${encodeURIComponent(
+       pdfUrl
+    )}`,
+  }}
+  style={{ flex: 1 }}
+/> */
+
+
+
+
+)}
+
+
+          {/* {!pdfLoading && pdfUrl && (
+            
+          <Pdf
+  source={{ uri: pdfUrl, cache: true }}
+  page={pdfPage}
+  onPageChanged={(page) => setPdfPage(page)}
+  style={styles.pdfView}
+  trustAllCerts={true}
+  onError={e => console.log("PDF Error:", e)}
+/>
+
+          )} */}
         </View>
       </Modal>
     </View>
@@ -395,9 +696,49 @@ const htmlStyles = StyleSheet.create({
     backgroundColor: '#ddd',
     marginVertical: 15,
   },
+   
+
+  mark: {
+    backgroundColor: "yellow",
+    fontWeight: "bold",
+  },
 });
 
 const styles = StyleSheet.create({
+  navButtons: {
+  flexDirection: "row",
+  justifyContent: "space-around",
+  paddingVertical: 8,
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+},
+
+//   searchBar: {
+//   flexDirection: "row",
+//   padding: 10,
+//   borderBottomWidth: 1,
+//   borderColor: "#eee",
+//   backgroundColor: "#f9f9f9",
+// },
+
+// searchInput: {
+//   flex: 1,
+//   height: 40,
+//   backgroundColor: "#fff",
+//   borderRadius: 6,
+//   paddingHorizontal: 10,
+//   borderWidth: 1,
+//   borderColor: "#ddd",
+// },
+
+// searchBtn: {
+//   marginLeft: 10,
+//   backgroundColor: "#007bff",
+//   paddingHorizontal: 16,
+//   borderRadius: 6,
+//   justifyContent: "center",
+// },
+
   header: {
     paddingTop: 15,
     paddingBottom: 10,
@@ -470,4 +811,71 @@ pdfView: {
   flex: 1,
   width: "100%",
 },  
+webLoader: {
+  ...StyleSheet.absoluteFillObject,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "#fff",
+  zIndex: 10,
+},
+pdfHeaderIcons: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 18,
+},
+
+searchBar: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderColor: "#eee",
+  backgroundColor: "#fafafa",
+},
+
+searchInput: {
+  flex: 1,
+  height: 42,
+  backgroundColor: "#fff",
+  borderRadius: 8,
+  paddingHorizontal: 12,
+  borderWidth: 1,
+  borderColor: "#ddd",
+},
+
+clearBtn: {
+  marginHorizontal: 8,
+},
+
+// searchBtn: {
+//   backgroundColor: "#000",
+//   paddingHorizontal: 18,
+//   height: 42,
+//   borderRadius: 8,
+//   justifyContent: "center",
+//   alignItems: "center",
+// },
+searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginHorizontal: 15,
+  marginTop: 10,
+  backgroundColor: "#f2f2f2",
+  borderRadius: 10,
+  paddingHorizontal: 10,
+},
+
+searchInput: {
+  flex: 1,
+  height: 45,
+  fontSize: 14,
+},
+
+searchBtn: {
+  backgroundColor: "#000",
+  padding: 10,
+  borderRadius: 8,
+},
+
 });

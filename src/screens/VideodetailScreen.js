@@ -57,6 +57,9 @@ const [comment, setComment] = useState('');
 const [ratingLoading, setRatingLoading] = useState(false);
 const [commentVisible, setCommentVisible] = useState(true);
 const [showVideo, setShowVideo] = useState(true);
+const [showSearchBar, setShowSearchBar] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
+const [searchResult, setSearchResult] = useState(null);
 
 // const videoRef = useRef(null);
 const PREVIEW_DURATION = 10; // seconds
@@ -106,6 +109,29 @@ useFocusEffect(
     };
   }, [])
 );
+const handleSearch = () => {
+  if (!searchQuery.trim()) {
+    setSearchResult(null);
+    return;
+  }
+
+  const query = searchQuery.toLowerCase();
+
+  // Combine all searchable text
+  const allText = `
+    ${videoTitle}
+    ${videoDescription}
+    ${categoryName}
+    ${subCategoryName}
+  `.toLowerCase();
+
+  if (allText.includes(query)) {
+    setSearchResult(true);
+  } else {
+    setSearchResult(false);
+  }
+};
+
 const sendViewDuration = async () => {
   try {
     if (durationSentRef.current) return;
@@ -425,7 +451,62 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar backgroundColor={'transparent'} barStyle={'dark-content'}/>
-       <View style={styles.header}>
+      <View style={styles.header}>
+  {/* Back */}
+  <TouchableOpacity
+    onPress={() => {
+      sendViewDuration();
+      navigation.goBack();
+    }}
+  >
+    <Ionicons name="arrow-back" size={26} color="#000" />
+  </TouchableOpacity>
+
+  {/* Title */}
+  <Text style={styles.headerTitle}>
+    {t("video_details.details_view")}
+  </Text>
+
+  {/* 🔍 Search Icon */}
+  <TouchableOpacity
+    onPress={() => setShowSearchBar(!showSearchBar)}
+  >
+    <Ionicons name="search-outline" size={24} color="#000" />
+  </TouchableOpacity>
+</View>
+{showSearchBar && (
+  <View style={styles.searchContainer}>
+    <TextInput
+      placeholder="Search in title, description..."
+      value={searchQuery}
+      onChangeText={(text) => {
+        setSearchQuery(text);
+        setSearchResult(null);
+      }}
+      style={styles.searchInput}
+    />
+
+    <TouchableOpacity
+      style={styles.searchBtn}
+      onPress={handleSearch}
+    >
+      <Ionicons name="search" size={20} color="#fff" />
+    </TouchableOpacity>
+  </View>
+)}
+{/* {searchResult === true && (
+  <Text style={styles.foundText}>
+    ✅ Match Found!
+  </Text>
+)}
+
+{searchResult === false && (
+  <Text style={styles.notFoundText}>
+    ❌ No match found
+  </Text>
+)} */}
+
+       {/* <View style={styles.header}>
               <TouchableOpacity
   onPress={() => {
     sendViewDuration();   // ⏱️ send duration first
@@ -436,7 +517,7 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
 </TouchableOpacity>
               <Text style={styles.headerTitle}>{t('video_details.details_view')}</Text>
               <View style={{ width: 30 }} />
-            </View>
+            </View> */}
       {/* <CustomHeader
         title={t('video_details.details_view')}
         leftComponent={
@@ -449,7 +530,17 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
 <ScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
         {/* Top Title + Rating */}
-        <Text style={styles.title}>{videoTitle}</Text>
+<Text style={styles.title}>
+  {videoTitle.split(new RegExp(`(${searchQuery})`, "gi")).map((part, i) =>
+    part.toLowerCase() === searchQuery.toLowerCase() ? (
+      <Text key={i} style={{ backgroundColor: "yellow" }}>
+        {part}
+      </Text>
+    ) : (
+      part
+    )
+  )}
+</Text>
 
         <View style={styles.topRow}>
           <Text style={styles.author}>{t('video_details.by')} M.Jmpot</Text>
@@ -491,8 +582,21 @@ const subCategoryName = getLocalizedValue(video?.sub_category, 'name', currentLa
         </View>
 
         <Text style={styles.description}>
-          {videoDescription}
-        </Text>
+  {searchQuery
+    ? videoDescription
+        .split(new RegExp(`(${searchQuery})`, "gi"))
+        .map((part, index) =>
+          part.toLowerCase() === searchQuery.toLowerCase() ? (
+            <Text key={index} style={{ backgroundColor: "yellow" }}>
+              {part}
+            </Text>
+          ) : (
+            part
+          )
+        )
+    : videoDescription}
+</Text>
+
 
         {/* VIDEO + OVERLAYS */}
        <View style={styles.videoWrapper}>
@@ -1004,6 +1108,41 @@ lockText: {
     fontWeight: "600",
     marginRight: 25,
   },
+searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginHorizontal: 15,
+  marginTop: 10,
+  backgroundColor: "#f2f2f2",
+  borderRadius: 10,
+  paddingHorizontal: 10,
+},
+
+searchInput: {
+  flex: 1,
+  height: 45,
+  fontSize: 14,
+},
+
+searchBtn: {
+  backgroundColor: "#000",
+  padding: 10,
+  borderRadius: 8,
+},
+
+foundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "green",
+  fontWeight: "600",
+},
+
+notFoundText: {
+  marginLeft: 20,
+  marginTop: 5,
+  color: "red",
+  fontWeight: "600",
+},
 
 });
 
