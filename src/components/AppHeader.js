@@ -14,7 +14,7 @@ const AppHeader = ({
   onRightPress = () => {},
 }) => {
   const { i18n } = useTranslation();
-  const { ui, deviceType } = useDevice();
+  const { ui, deviceType, isTablet, isUnfolded } = useDevice();
 
   const currentLang = i18n.language === "en" ? "En" : "Fr";
 
@@ -24,7 +24,7 @@ const AppHeader = ({
         styles.container,
         {
          /// paddingHorizontal: ui.padding,
-          paddingTop: ui.spacing.md,
+          paddingTop: isTablet || isUnfolded ? ui.spacing.lg : ui.spacing.md,
         },
       ]}
     >
@@ -46,7 +46,7 @@ const AppHeader = ({
             >
               <Ionicons
                 name="arrow-back"
-                size={ui.font.h2}
+                size={26}
                 color="#000"
               />
             </TouchableOpacity>
